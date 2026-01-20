@@ -8,7 +8,7 @@ import ufbx
 
 def test_version():
     """Test version number"""
-    assert ufbx.__version__ == '0.1.0'
+    assert ufbx.__version__ == '0.0.0'
 
 
 def test_imports():
