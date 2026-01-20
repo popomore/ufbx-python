@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(tree:*)",
+      "Bash(git clone:*)",
+      "Bash(python:*)",
+      "Bash(ls:*)",
+      "Bash(chmod:*)"
+    ]
+  }
+}

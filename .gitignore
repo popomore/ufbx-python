@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+*.whl
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Generated files
+ufbx/generated.py
+ufbx/_ufbx_cdef.h
+ufbx/_ufbx.*.so
+ufbx/_ufbx.c
+ufbx/.libs/
+
+# IR files
+ufbx_ast.json
+ufbx_ir.json
+
+# macOS
+.DS_Store
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/

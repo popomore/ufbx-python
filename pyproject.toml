@@ -1,0 +1,62 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "cffi>=1.15.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ufbx"
+dynamic = ["version"]
+description = "Python bindings for ufbx - Single source file FBX loader"
+readme = "README.md"
+requires-python = ">=3.7"
+license = {file = "LICENSE"}
+authors = [
+    {name = "ufbx-python contributors"}
+]
+keywords = ["fbx", "3d", "graphics", "modeling", "autodesk", "loader"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: C",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Multimedia :: Graphics :: 3D Modeling",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "cffi>=1.15.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/popomore/ufbx-python"
+Repository = "https://github.com/popomore/ufbx-python"
+Issues = "https://github.com/popomore/ufbx-python/issues"
+Documentation = "https://github.com/popomore/ufbx-python#readme"
+
+[tool.setuptools.dynamic]
+version = {attr = "ufbx.__version__"}
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v"
+
+[tool.coverage.run]
+source = ["ufbx"]
+omit = ["*/tests/*", "*/test_*.py"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+]
