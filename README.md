@@ -140,10 +140,6 @@ See [Release Guide](RELEASING.md) for how to publish new versions to PyPI.
 - cffi Documentation: https://cffi.readthedocs.io/
 - PyPI Project Page: https://pypi.org/project/ufbx/
 
-## Contributing
-
-Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) (to be created) for details.
-
 ## License
 
 MIT - See [LICENSE](LICENSE) file for details.

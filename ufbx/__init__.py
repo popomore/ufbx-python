@@ -18,8 +18,8 @@ from ufbx.core import Scene, load_file, load_memory
 from ufbx.errors import (
     UfbxError,
     UfbxFileNotFoundError,
-    UfbxOutOfMemoryError,
     UfbxIOError,
+    UfbxOutOfMemoryError,
 )
 
 # Export generated enums (example)

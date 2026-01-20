@@ -1,14 +1,15 @@
 """
 cffi 构建脚本 - 编译 ufbx C 扩展
 """
-from cffi import FFI
 import os
+
+from cffi import FFI
 
 ffibuilder = FFI()
 
 # 读取自动生成的 cdef 声明
 cdef_file = os.path.join(os.path.dirname(__file__), '_ufbx_cdef.h')
-with open(cdef_file, 'r') as f:
+with open(cdef_file) as f:
     cdef_content = f.read()
 
 ffibuilder.cdef(cdef_content)

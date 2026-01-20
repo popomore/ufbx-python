@@ -13,6 +13,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -20,22 +25,21 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install build cffi setuptools wheel
+          uv sync --group build
 
       - name: Download ufbx sources
         run: |
-          python sfs.py update --all
+          uv run python sfs.py update --all
 
       - name: Generate bindings and build extension
         shell: bash
         run: |
           chmod +x build.sh
-          ./build.sh
+          uv run ./build.sh
 
       - name: Build distribution
         run: |
-          python -m build --sdist --wheel --outdir dist/
+          uv run python -m build --sdist --wheel --outdir dist/
 
       - name: Store the distribution packages
         uses: actions/upload-artifact@v4

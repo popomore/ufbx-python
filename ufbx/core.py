@@ -1,11 +1,10 @@
 """
 ufbx Core API - High-level Pythonic Wrapper
 """
+import os
 
 from ufbx._ufbx import ffi, lib
 from ufbx.errors import UfbxError, UfbxFileNotFoundError, UfbxOutOfMemoryError
-from typing import Optional
-import os
 
 
 class Scene:
