@@ -4,10 +4,8 @@ set -eux
 echo "=== ufbx-python Build Script ==="
 echo ""
 
-# Use PYTHON environment variable if set, otherwise try uv run python, then python3
-if [ -n "$PYTHON" ]; then
-    PYTHON_CMD="$PYTHON"
-elif command -v uv &> /dev/null && uv run which python &> /dev/null; then
+# try uv run python, then python3
+if command -v uv &> /dev/null && uv run which python &> /dev/null; then
     PYTHON_CMD="uv run python"
 else
     PYTHON_CMD="python3"
