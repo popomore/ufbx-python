@@ -14,18 +14,13 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install uv and Python
-        uses: astral-sh/setup-uv@v4
+        uses: astral-sh/setup-uv@v7
         with:
-          version: "latest"
           python-version: "3.9"
-
-      - name: Install Python
-        run: |
-          uv python install 3.9
 
       - name: Install dependencies
         run: |
-          uv pip install --system --group build
+          uv sync --locked
 
       - name: Generate bindings
         shell: bash
