@@ -13,6 +13,38 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Extract and update version from tag
+        if: github.event_name == 'release'
+        run: |
+          # Remove 'v' prefix if present (e.g., v1.0.0 -> 1.0.0)
+          TAG_NAME="${{ github.event.release.tag_name }}"
+          VERSION="${TAG_NAME#v}"
+          echo "Extracted version from tag '$TAG_NAME': $VERSION"
+
+          # Update __version__ in ufbx/__init__.py
+          # Use Python for cross-platform compatibility
+          python3 << PYTHON_SCRIPT
+          import re
+
+          version = "$VERSION"
+          version_file = 'ufbx/__init__.py'
+
+          with open(version_file, 'r') as f:
+              content = f.read()
+
+          # Replace __version__ line
+          content = re.sub(
+              r"__version__ = ['\"][^'\"]+['\"]",
+              f"__version__ = '{version}'",
+              content
+          )
+
+          with open(version_file, 'w') as f:
+              f.write(content)
+
+          print(f"Updated __version__ to {version}")
+          PYTHON_SCRIPT
+
       - name: Install uv and Python
         uses: astral-sh/setup-uv@v7
         with:

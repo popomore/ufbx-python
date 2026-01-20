@@ -11,7 +11,7 @@ Basic usage:
 https://github.com/ufbx/ufbx
 """
 
-__version__ = '0.1.0'
+__version__ = '0.0.0'
 
 # Export core API
 from ufbx.core import Scene, load_file, load_memory
