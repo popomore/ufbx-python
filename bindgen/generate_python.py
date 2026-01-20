@@ -99,7 +99,11 @@ class PythonGenerator:
 
     def get_critical_struct_names(self):
         """Return names of critical structs that need full definitions"""
-        return {'ufbx_error', 'ufbx_string'}
+        return {
+            'ufbx_error', 'ufbx_string',
+            'ufbx_vec2', 'ufbx_vec3', 'ufbx_vec4',
+            'ufbx_quat', 'ufbx_matrix', 'ufbx_transform'
+        }
 
     def emit_critical_structs(self):
         """Generate full definitions for critical structs"""
@@ -110,6 +114,47 @@ class PythonGenerator:
         self.cdef_lines.append('struct ufbx_string {')
         self.cdef_lines.append('    const char *data;')
         self.cdef_lines.append('    size_t length;')
+        self.cdef_lines.append('};')
+        self.cdef_lines.append('')
+
+        # ufbx_vec2
+        self.cdef_lines.append('struct ufbx_vec2 {')
+        self.cdef_lines.append('    ufbx_real x, y;')
+        self.cdef_lines.append('};')
+        self.cdef_lines.append('')
+
+        # ufbx_vec3
+        self.cdef_lines.append('struct ufbx_vec3 {')
+        self.cdef_lines.append('    ufbx_real x, y, z;')
+        self.cdef_lines.append('};')
+        self.cdef_lines.append('')
+
+        # ufbx_vec4
+        self.cdef_lines.append('struct ufbx_vec4 {')
+        self.cdef_lines.append('    ufbx_real x, y, z, w;')
+        self.cdef_lines.append('};')
+        self.cdef_lines.append('')
+
+        # ufbx_quat
+        self.cdef_lines.append('struct ufbx_quat {')
+        self.cdef_lines.append('    ufbx_real x, y, z, w;')
+        self.cdef_lines.append('};')
+        self.cdef_lines.append('')
+
+        # ufbx_matrix
+        self.cdef_lines.append('struct ufbx_matrix {')
+        self.cdef_lines.append('    ufbx_real m00, m10, m20;')
+        self.cdef_lines.append('    ufbx_real m01, m11, m21;')
+        self.cdef_lines.append('    ufbx_real m02, m12, m22;')
+        self.cdef_lines.append('    ufbx_real m03, m13, m23;')
+        self.cdef_lines.append('};')
+        self.cdef_lines.append('')
+
+        # ufbx_transform
+        self.cdef_lines.append('struct ufbx_transform {')
+        self.cdef_lines.append('    ufbx_vec3 translation;')
+        self.cdef_lines.append('    ufbx_quat rotation;')
+        self.cdef_lines.append('    ufbx_vec3 scale;')
         self.cdef_lines.append('};')
         self.cdef_lines.append('')
 
@@ -137,16 +182,54 @@ class PythonGenerator:
         self.cdef_lines.append('ufbx_scene* ufbx_load_file_len(const char *filename, size_t filename_len, const ufbx_load_opts *opts, ufbx_error *error);')
         self.cdef_lines.append('ufbx_scene* ufbx_load_memory(const void *data, size_t data_size, const ufbx_load_opts *opts, ufbx_error *error);')
         self.cdef_lines.append('void ufbx_free_scene(ufbx_scene *scene);')
+        self.cdef_lines.append('void ufbx_retain_scene(ufbx_scene *scene);')
         self.cdef_lines.append('')
 
         # Animation evaluation
         self.cdef_lines.append('ufbx_real ufbx_evaluate_curve(const ufbx_anim_curve *curve, double time, ufbx_real default_value);')
         self.cdef_lines.append('ufbx_transform ufbx_evaluate_transform(const ufbx_anim *anim, const ufbx_node *node, double time);')
+        self.cdef_lines.append('ufbx_scene* ufbx_evaluate_scene(const ufbx_scene *scene, const ufbx_anim *anim, double time, const ufbx_evaluate_opts *opts, ufbx_error *error);')
         self.cdef_lines.append('')
 
-        # Utility functions
+        # Property queries
+        self.cdef_lines.append('ufbx_prop* ufbx_find_prop_len(const ufbx_props *props, const char *name, size_t name_len);')
+        self.cdef_lines.append('ufbx_real ufbx_find_real(const ufbx_props *props, const char *name, ufbx_real def);')
+        self.cdef_lines.append('ufbx_vec3 ufbx_find_vec3(const ufbx_props *props, const char *name, ufbx_vec3 def);')
+        self.cdef_lines.append('int64_t ufbx_find_int(const ufbx_props *props, const char *name, int64_t def);')
+        self.cdef_lines.append('bool ufbx_find_bool(const ufbx_props *props, const char *name, bool def);')
+        self.cdef_lines.append('ufbx_string ufbx_find_string(const ufbx_props *props, const char *name, ufbx_string def);')
+        self.cdef_lines.append('')
+
+        # Element queries
+        self.cdef_lines.append('ufbx_element* ufbx_find_element_len(const ufbx_scene *scene, ufbx_element_type type, const char *name, size_t name_len);')
+        self.cdef_lines.append('ufbx_node* ufbx_find_node_len(const ufbx_scene *scene, const char *name, size_t name_len);')
+        self.cdef_lines.append('ufbx_anim_stack* ufbx_find_anim_stack_len(const ufbx_scene *scene, const char *name, size_t name_len);')
+        self.cdef_lines.append('ufbx_material* ufbx_find_material_len(const ufbx_scene *scene, const char *name, size_t name_len);')
+        self.cdef_lines.append('')
+
+        # Type casting
+        for element_type in ['node', 'mesh', 'light', 'camera', 'bone', 'material', 'texture',
+                             'anim_stack', 'anim_layer', 'anim_curve', 'skin_deformer', 'blend_deformer']:
+            self.cdef_lines.append(f'ufbx_{element_type}* ufbx_as_{element_type}(const ufbx_element *element);')
+        self.cdef_lines.append('')
+
+        # Mesh operations
         self.cdef_lines.append('size_t ufbx_generate_indices(const ufbx_vertex_stream *streams, size_t num_streams, uint32_t *indices, size_t num_indices, const ufbx_allocator_opts *allocator, ufbx_error *error);')
         self.cdef_lines.append('uint32_t ufbx_triangulate_face(uint32_t *indices, size_t num_indices, const ufbx_mesh *mesh, ufbx_face face);')
+        self.cdef_lines.append('ufbx_mesh* ufbx_subdivide_mesh(const ufbx_mesh *mesh, size_t level, const ufbx_subdivide_opts *opts, ufbx_error *error);')
+        self.cdef_lines.append('void ufbx_free_mesh(ufbx_mesh *mesh);')
+        self.cdef_lines.append('')
+
+        # Math operations
+        self.cdef_lines.append('ufbx_vec3 ufbx_vec3_normalize(ufbx_vec3 v);')
+        self.cdef_lines.append('ufbx_quat ufbx_quat_mul(ufbx_quat a, ufbx_quat b);')
+        self.cdef_lines.append('ufbx_quat ufbx_quat_normalize(ufbx_quat q);')
+        self.cdef_lines.append('ufbx_matrix ufbx_matrix_mul(const ufbx_matrix *a, const ufbx_matrix *b);')
+        self.cdef_lines.append('ufbx_matrix ufbx_matrix_invert(const ufbx_matrix *m);')
+        self.cdef_lines.append('ufbx_vec3 ufbx_transform_position(const ufbx_matrix *m, ufbx_vec3 v);')
+        self.cdef_lines.append('ufbx_vec3 ufbx_transform_direction(const ufbx_matrix *m, ufbx_vec3 v);')
+        self.cdef_lines.append('ufbx_matrix ufbx_transform_to_matrix(const ufbx_transform *t);')
+        self.cdef_lines.append('ufbx_transform ufbx_matrix_to_transform(const ufbx_matrix *m);')
         self.cdef_lines.append('')
 
     def generate_python(self):
@@ -158,15 +241,40 @@ class PythonGenerator:
         self.py_lines.append('')
         self.py_lines.append('from ufbx._ufbx import ffi, lib')
         self.py_lines.append('from enum import IntEnum')
-        self.py_lines.append('from typing import Optional, List')
+        self.py_lines.append('from typing import Optional, List, Tuple')
         self.py_lines.append('')
 
         # Generate enum classes
         for enum_name, enum_data in self.enums.items():
             self.emit_enum_python(enum_name, enum_data)
 
-        # Generate struct wrapper classes (simplified, only main ones)
-        important_structs = ['ufbx_scene', 'ufbx_mesh', 'ufbx_node', 'ufbx_error']
+        # Generate struct wrapper classes - all important element types
+        important_structs = [
+            # Core
+            'ufbx_scene', 'ufbx_element', 'ufbx_error',
+            # Nodes and hierarchy
+            'ufbx_node',
+            # Geometry
+            'ufbx_mesh', 'ufbx_line_curve', 'ufbx_nurbs_curve', 'ufbx_nurbs_surface',
+            # Lights and cameras
+            'ufbx_light', 'ufbx_camera', 'ufbx_bone',
+            # Materials
+            'ufbx_material', 'ufbx_texture', 'ufbx_video', 'ufbx_shader',
+            # Animation
+            'ufbx_anim', 'ufbx_anim_stack', 'ufbx_anim_layer', 'ufbx_anim_curve', 'ufbx_anim_value',
+            # Deformers
+            'ufbx_skin_deformer', 'ufbx_skin_cluster',
+            'ufbx_blend_deformer', 'ufbx_blend_channel', 'ufbx_blend_shape',
+            'ufbx_cache_deformer', 'ufbx_cache_file', 'ufbx_geometry_cache',
+            # Constraints
+            'ufbx_constraint',
+            # Collections
+            'ufbx_display_layer', 'ufbx_selection_set', 'ufbx_character',
+            # Data types
+            'ufbx_props', 'ufbx_prop',
+            # Math types
+            'ufbx_vec2', 'ufbx_vec3', 'ufbx_vec4', 'ufbx_quat', 'ufbx_matrix', 'ufbx_transform',
+        ]
         for struct_name in important_structs:
             if struct_name in self.structs:
                 self.emit_struct_python(struct_name, self.structs[struct_name])
