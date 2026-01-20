@@ -1,8 +1,8 @@
 # ufbx-python
 
-[![PyPI version](https://badge.fury.io/py/ufbx.svg)](https://badge.fury.io/py/ufbx)
+[![PyPI version](https://badge.fury.io/py/pyufbx.svg)](https://badge.fury.io/py/pyufbx)
 [![Tests](https://github.com/popomore/ufbx-python/workflows/Tests/badge.svg)](https://github.com/popomore/ufbx-python/actions/workflows/test.yml)
-[![Python Versions](https://img.shields.io/pypi/pyversions/ufbx.svg)](https://pypi.org/project/ufbx/)
+[![Python Versions](https://img.shields.io/pypi/pyversions/pyufbx.svg)](https://pypi.org/project/pyufbx/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Python bindings for [ufbx](https://github.com/ufbx/ufbx) - a single source file FBX loader library.
@@ -14,7 +14,13 @@ Python bindings for [ufbx](https://github.com/ufbx/ufbx) - a single source file 
 ## Installation
 
 ```bash
-pip install ufbx
+pip install pyufbx
+```
+
+**Note**: The PyPI package name is `pyufbx`, but you import it as `ufbx`:
+
+```python
+import ufbx  # Not "import pyufbx"
 ```
 
 Install from source:
@@ -138,7 +144,7 @@ See [Release Guide](RELEASING.md) for how to publish new versions to PyPI.
 - ufbx Documentation: https://ufbx.github.io/
 - ufbx-rust Implementation: https://github.com/ufbx/ufbx-rust
 - cffi Documentation: https://cffi.readthedocs.io/
-- PyPI Project Page: https://pypi.org/project/ufbx/
+- PyPI Project Page: https://pypi.org/project/pyufbx/
 
 ## License
 

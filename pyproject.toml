@@ -3,7 +3,7 @@ requires = ["setuptools>=45", "wheel", "cffi>=1.15.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "ufbx"
+name = "pyufbx"
 dynamic = ["version"]
 description = "Python bindings for ufbx - Single source file FBX loader"
 readme = "README.md"

@@ -27,7 +27,7 @@ def get_long_description():
 
 
 setup(
-    name="ufbx",
+    name="pyufbx",
     version=get_version(),
     description="Python bindings for ufbx - Single source file FBX loader",
     long_description=get_long_description(),

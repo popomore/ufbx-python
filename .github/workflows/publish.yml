@@ -81,7 +81,7 @@ jobs:
 
     environment:
       name: pypi
-      url: https://pypi.org/p/ufbx
+      url: https://pypi.org/p/pyufbx
 
     permissions:
       id-token: write # IMPORTANT: 用于可信发布
@@ -104,7 +104,7 @@ jobs:
 
     environment:
       name: testpypi
-      url: https://test.pypi.org/p/ufbx
+      url: https://test.pypi.org/p/pyufbx
 
     permissions:
       id-token: write
