@@ -27,6 +27,12 @@ jobs:
         run: |
           python sfs.py update --all
 
+      - name: Generate bindings and build extension
+        shell: bash
+        run: |
+          chmod +x build.sh
+          ./build.sh
+
       - name: Build distribution
         run: |
           python -m build --sdist --wheel --outdir dist/
