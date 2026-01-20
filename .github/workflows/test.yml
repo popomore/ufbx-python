@@ -28,7 +28,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv pip install --system --group dev
+          uv sync --locked
 
       - name: Build extension
         shell: bash
@@ -62,7 +62,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv pip install --system --group dev
+          uv sync --locked
 
       - name: Build extension
         shell: bash
