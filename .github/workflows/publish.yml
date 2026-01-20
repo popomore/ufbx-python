@@ -25,17 +25,13 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv sync --group build
+          uv pip install --group dev
 
-      - name: Download ufbx sources
-        run: |
-          uv run python sfs.py update --all
-
-      - name: Generate bindings and build extension
+      - name: Generate bindings
         shell: bash
         run: |
           chmod +x build.sh
-          uv run ./build.sh
+          ./build.sh
 
       - name: Build distribution
         run: |

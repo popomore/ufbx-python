@@ -608,36 +608,30 @@ dependencies = [
 ]
 
 [package.dev-dependencies]
-build = [
+dev = [
     { name = "build" },
     { name = "cffi" },
-    { name = "setuptools" },
-    { name = "wheel" },
-]
-dev = [
     { name = "pytest", version = "8.4.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
     { name = "pytest", version = "9.0.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
     { name = "pytest-cov" },
-]
-lint = [
     { name = "ruff" },
+    { name = "setuptools" },
+    { name = "wheel" },
 ]
 
 [package.metadata]
 requires-dist = [{ name = "cffi", specifier = ">=1.15.0" }]
 
 [package.metadata.requires-dev]
-build = [
+dev = [
     { name = "build", specifier = ">=1.0.0" },
     { name = "cffi", specifier = ">=1.15.0" },
+    { name = "pytest", specifier = ">=8.4.2" },
+    { name = "pytest-cov", specifier = ">=4.1.0" },
+    { name = "ruff", specifier = ">=0.1.0" },
     { name = "setuptools", specifier = ">=45" },
     { name = "wheel" },
 ]
-dev = [
-    { name = "pytest", specifier = ">=8.4.2" },
-    { name = "pytest-cov", specifier = ">=4.1.0" },
-]
-lint = [{ name = "ruff", specifier = ">=0.1.0" }]
 
 [[package]]
 name = "wheel"

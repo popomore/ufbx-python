@@ -32,13 +32,13 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv sync --group dev --group build
+          uv pip install --group dev
 
       - name: Build extension
         shell: bash
         run: |
           chmod +x build.sh
-          uv run ./build.sh
+          ./build.sh
 
       - name: Run tests
         run: |
@@ -70,7 +70,13 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv sync --group lint
+          uv pip install --group dev
+
+      - name: Build extension
+        shell: bash
+        run: |
+          chmod +x build.sh
+          ./build.sh
 
       - name: Lint with ruff
         run: |
