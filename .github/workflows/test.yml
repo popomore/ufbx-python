@@ -25,9 +25,13 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Create virtual environment
+        run: |
+          uv venv
+
       - name: Install dependencies
         run: |
-          uv sync --locked
+          uv pip install --group dev
 
       - name: Build extension
         shell: bash
@@ -58,9 +62,13 @@ jobs:
         with:
           python-version: "3.9"
 
+      - name: Create virtual environment
+        run: |
+          uv venv
+
       - name: Install dependencies
         run: |
-          uv sync --locked
+          uv pip install --group dev
 
       - name: Build extension
         shell: bash
