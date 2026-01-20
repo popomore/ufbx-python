@@ -2,8 +2,9 @@
 ufbx-python setup script
 """
 
-from setuptools import setup, find_packages
 import os
+
+from setuptools import find_packages, setup
 
 
 # 读取版本号
@@ -47,7 +48,7 @@ setup(
         "cffi>=1.15.0",
     ],
     cffi_modules=["ufbx/_ufbx_build.py:ffibuilder"],
-    python_requires=">=3.10",
+    python_requires=">=3.9",
     keywords="fbx 3d graphics modeling autodesk loader",
     classifiers=[
         "Development Status :: 3 - Alpha",
@@ -56,8 +57,6 @@ setup(
         "Operating System :: OS Independent",
         "Programming Language :: C",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
