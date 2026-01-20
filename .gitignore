@@ -40,3 +40,7 @@ ufbx_ir.json
 .coverage
 htmlcov/
 coverage.xml
+
+# Test data files (large binary FBX files)
+tests/data/*.fbx
+tests/data/*.glb
