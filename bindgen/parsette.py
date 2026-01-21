@@ -1,6 +1,7 @@
 import re
-from typing import Optional, Callable, Any, Iterable, NamedTuple, Union, List, Dict, Tuple
 import typing
+from collections.abc import Iterable
+from typing import Any, Callable, List, NamedTuple, Optional, Union
 
 try:
     regex_type = re.Pattern
@@ -77,10 +78,10 @@ class Rule:
         self.ignore = bool(ignore)
 
     def __repr__(self):
-        return "Rule({!r})".format(self.name)
+        return f"Rule({self.name!r})"
 
     def __str__(self):
-        return "{!r}".format(self.name)
+        return f"{self.name!r}"
 
 # Special rules for begin and end
 Begin = Rule("begin-of-file")
@@ -100,9 +101,9 @@ def make_matcher_from_pattern(pattern: Any) -> Matcher:
         # Custom matcher function
         return pattern
     else:
-        raise TypeError('Invalid type for rule pattern {!r}'.format(type(pattern)))
+        raise TypeError(f'Invalid type for rule pattern {type(pattern)!r}')
 
-class Lexer(object):
+class Lexer:
     def __init__(self):
         self.global_rules = []
         self.prefix_rules = {}
@@ -141,7 +142,7 @@ class Lexer(object):
 
     def literal(self, literal: str, value: Any=None):
         if not isinstance(literal, str):
-            raise TypeError('Literals must be strings, got {!r}'.format(type(literal)))
+            raise TypeError(f'Literals must be strings, got {type(literal)!r}')
         if not literal:
             raise ValueError('Empty literal')
         if len(literal) == 1:
@@ -155,7 +156,7 @@ class Lexer(object):
 
     def literals(self, *args: str):
         return [self.literal(arg) for arg in args]
-    
+
     def make(self, source: str, filename: str=""):
         return self.lexer_type(self, source, filename)
 
@@ -229,18 +230,18 @@ class SourceLexer:
                 if end >= best_end:
                     best_rule = rule
                     best_end = end
-            
+
             column = pos - self.line_end + 1
             while self.line_end < best_end:
                 line_end = source.find("\n", self.line_end, best_end)
                 if line_end < 0: break
                 self.line_end = line_end + 1
                 self.line += 1
-            
+
             if best_end < 0:
                 loc = Location(self.filename, source, pos, pos + 1, self.line, column)
                 return Token(Error, loc)
-        
+
             if best_rule.ignore:
                 pos = best_end
             else:
@@ -317,7 +318,7 @@ class Parser:
             return tok
         else:
             return None
-    
+
     def fail_at(self, location: Location, message: str):
         raise ParseError(location, message, self.hint_stack)
 
@@ -362,7 +363,7 @@ class Parser:
                 self.fail_got(f"Expected {fr(sep)} or {fr(end)}{fm(message)}")
             yield n
             n += 1
-    
+
     def ignore(self, rule) -> int:
         n = 0
         while self.accept(rule):
@@ -463,7 +464,7 @@ class Ast:
                 result += ("\n", indent_str, "  ]")
             else:
                 attr._imp_dump(result, indent + 1)
-        
+
         result += ")"
 
     def dump(self, indent=0):

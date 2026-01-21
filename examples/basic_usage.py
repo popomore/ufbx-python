@@ -5,8 +5,9 @@ Basic Usage Example
 Demonstrates how to use ufbx-python to load FBX files
 """
 
-import ufbx
 import sys
+
+import ufbx
 
 
 def main():
@@ -18,7 +19,7 @@ def main():
 
     filename = sys.argv[1]
 
-    print(f"=== ufbx-python Basic Usage Example ===")
+    print("=== ufbx-python Basic Usage Example ===")
     print(f"Version: {ufbx.__version__}")
     print()
 
@@ -27,7 +28,7 @@ def main():
         with ufbx.load_file(filename) as scene:
             print(f"Successfully loaded: {filename}")
             print()
-            print(f"Scene statistics:")
+            print("Scene statistics:")
             print(f"  - Node count: {scene.node_count}")
             print(f"  - Mesh count: {scene.mesh_count}")
             print(f"  - Material count: {scene.material_count}")

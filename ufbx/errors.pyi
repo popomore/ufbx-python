@@ -2,7 +2,6 @@
 Type stubs for ufbx.errors module
 """
 
-from typing import Optional
 
 
 class UfbxError(Exception):

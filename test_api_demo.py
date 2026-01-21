@@ -3,8 +3,8 @@
 Demo script showing all implemented ufbx Python binding features
 """
 
-import sys
 import os
+import sys
 
 # Add project to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -62,7 +62,7 @@ def demo_api_coverage():
 
     # Transform
     t = ufbx.Transform()
-    print(f"\nTransform:")
+    print("\nTransform:")
     print(f"  Translation: {t.translation}")
     print(f"  Rotation: {t.rotation}")
     print(f"  Scale: {t.scale}")
@@ -101,7 +101,7 @@ def demo_api_coverage():
         'DisplayLayer', 'SelectionSet', 'Character',
     ]
 
-    print(f"\nAvailable element wrapper classes:")
+    print("\nAvailable element wrapper classes:")
     for i, cls_name in enumerate(element_classes, 1):
         cls = getattr(ufbx, cls_name)
         doc = cls.__doc__ or "No description"
@@ -118,14 +118,14 @@ def demo_api_coverage():
         'UfbxOutOfMemoryError',
     ]
 
-    print(f"\nException hierarchy:")
+    print("\nException hierarchy:")
     for error_type in error_types:
         cls = getattr(ufbx, error_type)
         bases = [b.__name__ for b in cls.__bases__]
         print(f"  {error_type:30s} -> {', '.join(bases)}")
 
     # Test error handling
-    print(f"\nTesting error handling:")
+    print("\nTesting error handling:")
     try:
         ufbx.load_file("nonexistent_file.fbx")
     except ufbx.UfbxFileNotFoundError as e:
@@ -144,7 +144,7 @@ def demo_api_coverage():
         ('load_memory', 'Load FBX from memory buffer'),
     ]
 
-    print(f"\nTop-level functions:")
+    print("\nTop-level functions:")
     for func_name, description in functions:
         func = getattr(ufbx, func_name)
         print(f"  {func_name:20s} - {description}")
@@ -157,17 +157,17 @@ def demo_api_coverage():
     classes = [x for x in all_exports if x[0].isupper()]
     functions = [x for x in all_exports if x[0].islower() and not x.startswith('_')]
 
-    print(f"\nTotal API Coverage:")
+    print("\nTotal API Coverage:")
     print(f"  Total exports:     {len(all_exports)}")
     print(f"  Classes/Enums:     {len(classes)}")
     print(f"  Functions:         {len(functions)}")
-    print(f"  Math types:        6 (Vec2, Vec3, Vec4, Quat, Matrix, Transform)")
-    print(f"  Element types:     20+")
-    print(f"  Enum types:        60+")
-    print(f"  Exception types:   4")
+    print("  Math types:        6 (Vec2, Vec3, Vec4, Quat, Matrix, Transform)")
+    print("  Element types:     20+")
+    print("  Enum types:        60+")
+    print("  Exception types:   4")
 
     print(f"\n{'=' * 70}")
-    print(f"  ✓ 100% ufbx API Coverage Achieved!")
+    print("  ✓ 100% ufbx API Coverage Achieved!")
     print(f"{'=' * 70}\n")
 
 

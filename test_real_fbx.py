@@ -3,8 +3,8 @@
 Test script to verify ufbx Python bindings with a real FBX file
 """
 
-import sys
 import os
+import sys
 
 # Add project to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -25,8 +25,8 @@ def test_load_fbx():
 
     try:
         with ufbx.load_file(fbx_file) as scene:
-            print(f"\n✓ Successfully loaded scene!")
-            print(f"\nScene Statistics:")
+            print("\n✓ Successfully loaded scene!")
+            print("\nScene Statistics:")
             print(f"  Nodes:      {scene.node_count}")
             print(f"  Meshes:     {scene.mesh_count}")
             print(f"  Materials:  {scene.material_count}")
@@ -73,7 +73,7 @@ def test_load_fbx():
                     # Show first few vertices
                     positions = mesh.vertex_position
                     if len(positions) > 0:
-                        print(f"  First 3 vertices:")
+                        print("  First 3 vertices:")
                         for j in range(min(3, len(positions))):
                             v = positions[j]
                             print(f"    [{j}] ({v.x:.3f}, {v.y:.3f}, {v.z:.3f})")

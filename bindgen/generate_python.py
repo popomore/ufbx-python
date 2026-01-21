@@ -8,11 +8,11 @@ Based on the implementation of generate_rust.py, generates Python (cffi) binding
 import json
 import os
 import sys
-from typing import Dict, List, Set
+
 
 class PythonGenerator:
     def __init__(self, ir_path: str):
-        with open(ir_path, 'r') as f:
+        with open(ir_path) as f:
             self.ir = json.load(f)
 
         self.structs = self.ir.get('structs', {})
@@ -303,8 +303,8 @@ class PythonGenerator:
         class_name = self.to_python_name(name)
         self.py_lines.append(f'class {class_name}:')
         self.py_lines.append(f'    """Wrapper for {name}"""')
-        self.py_lines.append(f'    def __init__(self, c_ptr):')
-        self.py_lines.append(f'        self._ptr = c_ptr')
+        self.py_lines.append('    def __init__(self, c_ptr):')
+        self.py_lines.append('        self._ptr = c_ptr')
         self.py_lines.append('')
 
         # Add some basic properties (simplified)

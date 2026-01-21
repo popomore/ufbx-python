@@ -1,7 +1,7 @@
-from typing import NamedTuple, Dict, List, Optional, Union, get_type_hints
-import typing
 import json
 import os
+import typing
+from typing import Dict, List, NamedTuple, Optional, Union, get_type_hints
 
 get_origin = getattr(typing, "get_origin", lambda o: getattr(o, "__origin__", None))
 get_args = getattr(typing, "get_args", lambda o: getattr(o, "__args__", None))
@@ -133,7 +133,7 @@ class Type(Base):
 
 class Field(Base):
     type: str
-    name: str    
+    name: str
     kind: str
     private: bool
     offset: Dict[str, int]
@@ -159,7 +159,7 @@ class Struct(Base):
     member_globals: List[str]
 
 class EnumValue(Base):
-    name: str    
+    name: str
     short_name: str
     short_name_raw: str
     value: int
@@ -168,7 +168,7 @@ class EnumValue(Base):
     auxiliary: bool
 
 class Enum(Base):
-    name: str    
+    name: str
     short_name: str
     values: List[str]
     flag: bool
@@ -647,12 +647,7 @@ def layout_type(arch: Arch, file: File, typ: Type):
         size = arch.sizes["enum"]
         typ.size[arch.name] = size
         typ.align[arch.name] = size
-    elif typ.kind == "typedef":
-        inner = file.types[typ.inner]
-        layout_type(arch, file, inner)
-        typ.size[arch.name] = inner.size[arch.name]
-        typ.align[arch.name] = inner.align[arch.name]
-    elif typ.kind in ("const", "unsafe"):
+    elif typ.kind == "typedef" or typ.kind in ("const", "unsafe"):
         inner = file.types[typ.inner]
         layout_type(arch, file, inner)
         typ.size[arch.name] = inner.size[arch.name]
@@ -869,7 +864,7 @@ def find_index(list, predicate):
 if __name__ == "__main__":
     src_path = os.path.dirname(os.path.realpath(__file__))
     path = os.path.join(src_path, "build", "ufbx.json")
-    with open(path, "rt") as f:
+    with open(path) as f:
         js = json.load(f)
     file = parse_file(js)
 
@@ -1008,7 +1003,7 @@ if __name__ == "__main__":
                     arg.kind = "pod"
             elif typ.kind == "enum":
                 arg.kind = "enum"
-        
+
         rtyp = file.types[func.return_type]
         if rtyp.kind == "enum":
             func.return_kind = "enum"
@@ -1122,5 +1117,5 @@ if __name__ == "__main__":
         layout_file(arch, file)
 
     path_dst = os.path.join(src_path, "build", "ufbx_typed.json")
-    with open(path_dst, "wt") as f:
+    with open(path_dst, "w") as f:
         json.dump(to_json(file), f, indent=2)

@@ -1,10 +1,11 @@
-import parsette
-import string
-from typing import List, Optional, NamedTuple, Union
-import json
 import argparse
+import json
 import os
 import re
+import string
+from typing import List, NamedTuple, Optional, Union
+
+import parsette
 
 lexer = parsette.Lexer()
 
@@ -16,7 +17,7 @@ TNumber = lexer.rule("number", r"(0[Xx][0-9A-Fa-f]+)|([0-9]+)", prefix=string.di
 TComment = lexer.rule("comment", r"//[^\r\n]*", prefix="/")
 TPreproc = lexer.rule("preproc", r"#[^\n\\]*(\\\r?\n[^\n\\]*?)*\n", prefix="#")
 TString = lexer.rule("string", r"\"[^\"]*\"", prefix="\"")
-lexer.literals(*"const typedef struct union enum extern ufbx_abi ufbx_abi_data ufbx_abi_data_def ufbx_inline ufbx_nullable ufbx_unsafe UFBX_LIST_TYPE UFBX_ENUM_REPR UFBX_FLAG_REPR UFBX_ENUM_FORCE_WIDTH UFBX_FLAG_FORCE_WIDTH UFBX_ENUM_TYPE".split())
+lexer.literals(*["const", "typedef", "struct", "union", "enum", "extern", "ufbx_abi", "ufbx_abi_data", "ufbx_abi_data_def", "ufbx_inline", "ufbx_nullable", "ufbx_unsafe", "UFBX_LIST_TYPE", "UFBX_ENUM_REPR", "UFBX_FLAG_REPR", "UFBX_ENUM_FORCE_WIDTH", "UFBX_FLAG_FORCE_WIDTH", "UFBX_ENUM_TYPE"])
 lexer.literals(*",.*[]{}()<>=-?:;")
 lexer.ignore("disable", re.compile(r"//\s*bindgen-disable.*?//\s*bindgen-enable", flags=re.DOTALL))
 
@@ -161,7 +162,7 @@ class Parser(parsette.Parser):
         else:
             fields = None
         return ATypeStruct(kind, name, fields)
-    
+
     def parse_enum_decl(self) -> AEnumDecl:
         if self.accept(TComment):
             return self.finish_comment(AEnumComment, self.prev_token)
@@ -230,7 +231,7 @@ class Parser(parsette.Parser):
         while True:
             if self.accept("["):
                 length = self.accept([TIdent, TNumber])
-                self.require("]", f"for opening [")
+                self.require("]", "for opening [")
                 ast = ANameArray(ast, length)
             elif self.accept("("):
                 args = []
@@ -252,7 +253,7 @@ class Parser(parsette.Parser):
             else:
                 names.append(self.parse_name(ctx, allow_anonymous))
         return ADecl(typ, names)
-    
+
     def finish_top_list(self) -> ATopList:
         self.require("(", "for macro parameters")
         name = self.require(TIdent, "for list type name")
@@ -415,9 +416,7 @@ def type_line(typ: AType):
         return typ.name.location.line
     elif isinstance(typ, ATypeConst):
         return type_line(typ.inner)
-    elif isinstance(typ, ATypeStruct):
-        return typ.kind.location.line
-    elif isinstance(typ, ATypeEnum):
+    elif isinstance(typ, ATypeStruct) or isinstance(typ, ATypeEnum):
         return typ.kind.location.line
     elif isinstance(typ, ATypeSpec):
         return type_line(typ.inner)
@@ -463,9 +462,7 @@ def name_to_stype(base: SType, name: AName) -> SType:
         st = name_to_stype(base, name.inner)
         mod = SModFunction([to_sdecl(a, "argument") for a in name.args])
         return st._replace(mods=st.mods + [mod])
-    elif isinstance(name, ANameIdent):
-        return base
-    elif isinstance(name, ANameAnonymous):
+    elif isinstance(name, ANameIdent) or isinstance(name, ANameAnonymous):
         return base
     else:
         raise TypeError(f"Unhandled type {type(name)}")
@@ -475,11 +472,7 @@ def name_str(name: AName):
         return name.ident.text()
     elif isinstance(name, ANameAnonymous):
         return None
-    elif isinstance(name, ANamePointer):
-        return name_str(name.inner)
-    elif isinstance(name, ANameArray):
-        return name_str(name.inner)
-    elif isinstance(name, ANameFunction):
+    elif isinstance(name, ANamePointer) or isinstance(name, ANameArray) or isinstance(name, ANameFunction):
         return name_str(name.inner)
     else:
         raise TypeError(f"Unhandled type {type(name)}")
@@ -807,7 +800,7 @@ if __name__ == "__main__":
     output_path = os.path.dirname(os.path.realpath(output_file))
     if not os.path.exists(output_path):
         os.makedirs(output_path, exist_ok=True)
-    
+
     with open(input_file) as f:
         source = f.read()
 
@@ -817,5 +810,5 @@ if __name__ == "__main__":
 
     js = list(format_decls(result, allow_groups=True))
 
-    with open(output_file, "wt") as f:
+    with open(output_file, "w") as f:
         json.dump(js, f, indent=2)

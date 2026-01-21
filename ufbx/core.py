@@ -5,7 +5,7 @@ This module provides complete Python bindings for the ufbx library,
 supporting 100% of the ufbx C API.
 """
 import os
-from typing import Optional, List, Tuple, Iterator
+from typing import List, Optional
 
 from ufbx._ufbx import ffi, lib
 from ufbx.errors import UfbxError, UfbxFileNotFoundError, UfbxOutOfMemoryError

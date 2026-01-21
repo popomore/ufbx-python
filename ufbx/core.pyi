@@ -2,9 +2,9 @@
 Type stubs for ufbx.core module
 """
 
-from typing import Optional, List, Tuple, Any, Iterator, ContextManager
+from collections.abc import Iterator
 from types import TracebackType
-
+from typing import Any, List, Optional
 
 class Vec2:
     """2D Vector"""

@@ -221,12 +221,12 @@ def test_api_coverage_stats():
     exported_count = len(ufbx.__all__)
     classes = [x for x in ufbx.__all__ if x[0].isupper() and x not in ['Vec2', 'Vec3', 'Vec4', 'Quat', 'Matrix', 'Transform']]
 
-    print(f"\n=== ufbx Python Bindings Coverage ===")
+    print("\n=== ufbx Python Bindings Coverage ===")
     print(f"Total exported symbols: {exported_count}")
     print(f"Element/Enum classes: {len(classes)}")
-    print(f"Math types: 6 (Vec2, Vec3, Vec4, Quat, Matrix, Transform)")
-    print(f"Core functions: load_file, load_memory")
-    print(f"Exception types: 4 (UfbxError, UfbxFileNotFoundError, UfbxIOError, UfbxOutOfMemoryError)")
+    print("Math types: 6 (Vec2, Vec3, Vec4, Quat, Matrix, Transform)")
+    print("Core functions: load_file, load_memory")
+    print("Exception types: 4 (UfbxError, UfbxFileNotFoundError, UfbxIOError, UfbxOutOfMemoryError)")
 
 
 def test_version():

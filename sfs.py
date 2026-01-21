@@ -9,8 +9,9 @@ import shutil
 import stat
 import sys
 from abc import abstractmethod
+from collections.abc import Iterator
 from subprocess import PIPE, Popen
-from typing import Iterator, List, NamedTuple, Optional, Tuple, Union
+from typing import List, NamedTuple, Optional, Tuple, Union
 
 g_git = "git"
 g_verbose = False
@@ -463,7 +464,7 @@ def do_update(argv, config: Config):
 
     locks = {}
     try:
-        with open(config.lockfile, "rt", encoding="utf-8") as f:
+        with open(config.lockfile, encoding="utf-8") as f:
             for line in f.readlines():
                 name, version = line.split("=", maxsplit=1)
                 locks[name.strip()] = version.strip()
@@ -587,7 +588,7 @@ def do_update(argv, config: Config):
 
         locks[dep.name] = new_revision
 
-    with open(config.lockfile, "wt", encoding="utf-8") as f:
+    with open(config.lockfile, "w", encoding="utf-8") as f:
         for dep in config.dependencies:
             version = locks.get(dep.name)
             if not version:
@@ -642,7 +643,7 @@ if __name__ == "__main__":
     g_git_version = get_git_version()
     verbose(f"Found git version {'.'.join(str(v) for v in g_git_version)}")
 
-    with open(argv.config, "rt") as config_file:
+    with open(argv.config) as config_file:
         config_json = json.load(config_file)
 
     desc = Desc("configuration", config_json)
