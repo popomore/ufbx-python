@@ -1,0 +1,118 @@
+"""
+Type stubs for ufbx package
+"""
+
+from typing import List
+
+# Version
+__version__: str
+
+# Core API
+from ufbx.core import (
+    Scene as Scene,
+    load_file as load_file,
+    load_memory as load_memory,
+    Vec2 as Vec2,
+    Vec3 as Vec3,
+    Vec4 as Vec4,
+    Quat as Quat,
+    Matrix as Matrix,
+    Transform as Transform,
+    Element as Element,
+    Node as Node,
+    Mesh as Mesh,
+    Light as Light,
+    Camera as Camera,
+    Bone as Bone,
+    Material as Material,
+    Texture as Texture,
+    Anim as Anim,
+    AnimStack as AnimStack,
+    AnimLayer as AnimLayer,
+    AnimCurve as AnimCurve,
+    SkinDeformer as SkinDeformer,
+    SkinCluster as SkinCluster,
+    BlendDeformer as BlendDeformer,
+    BlendChannel as BlendChannel,
+    BlendShape as BlendShape,
+    CacheDeformer as CacheDeformer,
+    CacheFile as CacheFile,
+    Constraint as Constraint,
+    DisplayLayer as DisplayLayer,
+    SelectionSet as SelectionSet,
+    Character as Character,
+)
+
+# Errors
+from ufbx.errors import (
+    UfbxError as UfbxError,
+    UfbxFileNotFoundError as UfbxFileNotFoundError,
+    UfbxIOError as UfbxIOError,
+    UfbxOutOfMemoryError as UfbxOutOfMemoryError,
+)
+
+# Enums
+from ufbx.generated import (
+    RotationOrder as RotationOrder,
+    ElementType as ElementType,
+    PropType as PropType,
+    PropFlags as PropFlags,
+    InheritMode as InheritMode,
+    MirrorAxis as MirrorAxis,
+    CoordinateAxis as CoordinateAxis,
+    SpaceConversion as SpaceConversion,
+    GeometryTransformHandling as GeometryTransformHandling,
+    InheritModeHandling as InheritModeHandling,
+    PivotHandling as PivotHandling,
+    SubdivisionDisplayMode as SubdivisionDisplayMode,
+    SubdivisionBoundary as SubdivisionBoundary,
+    NurbsTopology as NurbsTopology,
+    TopoFlags as TopoFlags,
+    LightType as LightType,
+    LightDecay as LightDecay,
+    LightAreaShape as LightAreaShape,
+    ProjectionMode as ProjectionMode,
+    AspectMode as AspectMode,
+    ApertureMode as ApertureMode,
+    GateFit as GateFit,
+    ApertureFormat as ApertureFormat,
+    SkinningMethod as SkinningMethod,
+    MarkerType as MarkerType,
+    LodDisplay as LodDisplay,
+    CacheFileFormat as CacheFileFormat,
+    CacheDataFormat as CacheDataFormat,
+    CacheDataEncoding as CacheDataEncoding,
+    CacheInterpretation as CacheInterpretation,
+    ShaderType as ShaderType,
+    MaterialFbxMap as MaterialFbxMap,
+    MaterialPbrMap as MaterialPbrMap,
+    MaterialFeature as MaterialFeature,
+    TextureType as TextureType,
+    BlendMode as BlendMode,
+    WrapMode as WrapMode,
+    ShaderTextureType as ShaderTextureType,
+    Interpolation as Interpolation,
+    ExtrapolationMode as ExtrapolationMode,
+    BakedKeyFlags as BakedKeyFlags,
+    ConstraintType as ConstraintType,
+    ConstraintAimUpType as ConstraintAimUpType,
+    ConstraintIkPoleType as ConstraintIkPoleType,
+    Exporter as Exporter,
+    FileFormat as FileFormat,
+    WarningType as WarningType,
+    ThumbnailFormat as ThumbnailFormat,
+    TimeMode as TimeMode,
+    TimeProtocol as TimeProtocol,
+    SnapMode as SnapMode,
+    ErrorType as ErrorType,
+    ProgressResult as ProgressResult,
+    IndexErrorHandling as IndexErrorHandling,
+    UnicodeErrorHandling as UnicodeErrorHandling,
+    EvaluateFlags as EvaluateFlags,
+    BakeStepHandling as BakeStepHandling,
+    TransformFlags as TransformFlags,
+    DomValueType as DomValueType,
+    OpenFileType as OpenFileType,
+)
+
+__all__: List[str]

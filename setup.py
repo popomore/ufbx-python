@@ -41,7 +41,11 @@ setup(
     },
     packages=find_packages(exclude=["tests", "tests.*", "examples", "bindgen"]),
     package_data={
-        "ufbx": ["*.h"],  # 包含生成的头文件
+        "ufbx": [
+            "*.h",      # 包含生成的头文件
+            "*.pyi",    # 包含类型提示文件
+            "py.typed", # PEP 561 标记文件
+        ],
     },
     setup_requires=["cffi>=1.15.0"],
     install_requires=[
