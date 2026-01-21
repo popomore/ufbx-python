@@ -40,3 +40,7 @@ ufbx_ir.json
 .coverage
 htmlcov/
 coverage.xml
+
+# Test fixtures (large binary FBX files)
+tests/fixtures/*.fbx
+tests/fixtures/*.glb

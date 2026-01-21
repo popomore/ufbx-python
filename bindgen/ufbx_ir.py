@@ -1,7 +1,7 @@
-from typing import NamedTuple, Dict, List, Optional, Union, get_type_hints
-import typing
 import json
 import os
+import typing
+from typing import NamedTuple, Optional, Union, get_type_hints
 
 get_origin = getattr(typing, "get_origin", lambda o: getattr(o, "__origin__", None))
 get_args = getattr(typing, "get_args", lambda o: getattr(o, "__args__", None))
@@ -22,10 +22,10 @@ def make_field(name, base):
         base = args[args.index(type(None)) ^ 1]
         optional = True
         origin, args = get_origin(base), get_args(base)
-    if origin in (List, list):
+    if origin in (list, list):
         base = args[0]
         list_ = True
-    if origin in (Dict, dict) and len(args) == 2 and args[0] == str:
+    if origin in (dict, dict) and len(args) == 2 and args[0] == str:
         base = args[1]
         dict_ = True
     return BaseField(name, json_name, base, optional, list_, dict_)
@@ -120,31 +120,31 @@ class Constant(Base):
 class Type(Base):
     key: str
     base_name: str
-    size: Dict[str, int]
-    align: Dict[str, int]
+    size: dict[str, int]
+    align: dict[str, int]
     kind: str
     is_nullable: bool
     is_const: bool
     is_pod: bool
     is_function: bool
     array_length: Optional[int]
-    func_args: List["Argument"]
+    func_args: list["Argument"]
     inner: Optional[str]
 
 class Field(Base):
     type: str
-    name: str    
+    name: str
     kind: str
     private: bool
-    offset: Dict[str, int]
+    offset: dict[str, int]
     comment: Optional[str]
-    union_sized: Dict[str, bool]
+    union_sized: dict[str, bool]
     union_preferred: bool
 
 class Struct(Base):
     name: str
     short_name: str
-    fields: List[Field]
+    fields: list[Field]
     comment: Optional[str]
     vertex_attrib_type: Optional[str]
     is_union: bool
@@ -155,11 +155,11 @@ class Struct(Base):
     is_input: bool
     is_callback: bool
     is_interface: bool
-    member_functions: List[str]
-    member_globals: List[str]
+    member_functions: list[str]
+    member_globals: list[str]
 
 class EnumValue(Base):
-    name: str    
+    name: str
     short_name: str
     short_name_raw: str
     value: int
@@ -168,9 +168,9 @@ class EnumValue(Base):
     auxiliary: bool
 
 class Enum(Base):
-    name: str    
+    name: str
     short_name: str
-    values: List[str]
+    values: list[str]
     flag: bool
 
 class Argument(Base):
@@ -203,10 +203,10 @@ class Function(Base):
     return_type: str
     return_kind: str
     kind: str
-    arguments: List[Argument]
-    string_arguments: List[StringArgument]
-    array_arguments: List[ArrayArgument]
-    blob_arguments: List[BlobArgument]
+    arguments: list[Argument]
+    string_arguments: list[StringArgument]
+    array_arguments: list[ArrayArgument]
+    blob_arguments: list[BlobArgument]
     is_inline: bool
     is_unsafe: bool
     member_name: Optional[str]
@@ -248,18 +248,18 @@ class MemberGlobal(Base):
     member_name: str
 
 class File(Base):
-    constants: Dict[str, Constant]
-    types: Dict[str, Type]
-    structs: Dict[str, Struct]
-    enums: Dict[str, Enum]
-    enum_values: Dict[str, EnumValue]
-    functions: Dict[str, Function]
-    globals: Dict[str, Global]
-    typedefs: Dict[str, Typedef]
-    member_functions: Dict[str, MemberFunction]
-    member_globals: Dict[str, MemberGlobal]
-    declarations: List[Declaration]
-    element_types: List[str]
+    constants: dict[str, Constant]
+    types: dict[str, Type]
+    structs: dict[str, Struct]
+    enums: dict[str, Enum]
+    enum_values: dict[str, EnumValue]
+    functions: dict[str, Function]
+    globals: dict[str, Global]
+    typedefs: dict[str, Typedef]
+    member_functions: dict[str, MemberFunction]
+    member_globals: dict[str, MemberGlobal]
+    declarations: list[Declaration]
+    element_types: list[str]
 
 def init_type(file, typ, key, mods):
     name = typ["name"]
@@ -271,15 +271,13 @@ def init_type(file, typ, key, mods):
     if mods:
         mods = mods[:]
 
-        if mods[0]["type"] == "nullable":
-            if mods[-1]["type"] == "pointer":
-                mods[-1]["nullable"] = True
-                mods = mods[1:]
+        if mods[0]["type"] == "nullable" and mods[-1]["type"] == "pointer":
+            mods[-1]["nullable"] = True
+            mods = mods[1:]
 
-        if mods[0]["type"] == "const":
-            if mods[-1]["type"] == "pointer":
-                mods[-1]["const"] = True
-                mods = mods[1:]
+        if mods[0]["type"] == "const" and mods[-1]["type"] == "pointer":
+            mods[-1]["const"] = True
+            mods = mods[1:]
 
     if mods:
         mod = mods[-1]
@@ -530,10 +528,7 @@ def parse_decl(file: File, decl):
             raise RuntimeError(f"ufbx.h:{line}: UFBX_ENUM_TYPE() has undefined enum name {enum_name}")
         max_value = max((file.enum_values[n] for n in en.values), key=lambda v: v.value)
         if max_value.name != last_value:
-            if last_value in file.enum_values:
-                wrong_value = file.enum_values[last_value].value
-            else:
-                wrong_value = "(undefined)"
+            wrong_value = file.enum_values[last_value].value if last_value in file.enum_values else "(undefined)"
             raise RuntimeError(f"ufbx.h:{line}: UFBX_ENUM_TYPE() has wrong highest value ({last_value} = {wrong_value}), actual highest value is ({max_value.name} = {max_value.value})")
         count = max_value.value + 1
         file.constants[count_name] = Constant(name=count_name, value_int=count)
@@ -647,12 +642,7 @@ def layout_type(arch: Arch, file: File, typ: Type):
         size = arch.sizes["enum"]
         typ.size[arch.name] = size
         typ.align[arch.name] = size
-    elif typ.kind == "typedef":
-        inner = file.types[typ.inner]
-        layout_type(arch, file, inner)
-        typ.size[arch.name] = inner.size[arch.name]
-        typ.align[arch.name] = inner.align[arch.name]
-    elif typ.kind in ("const", "unsafe"):
+    elif typ.kind == "typedef" or typ.kind in ("const", "unsafe"):
         inner = file.types[typ.inner]
         layout_type(arch, file, inner)
         typ.size[arch.name] = inner.size[arch.name]
@@ -869,7 +859,7 @@ def find_index(list, predicate):
 if __name__ == "__main__":
     src_path = os.path.dirname(os.path.realpath(__file__))
     path = os.path.join(src_path, "build", "ufbx.json")
-    with open(path, "rt") as f:
+    with open(path) as f:
         js = json.load(f)
     file = parse_file(js)
 
@@ -1008,7 +998,7 @@ if __name__ == "__main__":
                     arg.kind = "pod"
             elif typ.kind == "enum":
                 arg.kind = "enum"
-        
+
         rtyp = file.types[func.return_type]
         if rtyp.kind == "enum":
             func.return_kind = "enum"
@@ -1122,5 +1112,5 @@ if __name__ == "__main__":
         layout_file(arch, file)
 
     path_dst = os.path.join(src_path, "build", "ufbx_typed.json")
-    with open(path_dst, "wt") as f:
+    with open(path_dst, "w") as f:
         json.dump(to_json(file), f, indent=2)

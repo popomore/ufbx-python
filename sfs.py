@@ -9,8 +9,9 @@ import shutil
 import stat
 import sys
 from abc import abstractmethod
+from collections.abc import Iterator
 from subprocess import PIPE, Popen
-from typing import Iterator, List, NamedTuple, Optional, Tuple, Union
+from typing import NamedTuple, Optional, Union
 
 g_git = "git"
 g_verbose = False
@@ -61,19 +62,19 @@ def exec_cmd(*args: str, **kwargs) -> str:
     return stdout
 
 
-def exec_cmd_lines(*args: str, **kwargs) -> List[str]:
+def exec_cmd_lines(*args: str, **kwargs) -> list[str]:
     return exec_cmd(*args, **kwargs).splitlines()
 
 
-def exec_git(*args: str, **kwargs) -> Union[str, List[str]]:
+def exec_git(*args: str, **kwargs) -> Union[str, list[str]]:
     return exec_cmd(g_git, *args, **kwargs)
 
 
-def exec_git_lines(*args: str, **kwargs) -> Union[str, List[str]]:
+def exec_git_lines(*args: str, **kwargs) -> Union[str, list[str]]:
     return exec_cmd_lines(g_git, *args, **kwargs)
 
 
-def get_git_version() -> Tuple[int, int, int]:
+def get_git_version() -> tuple[int, int, int]:
     version = exec_git("version")
     m = re.match(r"git version (\d+)\.(\d+)\.(\d+)", version)
     if not m:
@@ -161,10 +162,7 @@ def file_lf_replace(path: str, dos: bool) -> bool:
         return
     mode = "dos" if dos else "unix"
     verbose(f"Converting {path} line endings to {mode}")
-    if dos:
-        data = re.sub(rb"(?<!\r)\n", b"\r\n", data)
-    else:
-        data = data.replace(b"\r\n", b"\n")
+    data = re.sub(rb"(?<!\r)\n", b"\r\n", data) if dos else data.replace(b"\r\n", b"\n")
     with open(path, "wb") as f:
         f.write(data)
 
@@ -189,7 +187,7 @@ def remove_directory(path: str):
 
 
 class Config:
-    dependencies: List["Dependency"]
+    dependencies: list["Dependency"]
 
     def __init__(self, desc: Desc, path: str):
         name = os.path.basename(path)
@@ -463,7 +461,7 @@ def do_update(argv, config: Config):
 
     locks = {}
     try:
-        with open(config.lockfile, "rt", encoding="utf-8") as f:
+        with open(config.lockfile, encoding="utf-8") as f:
             for line in f.readlines():
                 name, version = line.split("=", maxsplit=1)
                 locks[name.strip()] = version.strip()
@@ -587,7 +585,7 @@ def do_update(argv, config: Config):
 
         locks[dep.name] = new_revision
 
-    with open(config.lockfile, "wt", encoding="utf-8") as f:
+    with open(config.lockfile, "w", encoding="utf-8") as f:
         for dep in config.dependencies:
             version = locks.get(dep.name)
             if not version:
@@ -642,7 +640,7 @@ if __name__ == "__main__":
     g_git_version = get_git_version()
     verbose(f"Found git version {'.'.join(str(v) for v in g_git_version)}")
 
-    with open(argv.config, "rt") as config_file:
+    with open(argv.config) as config_file:
         config_json = json.load(config_file)
 
     desc = Desc("configuration", config_json)

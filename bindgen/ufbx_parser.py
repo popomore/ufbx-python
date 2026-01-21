@@ -1,10 +1,11 @@
-import parsette
-import string
-from typing import List, Optional, NamedTuple, Union
-import json
 import argparse
+import json
 import os
 import re
+import string
+from typing import NamedTuple, Optional, Union
+
+import parsette
 
 lexer = parsette.Lexer()
 
@@ -16,7 +17,7 @@ TNumber = lexer.rule("number", r"(0[Xx][0-9A-Fa-f]+)|([0-9]+)", prefix=string.di
 TComment = lexer.rule("comment", r"//[^\r\n]*", prefix="/")
 TPreproc = lexer.rule("preproc", r"#[^\n\\]*(\\\r?\n[^\n\\]*?)*\n", prefix="#")
 TString = lexer.rule("string", r"\"[^\"]*\"", prefix="\"")
-lexer.literals(*"const typedef struct union enum extern ufbx_abi ufbx_abi_data ufbx_abi_data_def ufbx_inline ufbx_nullable ufbx_unsafe UFBX_LIST_TYPE UFBX_ENUM_REPR UFBX_FLAG_REPR UFBX_ENUM_FORCE_WIDTH UFBX_FLAG_FORCE_WIDTH UFBX_ENUM_TYPE".split())
+lexer.literals(*["const", "typedef", "struct", "union", "enum", "extern", "ufbx_abi", "ufbx_abi_data", "ufbx_abi_data_def", "ufbx_inline", "ufbx_nullable", "ufbx_unsafe", "UFBX_LIST_TYPE", "UFBX_ENUM_REPR", "UFBX_FLAG_REPR", "UFBX_ENUM_FORCE_WIDTH", "UFBX_FLAG_FORCE_WIDTH", "UFBX_ENUM_TYPE"])
 lexer.literals(*",.*[]{}()<>=-?:;")
 lexer.ignore("disable", re.compile(r"//\s*bindgen-disable.*?//\s*bindgen-enable", flags=re.DOTALL))
 
@@ -40,7 +41,7 @@ class AEnumDecl(Ast):
 
 class ADecl(Ast):
     type: AType
-    names: List[AName]
+    names: list[AName]
     end_line: Optional[int] = None
 
 class ANamePointer(AName):
@@ -55,7 +56,7 @@ class ANameIdent(AName):
 
 class ANameFunction(AName):
     inner: AName
-    args: List[ADecl]
+    args: list[ADecl]
 
 class ANameAnonymous(AName):
     pass
@@ -73,21 +74,21 @@ class ATypeIdent(AType):
 class ATypeStruct(AType):
     kind: Token
     name: Optional[Token]
-    decls: Optional[List[AStructDecl]]
+    decls: Optional[list[AStructDecl]]
 
 class ATypeEnum(AType):
     kind: Token
     name: Optional[Token]
-    decls: Optional[List[AEnumDecl]]
+    decls: Optional[list[AEnumDecl]]
 
 class AStructComment(AStructDecl):
-    comments: List[Token]
+    comments: list[Token]
 
 class AStructField(AStructDecl):
     decl: ADecl
 
 class AEnumComment(AEnumDecl):
-    comments: List[Token]
+    comments: list[Token]
 
 class AEnumValue(AEnumDecl):
     name: Token
@@ -97,7 +98,7 @@ class ATopPreproc(ATop):
     preproc: Token
 
 class ATopComment(ATop):
-    comments: List[Token]
+    comments: list[Token]
 
 class ATopDecl(ATop):
     decl: ADecl
@@ -109,7 +110,7 @@ class ATopTypedef(ATop):
     decl: ADecl
 
 class ATopFile(ATop):
-    tops: List[ATop]
+    tops: list[ATop]
 
 class ATopList(ATop):
     name: Token
@@ -161,7 +162,7 @@ class Parser(parsette.Parser):
         else:
             fields = None
         return ATypeStruct(kind, name, fields)
-    
+
     def parse_enum_decl(self) -> AEnumDecl:
         if self.accept(TComment):
             return self.finish_comment(AEnumComment, self.prev_token)
@@ -230,7 +231,7 @@ class Parser(parsette.Parser):
         while True:
             if self.accept("["):
                 length = self.accept([TIdent, TNumber])
-                self.require("]", f"for opening [")
+                self.require("]", "for opening [")
                 ast = ANameArray(ast, length)
             elif self.accept("("):
                 args = []
@@ -252,7 +253,7 @@ class Parser(parsette.Parser):
             else:
                 names.append(self.parse_name(ctx, allow_anonymous))
         return ADecl(typ, names)
-    
+
     def finish_top_list(self) -> ATopList:
         self.require("(", "for macro parameters")
         name = self.require(TIdent, "for list type name")
@@ -279,7 +280,7 @@ class Parser(parsette.Parser):
             else:
                 self.scan()
 
-    def parse_top(self) -> List[ATop]:
+    def parse_top(self) -> list[ATop]:
         if self.accept(TPreproc):
             return [ATopPreproc(self.prev_token)]
         elif self.accept(TComment):
@@ -353,18 +354,18 @@ class SModArray(SMod):
     def __init__(self, length: Optional[str]):
         self.length = length
 class SModFunction(SMod):
-    def __init__(self, args: List["SDecl"]):
+    def __init__(self, args: list["SDecl"]):
         self.args = args
 
 class SComment(NamedTuple):
     line_begin: int
     line_end: int
-    text: List[str]
+    text: list[str]
 
 class SType(NamedTuple):
     kind: str
     name: Optional[str]
-    mods: List[SMod] = []
+    mods: list[SMod] = []
     body: Union["SStruct", "SEnum", "SEnumType", None] = None
 
 class SName(NamedTuple):
@@ -376,16 +377,16 @@ class SDecl(NamedTuple):
     line_begin: int
     line_end: int
     kind: str
-    names: List[SName]
+    names: list[SName]
     comment: Optional[SComment] = None
     comment_inline: bool = False
     is_function: bool = False
-    define_args: Optional[List[str]] = None
+    define_args: Optional[list[str]] = None
     value: Optional[str] = None
 
 class SDeclGroup(NamedTuple):
     line: int
-    decls: List[SDecl]
+    decls: list[SDecl]
     comment: Optional[SComment] = None
     comment_inline: bool = False
     is_function: bool = False
@@ -396,13 +397,13 @@ class SStruct(NamedTuple):
     line: int
     kind: str
     name: Optional[str]
-    decls: List[SCommentDecl]
+    decls: list[SCommentDecl]
     is_list: bool = False
 
 class SEnum(NamedTuple):
     line: int
     name: Optional[str]
-    decls: List[SCommentDecl]
+    decls: list[SCommentDecl]
 
 class SEnumType(NamedTuple):
     line: int
@@ -415,9 +416,7 @@ def type_line(typ: AType):
         return typ.name.location.line
     elif isinstance(typ, ATypeConst):
         return type_line(typ.inner)
-    elif isinstance(typ, ATypeStruct):
-        return typ.kind.location.line
-    elif isinstance(typ, ATypeEnum):
+    elif isinstance(typ, (ATypeStruct, ATypeEnum)):
         return typ.kind.location.line
     elif isinstance(typ, ATypeSpec):
         return type_line(typ.inner)
@@ -463,9 +462,7 @@ def name_to_stype(base: SType, name: AName) -> SType:
         st = name_to_stype(base, name.inner)
         mod = SModFunction([to_sdecl(a, "argument") for a in name.args])
         return st._replace(mods=st.mods + [mod])
-    elif isinstance(name, ANameIdent):
-        return base
-    elif isinstance(name, ANameAnonymous):
+    elif isinstance(name, (ANameIdent, ANameAnonymous)):
         return base
     else:
         raise TypeError(f"Unhandled type {type(name)}")
@@ -475,11 +472,7 @@ def name_str(name: AName):
         return name.ident.text()
     elif isinstance(name, ANameAnonymous):
         return None
-    elif isinstance(name, ANamePointer):
-        return name_str(name.inner)
-    elif isinstance(name, ANameArray):
-        return name_str(name.inner)
-    elif isinstance(name, ANameFunction):
+    elif isinstance(name, (ANamePointer, ANameArray, ANameFunction)):
         return name_str(name.inner)
     else:
         raise TypeError(f"Unhandled type {type(name)}")
@@ -500,7 +493,7 @@ def to_sdecl(decl: ADecl, kind: str) -> SDecl:
     if end_line is None: end_line = line
     return SDecl(line, end_line, kind, names, is_function=is_function)
 
-Comment = List[str]
+Comment = list[str]
 
 def to_scomment(comment: Ast):
     if not comment: return None
@@ -560,7 +553,7 @@ class TopState:
         self.preproc_line = -1
         self.preproc_start = -1
 
-def top_sdecls(top: ATop, state: TopState = None) -> List[SCommentDecl]:
+def top_sdecls(top: ATop, state: TopState = None) -> list[SCommentDecl]:
     if not state:
         state = TopState()
     if isinstance(top, ATopFile):
@@ -606,10 +599,7 @@ def top_sdecls(top: ATop, state: TopState = None) -> List[SCommentDecl]:
                 start_line = state.preproc_start
             name = m.group(1)
             args = m.group(2)
-            if args:
-                args = [arg.strip() for arg in args.split(",")]
-            else:
-                args = None
+            args = [arg.strip() for arg in args.split(",")] if args else None
             value = m.group(3)
             return [SDecl(start_line, line, "define", [SName(name, SType("define", "define"))],
                 define_args=args,
@@ -622,7 +612,7 @@ def top_sdecls(top: ATop, state: TopState = None) -> List[SCommentDecl]:
     else:
         raise TypeError(f"Unhandled type {type(top)}")
 
-def collect_decl_comments(decls: List[SCommentDecl]):
+def collect_decl_comments(decls: list[SCommentDecl]):
     n = 0
     while n < len(decls):
         dc = decls[n:n+3]
@@ -643,7 +633,7 @@ def collect_decl_comments(decls: List[SCommentDecl]):
                 yield dc[0]
                 n += 1
 
-def collect_decl_groups(decls: List[SCommentDecl]):
+def collect_decl_groups(decls: list[SCommentDecl]):
     n = 0
     while n < len(decls):
         dc = decls[n]
@@ -672,7 +662,7 @@ def collect_decl_groups(decls: List[SCommentDecl]):
             yield dc
             n += 1
 
-def collect_decls(decls: List[SCommentDecl], allow_groups: bool) -> List[SCommentDecl]:
+def collect_decls(decls: list[SCommentDecl], allow_groups: bool) -> list[SCommentDecl]:
     decls = list(collect_decl_comments(decls))
     if allow_groups:
         decls = list(collect_decl_groups(decls))
@@ -720,7 +710,7 @@ def format_name(name: SName):
         "name": name.name,
     }
 
-def format_decls(decls: List[SCommentDecl], allow_groups: bool):
+def format_decls(decls: list[SCommentDecl], allow_groups: bool):
     for decl in collect_decls(decls, allow_groups):
         if isinstance(decl, SComment):
             yield {
@@ -807,7 +797,7 @@ if __name__ == "__main__":
     output_path = os.path.dirname(os.path.realpath(output_file))
     if not os.path.exists(output_path):
         os.makedirs(output_path, exist_ok=True)
-    
+
     with open(input_file) as f:
         source = f.read()
 
@@ -817,5 +807,5 @@ if __name__ == "__main__":
 
     js = list(format_decls(result, allow_groups=True))
 
-    with open(output_file, "wt") as f:
+    with open(output_file, "w") as f:
         json.dump(js, f, indent=2)
