@@ -1,7 +1,7 @@
 import re
 import typing
 from collections.abc import Iterable
-from typing import Any, Callable, List, NamedTuple, Optional, Union
+from typing import Any, Callable, NamedTuple, Optional, Union
 
 try:
     regex_type = re.Pattern
@@ -389,7 +389,7 @@ def make_ast_field(name, base):
         base = args[args.index(type(None)) ^ 1]
         optional = True
         origin, args = get_origin(base), get_args(base)
-    if origin == List:
+    if origin == list:
         base = args[0]
         sequence = True
     elif origin:

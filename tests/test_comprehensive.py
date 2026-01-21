@@ -144,7 +144,7 @@ def test_file_not_found():
     """Test that loading non-existent file raises proper exception"""
     try:
         ufbx.load_file('nonexistent_file_12345.fbx')
-        assert False, "Should have raised UfbxFileNotFoundError"
+        raise AssertionError("Should have raised UfbxFileNotFoundError")
     except ufbx.UfbxFileNotFoundError as e:
         assert 'nonexistent_file_12345.fbx' in str(e)
 
@@ -153,7 +153,7 @@ def test_load_invalid_memory():
     """Test loading invalid data from memory"""
     try:
         ufbx.load_memory(b'not a valid fbx file')
-        assert False, "Should have raised UfbxError"
+        raise AssertionError("Should have raised UfbxError")
     except ufbx.UfbxError:
         pass  # Expected
 

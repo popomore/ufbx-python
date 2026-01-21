@@ -5,7 +5,7 @@ This module provides complete Python bindings for the ufbx library,
 supporting 100% of the ufbx C API.
 """
 import os
-from typing import List, Optional
+from typing import Optional
 
 from ufbx._ufbx import ffi, lib
 from ufbx.errors import UfbxError, UfbxFileNotFoundError, UfbxOutOfMemoryError
@@ -141,7 +141,7 @@ class Matrix:
     """4x4 Matrix wrapper"""
     __slots__ = ('m',)
 
-    def __init__(self, m: List[List[float]] = None):
+    def __init__(self, m: list[list[float]] = None):
         if m is None:
             # Identity matrix
             self.m = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0]]
@@ -237,7 +237,7 @@ class Node(Element):
         return Node(self._ptr.parent)
 
     @property
-    def children(self) -> List['Node']:
+    def children(self) -> list['Node']:
         """Child nodes"""
         return [Node(self._ptr.children.data[i])
                 for i in range(self._ptr.children.count)]
@@ -296,7 +296,7 @@ class Node(Element):
         return bool(self._ptr.is_root)
 
     @property
-    def materials(self) -> List['Material']:
+    def materials(self) -> list['Material']:
         """Materials attached to this node"""
         return [Material(self._ptr.materials.data[i])
                 for i in range(self._ptr.materials.count)]
@@ -326,45 +326,45 @@ class Mesh(Element):
         return self._ptr.num_triangles
 
     @property
-    def vertex_position(self) -> List[Vec3]:
+    def vertex_position(self) -> list[Vec3]:
         """Vertex positions"""
         attr = self._ptr.vertex_position
         return [Vec3.from_c(attr.values.data[i])
                 for i in range(attr.values.count)]
 
     @property
-    def vertex_normal(self) -> List[Vec3]:
+    def vertex_normal(self) -> list[Vec3]:
         """Vertex normals"""
         attr = self._ptr.vertex_normal
         return [Vec3.from_c(attr.values.data[i])
                 for i in range(attr.values.count)]
 
     @property
-    def vertex_uv(self) -> List[Vec2]:
+    def vertex_uv(self) -> list[Vec2]:
         """Vertex UV coordinates"""
         attr = self._ptr.vertex_uv
         return [Vec2.from_c(attr.values.data[i])
                 for i in range(attr.values.count)]
 
     @property
-    def materials(self) -> List['Material']:
+    def materials(self) -> list['Material']:
         """Materials used by this mesh"""
         return [Material(self._ptr.materials.data[i])
                 for i in range(self._ptr.materials.count)]
 
     @property
-    def skin_deformers(self) -> List['SkinDeformer']:
+    def skin_deformers(self) -> list['SkinDeformer']:
         """Skin deformers affecting this mesh"""
         return [SkinDeformer(self._ptr.skin_deformers.data[i])
                 for i in range(self._ptr.skin_deformers.count)]
 
     @property
-    def blend_deformers(self) -> List['BlendDeformer']:
+    def blend_deformers(self) -> list['BlendDeformer']:
         """Blend deformers affecting this mesh"""
         return [BlendDeformer(self._ptr.blend_deformers.data[i])
                 for i in range(self._ptr.blend_deformers.count)]
 
-    def triangulate_face(self, face_index: int) -> List[int]:
+    def triangulate_face(self, face_index: int) -> list[int]:
         """Triangulate a face, returns triangle indices"""
         if face_index >= self.num_faces:
             raise IndexError(f"Face index {face_index} out of range")
@@ -448,7 +448,7 @@ class Material(Element):
         return self._ptr.shader_type
 
     @property
-    def textures(self) -> List['Texture']:
+    def textures(self) -> list['Texture']:
         """Textures used by this material"""
         return [Texture(self._ptr.textures.data[i])
                 for i in range(self._ptr.textures.count)]
@@ -552,7 +552,7 @@ class SkinDeformer(Element):
         return self._ptr.skinning_method
 
     @property
-    def clusters(self) -> List['SkinCluster']:
+    def clusters(self) -> list['SkinCluster']:
         """Skin clusters (one per bone)"""
         return [SkinCluster(self._ptr.clusters.data[i])
                 for i in range(self._ptr.clusters.count)]
@@ -576,7 +576,7 @@ class BlendDeformer(Element):
     """Blend shape deformer"""
 
     @property
-    def channels(self) -> List['BlendChannel']:
+    def channels(self) -> list['BlendChannel']:
         """Blend channels"""
         return [BlendChannel(self._ptr.channels.data[i])
                 for i in range(self._ptr.channels.count)]
@@ -767,7 +767,7 @@ class Scene:
         return Node(self._scene.root_node)
 
     @property
-    def nodes(self) -> List[Node]:
+    def nodes(self) -> list[Node]:
         """All nodes in the scene"""
         if self._closed:
             raise UfbxError("Scene is closed")
@@ -775,7 +775,7 @@ class Scene:
                 for i in range(self._scene.nodes.count)]
 
     @property
-    def meshes(self) -> List[Mesh]:
+    def meshes(self) -> list[Mesh]:
         """All meshes in the scene"""
         if self._closed:
             raise UfbxError("Scene is closed")
@@ -783,7 +783,7 @@ class Scene:
                 for i in range(self._scene.meshes.count)]
 
     @property
-    def lights(self) -> List[Light]:
+    def lights(self) -> list[Light]:
         """All lights in the scene"""
         if self._closed:
             raise UfbxError("Scene is closed")
@@ -791,7 +791,7 @@ class Scene:
                 for i in range(self._scene.lights.count)]
 
     @property
-    def cameras(self) -> List[Camera]:
+    def cameras(self) -> list[Camera]:
         """All cameras in the scene"""
         if self._closed:
             raise UfbxError("Scene is closed")
@@ -799,7 +799,7 @@ class Scene:
                 for i in range(self._scene.cameras.count)]
 
     @property
-    def materials(self) -> List[Material]:
+    def materials(self) -> list[Material]:
         """All materials in the scene"""
         if self._closed:
             raise UfbxError("Scene is closed")
@@ -807,7 +807,7 @@ class Scene:
                 for i in range(self._scene.materials.count)]
 
     @property
-    def textures(self) -> List[Texture]:
+    def textures(self) -> list[Texture]:
         """All textures in the scene"""
         if self._closed:
             raise UfbxError("Scene is closed")
@@ -815,7 +815,7 @@ class Scene:
                 for i in range(self._scene.textures.count)]
 
     @property
-    def anim_stacks(self) -> List[AnimStack]:
+    def anim_stacks(self) -> list[AnimStack]:
         """All animation stacks in the scene"""
         if self._closed:
             raise UfbxError("Scene is closed")

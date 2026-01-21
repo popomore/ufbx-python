@@ -40,9 +40,7 @@ class PythonGenerator:
         if any(c in name for c in ['.', '*', ' ', '[', ']']):
             return False
         # Skip names with const/volatile modifiers
-        if 'const' in name or 'volatile' in name:
-            return False
-        return True
+        return not ('const' in name or 'volatile' in name)
 
     def to_python_name(self, c_name: str) -> str:
         """Convert C naming to Python class name
@@ -72,7 +70,7 @@ class PythonGenerator:
             self.emit_enum_cdef(enum_name, enum_data)
 
         # Generate struct forward declarations (only valid C identifiers)
-        for struct_name in self.structs.keys():
+        for struct_name in self.structs:
             if self.is_valid_c_identifier(struct_name):
                 self.cdef_lines.append(f'typedef struct {struct_name} {struct_name};')
         self.cdef_lines.append('')

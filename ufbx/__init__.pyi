@@ -2,7 +2,6 @@
 Type stubs for ufbx package
 """
 
-from typing import List
 
 # Version
 __version__: str
@@ -301,4 +300,4 @@ from ufbx.generated import (
     WrapMode as WrapMode,
 )
 
-__all__: List[str]
+__all__: list[str]

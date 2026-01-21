@@ -11,7 +11,7 @@ import sys
 from abc import abstractmethod
 from collections.abc import Iterator
 from subprocess import PIPE, Popen
-from typing import List, NamedTuple, Optional, Tuple, Union
+from typing import NamedTuple, Optional, Union
 
 g_git = "git"
 g_verbose = False
@@ -62,19 +62,19 @@ def exec_cmd(*args: str, **kwargs) -> str:
     return stdout
 
 
-def exec_cmd_lines(*args: str, **kwargs) -> List[str]:
+def exec_cmd_lines(*args: str, **kwargs) -> list[str]:
     return exec_cmd(*args, **kwargs).splitlines()
 
 
-def exec_git(*args: str, **kwargs) -> Union[str, List[str]]:
+def exec_git(*args: str, **kwargs) -> Union[str, list[str]]:
     return exec_cmd(g_git, *args, **kwargs)
 
 
-def exec_git_lines(*args: str, **kwargs) -> Union[str, List[str]]:
+def exec_git_lines(*args: str, **kwargs) -> Union[str, list[str]]:
     return exec_cmd_lines(g_git, *args, **kwargs)
 
 
-def get_git_version() -> Tuple[int, int, int]:
+def get_git_version() -> tuple[int, int, int]:
     version = exec_git("version")
     m = re.match(r"git version (\d+)\.(\d+)\.(\d+)", version)
     if not m:
@@ -162,10 +162,7 @@ def file_lf_replace(path: str, dos: bool) -> bool:
         return
     mode = "dos" if dos else "unix"
     verbose(f"Converting {path} line endings to {mode}")
-    if dos:
-        data = re.sub(rb"(?<!\r)\n", b"\r\n", data)
-    else:
-        data = data.replace(b"\r\n", b"\n")
+    data = re.sub(rb"(?<!\r)\n", b"\r\n", data) if dos else data.replace(b"\r\n", b"\n")
     with open(path, "wb") as f:
         f.write(data)
 
@@ -190,7 +187,7 @@ def remove_directory(path: str):
 
 
 class Config:
-    dependencies: List["Dependency"]
+    dependencies: list["Dependency"]
 
     def __init__(self, desc: Desc, path: str):
         name = os.path.basename(path)
