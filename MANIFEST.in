@@ -1,4 +1,4 @@
-# 包含必要的源文件
+# Include necessary source files
 include README.md
 include LICENSE
 include pyproject.toml
@@ -6,18 +6,14 @@ include setup.py
 include sfs.py
 include sfs-deps.json
 include sfs-deps.json.lock
-include build.sh
 
-# 包含 ufbx C 源码
+# Include ufbx C source code
 recursive-include ufbx-c *.h *.c
 
-# 包含 bindgen 工具（用户可能需要重新生成）
-recursive-include bindgen *.py
+# Include generated binding code (including Cython sources and C wrapper)
+recursive-include ufbx *.py *.pyx *.h *.c *.pyi
 
-# 包含生成的绑定代码
-recursive-include ufbx *.py *.h *.pyi
-
-# 排除不必要的文件
+# Exclude unnecessary files
 global-exclude *.pyc
 global-exclude *.pyo
 global-exclude __pycache__
