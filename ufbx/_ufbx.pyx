@@ -31,6 +31,9 @@ cdef extern from "ufbx_wrapper.h":
     size_t ufbx_wrapper_scene_get_num_meshes(const ufbx_scene *scene)
     size_t ufbx_wrapper_scene_get_num_materials(const ufbx_scene *scene)
     ufbx_node* ufbx_wrapper_scene_get_root_node(const ufbx_scene *scene)
+    int ufbx_wrapper_scene_get_axes_right(const ufbx_scene *scene)
+    int ufbx_wrapper_scene_get_axes_up(const ufbx_scene *scene)
+    int ufbx_wrapper_scene_get_axes_front(const ufbx_scene *scene)
 
     # Node access
     ufbx_node* ufbx_wrapper_scene_get_node(const ufbx_scene *scene, size_t index)
@@ -130,9 +133,28 @@ class MirrorAxis(IntEnum):
 
 
 class CoordinateAxis(IntEnum):
-    COORDINATE_AXIS_X = 0
-    COORDINATE_AXIS_Y = 1
-    COORDINATE_AXIS_Z = 2
+    COORDINATE_AXIS_POSITIVE_X = 0
+    COORDINATE_AXIS_NEGATIVE_X = 1
+    COORDINATE_AXIS_POSITIVE_Y = 2
+    COORDINATE_AXIS_NEGATIVE_Y = 3
+    COORDINATE_AXIS_POSITIVE_Z = 4
+    COORDINATE_AXIS_NEGATIVE_Z = 5
+    COORDINATE_AXIS_UNKNOWN = 6
+
+
+class CoordinateAxes:
+    """Scene coordinate axes (right, up, front). Maps X/Y/Z to world-space directions."""
+
+    __slots__ = ("right", "up", "front")
+
+    def __init__(self, right: int, up: int, front: int):
+        unk = CoordinateAxis.COORDINATE_AXIS_UNKNOWN
+        self.right = CoordinateAxis(right) if 0 <= right <= 6 else unk
+        self.up = CoordinateAxis(up) if 0 <= up <= 6 else unk
+        self.front = CoordinateAxis(front) if 0 <= front <= 6 else unk
+
+    def __repr__(self) -> str:
+        return f"CoordinateAxes(right={self.right!r}, up={self.up!r}, front={self.front!r})"
 
 
 class SubdivisionDisplayMode(IntEnum):
@@ -496,6 +518,16 @@ cdef class Scene:
         if node != NULL:
             return Node._create(self, node)
         return None
+
+    @property
+    def axes(self):
+        """Scene coordinate axes (right, up, front). Returns CoordinateAxes with CoordinateAxis members."""
+        if self._closed:
+            raise RuntimeError("Scene is closed")
+        cdef int r = ufbx_wrapper_scene_get_axes_right(self._scene)
+        cdef int u = ufbx_wrapper_scene_get_axes_up(self._scene)
+        cdef int f = ufbx_wrapper_scene_get_axes_front(self._scene)
+        return CoordinateAxes(r, u, f)
 
     cdef Node _get_node(self, size_t index):
         """Internal: get node by index"""

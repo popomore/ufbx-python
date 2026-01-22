@@ -26,6 +26,11 @@ size_t ufbx_wrapper_scene_get_num_meshes(const ufbx_scene *scene);
 size_t ufbx_wrapper_scene_get_num_materials(const ufbx_scene *scene);
 ufbx_node* ufbx_wrapper_scene_get_root_node(const ufbx_scene *scene);
 
+// Scene settings.axes (CoordinateAxis: 0-6)
+int ufbx_wrapper_scene_get_axes_right(const ufbx_scene *scene);
+int ufbx_wrapper_scene_get_axes_up(const ufbx_scene *scene);
+int ufbx_wrapper_scene_get_axes_front(const ufbx_scene *scene);
+
 // Node access
 ufbx_node* ufbx_wrapper_scene_get_node(const ufbx_scene *scene, size_t index);
 const char* ufbx_wrapper_node_get_name(const ufbx_node *node);

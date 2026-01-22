@@ -52,9 +52,22 @@ class MirrorAxis(IntEnum):
     MIRROR_AXIS_Z: int
 
 class CoordinateAxis(IntEnum):
-    COORDINATE_AXIS_X: int
-    COORDINATE_AXIS_Y: int
-    COORDINATE_AXIS_Z: int
+    COORDINATE_AXIS_POSITIVE_X: int
+    COORDINATE_AXIS_NEGATIVE_X: int
+    COORDINATE_AXIS_POSITIVE_Y: int
+    COORDINATE_AXIS_NEGATIVE_Y: int
+    COORDINATE_AXIS_POSITIVE_Z: int
+    COORDINATE_AXIS_NEGATIVE_Z: int
+    COORDINATE_AXIS_UNKNOWN: int
+
+class CoordinateAxes:
+    """Scene coordinate axes (right, up, front)."""
+
+    right: CoordinateAxis
+    up: CoordinateAxis
+    front: CoordinateAxis
+    def __init__(self, right: int, up: int, front: int) -> None: ...
+    def __repr__(self) -> str: ...
 
 class SubdivisionDisplayMode(IntEnum):
     SUBDIVISION_DISPLAY_MODE_OFF: int
@@ -203,6 +216,8 @@ class Scene:
     def materials(self) -> list[Material]: ...
     @property
     def root_node(self) -> Node | None: ...
+    @property
+    def axes(self) -> CoordinateAxes: ...
     def find_node(self, name: str) -> Node | None: ...
     def find_material(self, name: str) -> Material | None: ...
     @property

@@ -36,6 +36,14 @@ def main():
             print(f"  - Materials: {len(scene.materials)}")
             print()
 
+            # Coordinate axes (right, up, front)
+            axes = scene.axes
+            print("Coordinate axes:")
+            print(f"  - right: {axes.right.name}")
+            print(f"  - up: {axes.up.name}")
+            print(f"  - front: {axes.front.name}")
+            print()
+
             # Root node info
             root = scene.root_node
             if root:
