@@ -21,6 +21,14 @@ cdef extern from "ufbx_wrapper.h":
         pass
     ctypedef struct ufbx_material:
         pass
+    ctypedef struct ufbx_light:
+        pass
+    ctypedef struct ufbx_camera:
+        pass
+    ctypedef struct ufbx_bone:
+        pass
+    ctypedef struct ufbx_texture:
+        pass
 
     # Scene management
     ufbx_scene* ufbx_wrapper_load_file(const char *filename, char **error_msg)
@@ -65,6 +73,56 @@ cdef extern from "ufbx_wrapper.h":
     size_t ufbx_wrapper_mesh_get_num_materials(const ufbx_mesh *mesh)
     ufbx_material* ufbx_wrapper_mesh_get_material(const ufbx_mesh *mesh, size_t index)
     const char* ufbx_wrapper_material_get_name(const ufbx_material *material)
+
+    # Light access
+    size_t ufbx_wrapper_scene_get_num_lights(const ufbx_scene *scene)
+    ufbx_light* ufbx_wrapper_scene_get_light(const ufbx_scene *scene, size_t index)
+    ufbx_light* ufbx_wrapper_node_get_light(const ufbx_node *node)
+    const char* ufbx_wrapper_light_get_name(const ufbx_light *light)
+    void ufbx_wrapper_light_get_color(const ufbx_light *light, float *rgb)
+    double ufbx_wrapper_light_get_intensity(const ufbx_light *light)
+    void ufbx_wrapper_light_get_local_direction(const ufbx_light *light, float *xyz)
+    int ufbx_wrapper_light_get_type(const ufbx_light *light)
+    int ufbx_wrapper_light_get_decay(const ufbx_light *light)
+    int ufbx_wrapper_light_get_area_shape(const ufbx_light *light)
+    double ufbx_wrapper_light_get_inner_angle(const ufbx_light *light)
+    double ufbx_wrapper_light_get_outer_angle(const ufbx_light *light)
+    bint ufbx_wrapper_light_get_cast_light(const ufbx_light *light)
+    bint ufbx_wrapper_light_get_cast_shadows(const ufbx_light *light)
+
+    # Camera access
+    size_t ufbx_wrapper_scene_get_num_cameras(const ufbx_scene *scene)
+    ufbx_camera* ufbx_wrapper_scene_get_camera(const ufbx_scene *scene, size_t index)
+    ufbx_camera* ufbx_wrapper_node_get_camera(const ufbx_node *node)
+    const char* ufbx_wrapper_camera_get_name(const ufbx_camera *camera)
+    int ufbx_wrapper_camera_get_projection_mode(const ufbx_camera *camera)
+    void ufbx_wrapper_camera_get_resolution(const ufbx_camera *camera, float *xy)
+    bint ufbx_wrapper_camera_get_resolution_is_pixels(const ufbx_camera *camera)
+    void ufbx_wrapper_camera_get_field_of_view_deg(const ufbx_camera *camera, float *xy)
+    void ufbx_wrapper_camera_get_field_of_view_tan(const ufbx_camera *camera, float *xy)
+    double ufbx_wrapper_camera_get_orthographic_extent(const ufbx_camera *camera)
+    void ufbx_wrapper_camera_get_orthographic_size(const ufbx_camera *camera, float *xy)
+    double ufbx_wrapper_camera_get_aspect_ratio(const ufbx_camera *camera)
+    double ufbx_wrapper_camera_get_near_plane(const ufbx_camera *camera)
+    double ufbx_wrapper_camera_get_far_plane(const ufbx_camera *camera)
+
+    # Bone access
+    size_t ufbx_wrapper_scene_get_num_bones(const ufbx_scene *scene)
+    ufbx_bone* ufbx_wrapper_scene_get_bone(const ufbx_scene *scene, size_t index)
+    ufbx_bone* ufbx_wrapper_node_get_bone(const ufbx_node *node)
+    const char* ufbx_wrapper_bone_get_name(const ufbx_bone *bone)
+    double ufbx_wrapper_bone_get_radius(const ufbx_bone *bone)
+    double ufbx_wrapper_bone_get_relative_length(const ufbx_bone *bone)
+    bint ufbx_wrapper_bone_is_root(const ufbx_bone *bone)
+
+    # Texture access
+    size_t ufbx_wrapper_scene_get_num_textures(const ufbx_scene *scene)
+    ufbx_texture* ufbx_wrapper_scene_get_texture(const ufbx_scene *scene, size_t index)
+    const char* ufbx_wrapper_texture_get_name(const ufbx_texture *texture)
+    const char* ufbx_wrapper_texture_get_filename(const ufbx_texture *texture)
+    const char* ufbx_wrapper_texture_get_absolute_filename(const ufbx_texture *texture)
+    const char* ufbx_wrapper_texture_get_relative_filename(const ufbx_texture *texture)
+    int ufbx_wrapper_texture_get_type(const ufbx_texture *texture)
 
 
 # Python classes
@@ -397,19 +455,288 @@ cdef class Element:
 
 
 cdef class Light(Element):
-    pass
+    """Light source"""
+    cdef Scene _scene
+    cdef ufbx_light* _light
+
+    @staticmethod
+    cdef Light _create(Scene scene, ufbx_light* light):
+        """Internal factory method"""
+        cdef Light obj = Light.__new__(Light)
+        obj._scene = scene
+        obj._light = light
+        return obj
+
+    @property
+    def name(self):
+        """Light name"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_light_get_name(self._light).decode('utf-8', errors='replace')
+
+    @property
+    def color(self):
+        """Light color (RGB)"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        cdef float rgb[3]
+        ufbx_wrapper_light_get_color(self._light, rgb)
+        return Vec3(rgb[0], rgb[1], rgb[2])
+
+    @property
+    def intensity(self):
+        """Light intensity"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_light_get_intensity(self._light)
+
+    @property
+    def local_direction(self):
+        """Direction the light is aimed at in node's local space"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        cdef float xyz[3]
+        ufbx_wrapper_light_get_local_direction(self._light, xyz)
+        return Vec3(xyz[0], xyz[1], xyz[2])
+
+    @property
+    def type(self):
+        """Light type (LightType enum)"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return LightType(ufbx_wrapper_light_get_type(self._light))
+
+    @property
+    def decay(self):
+        """Light decay mode (LightDecay enum)"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return LightDecay(ufbx_wrapper_light_get_decay(self._light))
+
+    @property
+    def area_shape(self):
+        """Area light shape (LightAreaShape enum)"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return LightAreaShape(ufbx_wrapper_light_get_area_shape(self._light))
+
+    @property
+    def inner_angle(self):
+        """Spotlight inner angle in degrees"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_light_get_inner_angle(self._light)
+
+    @property
+    def outer_angle(self):
+        """Spotlight outer angle in degrees"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_light_get_outer_angle(self._light)
+
+    @property
+    def cast_light(self):
+        """Whether the light casts light"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_light_get_cast_light(self._light)
+
+    @property
+    def cast_shadows(self):
+        """Whether the light casts shadows"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_light_get_cast_shadows(self._light)
 
 
 cdef class Camera(Element):
-    pass
+    """Camera"""
+    cdef Scene _scene
+    cdef ufbx_camera* _camera
+
+    @staticmethod
+    cdef Camera _create(Scene scene, ufbx_camera* camera):
+        """Internal factory method"""
+        cdef Camera obj = Camera.__new__(Camera)
+        obj._scene = scene
+        obj._camera = camera
+        return obj
+
+    @property
+    def name(self):
+        """Camera name"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_camera_get_name(self._camera).decode('utf-8', errors='replace')
+
+    @property
+    def projection_mode(self):
+        """Projection mode (ProjectionMode enum)"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ProjectionMode(ufbx_wrapper_camera_get_projection_mode(self._camera))
+
+    @property
+    def resolution(self):
+        """Render resolution"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        cdef float xy[2]
+        ufbx_wrapper_camera_get_resolution(self._camera, xy)
+        return Vec2(xy[0], xy[1])
+
+    @property
+    def resolution_is_pixels(self):
+        """Whether resolution is in pixels"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_camera_get_resolution_is_pixels(self._camera)
+
+    @property
+    def field_of_view_deg(self):
+        """Field of view in degrees (horizontal, vertical)"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        cdef float xy[2]
+        ufbx_wrapper_camera_get_field_of_view_deg(self._camera, xy)
+        return Vec2(xy[0], xy[1])
+
+    @property
+    def field_of_view_tan(self):
+        """Tangent of field of view"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        cdef float xy[2]
+        ufbx_wrapper_camera_get_field_of_view_tan(self._camera, xy)
+        return Vec2(xy[0], xy[1])
+
+    @property
+    def orthographic_extent(self):
+        """Orthographic camera extent"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_camera_get_orthographic_extent(self._camera)
+
+    @property
+    def orthographic_size(self):
+        """Orthographic camera size"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        cdef float xy[2]
+        ufbx_wrapper_camera_get_orthographic_size(self._camera, xy)
+        return Vec2(xy[0], xy[1])
+
+    @property
+    def aspect_ratio(self):
+        """Camera aspect ratio"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_camera_get_aspect_ratio(self._camera)
+
+    @property
+    def near_plane(self):
+        """Near plane distance"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_camera_get_near_plane(self._camera)
+
+    @property
+    def far_plane(self):
+        """Far plane distance"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_camera_get_far_plane(self._camera)
 
 
 cdef class Bone(Element):
-    pass
+    """Bone"""
+    cdef Scene _scene
+    cdef ufbx_bone* _bone
+
+    @staticmethod
+    cdef Bone _create(Scene scene, ufbx_bone* bone):
+        """Internal factory method"""
+        cdef Bone obj = Bone.__new__(Bone)
+        obj._scene = scene
+        obj._bone = bone
+        return obj
+
+    @property
+    def name(self):
+        """Bone name"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_bone_get_name(self._bone).decode('utf-8', errors='replace')
+
+    @property
+    def radius(self):
+        """Visual radius of the bone"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_bone_get_radius(self._bone)
+
+    @property
+    def relative_length(self):
+        """Length of the bone relative to the distance between two nodes"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_bone_get_relative_length(self._bone)
+
+    @property
+    def is_root(self):
+        """Is this a root bone"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_bone_is_root(self._bone)
 
 
 cdef class Texture(Element):
-    pass
+    """Texture"""
+    cdef Scene _scene
+    cdef ufbx_texture* _texture
+
+    @staticmethod
+    cdef Texture _create(Scene scene, ufbx_texture* texture):
+        """Internal factory method"""
+        cdef Texture obj = Texture.__new__(Texture)
+        obj._scene = scene
+        obj._texture = texture
+        return obj
+
+    @property
+    def name(self):
+        """Texture name"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_texture_get_name(self._texture).decode('utf-8', errors='replace')
+
+    @property
+    def filename(self):
+        """Texture filename"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_texture_get_filename(self._texture).decode('utf-8', errors='replace')
+
+    @property
+    def absolute_filename(self):
+        """Absolute path to texture file"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_texture_get_absolute_filename(self._texture).decode('utf-8', errors='replace')
+
+    @property
+    def relative_filename(self):
+        """Relative path to texture file"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_texture_get_relative_filename(self._texture).decode('utf-8', errors='replace')
+
+    @property
+    def type(self):
+        """Texture type (TextureType enum)"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return TextureType(ufbx_wrapper_texture_get_type(self._texture))
 
 
 cdef class Anim(Element):
@@ -529,6 +856,38 @@ cdef class Scene:
         cdef int f = ufbx_wrapper_scene_get_axes_front(self._scene)
         return CoordinateAxes(r, u, f)
 
+    @property
+    def lights(self):
+        """Get all lights in the scene"""
+        if self._closed:
+            raise RuntimeError("Scene is closed")
+        cdef size_t count = ufbx_wrapper_scene_get_num_lights(self._scene)
+        return [self._get_light(i) for i in range(count)]
+
+    @property
+    def cameras(self):
+        """Get all cameras in the scene"""
+        if self._closed:
+            raise RuntimeError("Scene is closed")
+        cdef size_t count = ufbx_wrapper_scene_get_num_cameras(self._scene)
+        return [self._get_camera(i) for i in range(count)]
+
+    @property
+    def bones(self):
+        """Get all bones in the scene"""
+        if self._closed:
+            raise RuntimeError("Scene is closed")
+        cdef size_t count = ufbx_wrapper_scene_get_num_bones(self._scene)
+        return [self._get_bone(i) for i in range(count)]
+
+    @property
+    def textures(self):
+        """Get all textures in the scene"""
+        if self._closed:
+            raise RuntimeError("Scene is closed")
+        cdef size_t count = ufbx_wrapper_scene_get_num_textures(self._scene)
+        return [self._get_texture(i) for i in range(count)]
+
     cdef Node _get_node(self, size_t index):
         """Internal: get node by index"""
         cdef ufbx_node* node = ufbx_wrapper_scene_get_node(self._scene, index)
@@ -548,6 +907,34 @@ cdef class Scene:
         cdef ufbx_material* material = ufbx_wrapper_scene_get_material(self._scene, index)
         if material != NULL:
             return Material._create(self, material)
+        return None
+
+    cdef Light _get_light(self, size_t index):
+        """Internal: get light by index"""
+        cdef ufbx_light* light = ufbx_wrapper_scene_get_light(self._scene, index)
+        if light != NULL:
+            return Light._create(self, light)
+        return None
+
+    cdef Camera _get_camera(self, size_t index):
+        """Internal: get camera by index"""
+        cdef ufbx_camera* camera = ufbx_wrapper_scene_get_camera(self._scene, index)
+        if camera != NULL:
+            return Camera._create(self, camera)
+        return None
+
+    cdef Bone _get_bone(self, size_t index):
+        """Internal: get bone by index"""
+        cdef ufbx_bone* bone = ufbx_wrapper_scene_get_bone(self._scene, index)
+        if bone != NULL:
+            return Bone._create(self, bone)
+        return None
+
+    cdef Texture _get_texture(self, size_t index):
+        """Internal: get texture by index"""
+        cdef ufbx_texture* texture = ufbx_wrapper_scene_get_texture(self._scene, index)
+        if texture != NULL:
+            return Texture._create(self, texture)
         return None
 
 
@@ -603,6 +990,36 @@ cdef class Node(Element):
         cdef ufbx_mesh* mesh = ufbx_wrapper_node_get_mesh(self._node)
         if mesh != NULL:
             return Mesh._create(self._scene, mesh)
+        return None
+
+    @property
+    def light(self):
+        """Attached light"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        cdef ufbx_light* light = ufbx_wrapper_node_get_light(self._node)
+        if light != NULL:
+            return Light._create(self._scene, light)
+        return None
+
+    @property
+    def camera(self):
+        """Attached camera"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        cdef ufbx_camera* camera = ufbx_wrapper_node_get_camera(self._node)
+        if camera != NULL:
+            return Camera._create(self._scene, camera)
+        return None
+
+    @property
+    def bone(self):
+        """Attached bone"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        cdef ufbx_bone* bone = ufbx_wrapper_node_get_bone(self._node)
+        if bone != NULL:
+            return Bone._create(self._scene, bone)
         return None
 
     @property

@@ -15,6 +15,9 @@ typedef struct ufbx_mesh ufbx_mesh;
 typedef struct ufbx_node ufbx_node;
 typedef struct ufbx_material ufbx_material;
 typedef struct ufbx_texture ufbx_texture;
+typedef struct ufbx_light ufbx_light;
+typedef struct ufbx_camera ufbx_camera;
+typedef struct ufbx_bone ufbx_bone;
 
 // Scene management
 ufbx_scene* ufbx_wrapper_load_file(const char *filename, char **error_msg);
@@ -63,6 +66,56 @@ ufbx_material* ufbx_wrapper_scene_get_material(const ufbx_scene *scene, size_t i
 size_t ufbx_wrapper_mesh_get_num_materials(const ufbx_mesh *mesh);
 ufbx_material* ufbx_wrapper_mesh_get_material(const ufbx_mesh *mesh, size_t index);
 const char* ufbx_wrapper_material_get_name(const ufbx_material *material);
+
+// Light access
+size_t ufbx_wrapper_scene_get_num_lights(const ufbx_scene *scene);
+ufbx_light* ufbx_wrapper_scene_get_light(const ufbx_scene *scene, size_t index);
+ufbx_light* ufbx_wrapper_node_get_light(const ufbx_node *node);
+const char* ufbx_wrapper_light_get_name(const ufbx_light *light);
+void ufbx_wrapper_light_get_color(const ufbx_light *light, float *rgb);
+double ufbx_wrapper_light_get_intensity(const ufbx_light *light);
+void ufbx_wrapper_light_get_local_direction(const ufbx_light *light, float *xyz);
+int ufbx_wrapper_light_get_type(const ufbx_light *light);
+int ufbx_wrapper_light_get_decay(const ufbx_light *light);
+int ufbx_wrapper_light_get_area_shape(const ufbx_light *light);
+double ufbx_wrapper_light_get_inner_angle(const ufbx_light *light);
+double ufbx_wrapper_light_get_outer_angle(const ufbx_light *light);
+bool ufbx_wrapper_light_get_cast_light(const ufbx_light *light);
+bool ufbx_wrapper_light_get_cast_shadows(const ufbx_light *light);
+
+// Camera access
+size_t ufbx_wrapper_scene_get_num_cameras(const ufbx_scene *scene);
+ufbx_camera* ufbx_wrapper_scene_get_camera(const ufbx_scene *scene, size_t index);
+ufbx_camera* ufbx_wrapper_node_get_camera(const ufbx_node *node);
+const char* ufbx_wrapper_camera_get_name(const ufbx_camera *camera);
+int ufbx_wrapper_camera_get_projection_mode(const ufbx_camera *camera);
+void ufbx_wrapper_camera_get_resolution(const ufbx_camera *camera, float *xy);
+bool ufbx_wrapper_camera_get_resolution_is_pixels(const ufbx_camera *camera);
+void ufbx_wrapper_camera_get_field_of_view_deg(const ufbx_camera *camera, float *xy);
+void ufbx_wrapper_camera_get_field_of_view_tan(const ufbx_camera *camera, float *xy);
+double ufbx_wrapper_camera_get_orthographic_extent(const ufbx_camera *camera);
+void ufbx_wrapper_camera_get_orthographic_size(const ufbx_camera *camera, float *xy);
+double ufbx_wrapper_camera_get_aspect_ratio(const ufbx_camera *camera);
+double ufbx_wrapper_camera_get_near_plane(const ufbx_camera *camera);
+double ufbx_wrapper_camera_get_far_plane(const ufbx_camera *camera);
+
+// Bone access
+size_t ufbx_wrapper_scene_get_num_bones(const ufbx_scene *scene);
+ufbx_bone* ufbx_wrapper_scene_get_bone(const ufbx_scene *scene, size_t index);
+ufbx_bone* ufbx_wrapper_node_get_bone(const ufbx_node *node);
+const char* ufbx_wrapper_bone_get_name(const ufbx_bone *bone);
+double ufbx_wrapper_bone_get_radius(const ufbx_bone *bone);
+double ufbx_wrapper_bone_get_relative_length(const ufbx_bone *bone);
+bool ufbx_wrapper_bone_is_root(const ufbx_bone *bone);
+
+// Texture access
+size_t ufbx_wrapper_scene_get_num_textures(const ufbx_scene *scene);
+ufbx_texture* ufbx_wrapper_scene_get_texture(const ufbx_scene *scene, size_t index);
+const char* ufbx_wrapper_texture_get_name(const ufbx_texture *texture);
+const char* ufbx_wrapper_texture_get_filename(const ufbx_texture *texture);
+const char* ufbx_wrapper_texture_get_absolute_filename(const ufbx_texture *texture);
+const char* ufbx_wrapper_texture_get_relative_filename(const ufbx_texture *texture);
+int ufbx_wrapper_texture_get_type(const ufbx_texture *texture);
 
 #ifdef __cplusplus
 }
