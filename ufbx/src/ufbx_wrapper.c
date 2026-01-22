@@ -395,3 +395,214 @@ const char* ufbx_wrapper_texture_get_relative_filename(const ufbx_texture *textu
 int ufbx_wrapper_texture_get_type(const ufbx_texture *texture) {
     return texture ? (int)texture->type : 0;
 }
+
+// AnimStack access
+size_t ufbx_wrapper_scene_get_num_anim_stacks(const ufbx_scene *scene) {
+    return scene ? scene->anim_stacks.count : 0;
+}
+
+ufbx_anim_stack* ufbx_wrapper_scene_get_anim_stack(const ufbx_scene *scene, size_t index) {
+    if (!scene || index >= scene->anim_stacks.count) return NULL;
+    return scene->anim_stacks.data[index];
+}
+
+const char* ufbx_wrapper_anim_stack_get_name(const ufbx_anim_stack *anim_stack) {
+    if (!anim_stack) return "";
+    return anim_stack->name.data ? anim_stack->name.data : "";
+}
+
+double ufbx_wrapper_anim_stack_get_time_begin(const ufbx_anim_stack *anim_stack) {
+    return anim_stack ? anim_stack->time_begin : 0.0;
+}
+
+double ufbx_wrapper_anim_stack_get_time_end(const ufbx_anim_stack *anim_stack) {
+    return anim_stack ? anim_stack->time_end : 0.0;
+}
+
+size_t ufbx_wrapper_anim_stack_get_num_layers(const ufbx_anim_stack *anim_stack) {
+    return anim_stack ? anim_stack->layers.count : 0;
+}
+
+ufbx_anim_layer* ufbx_wrapper_anim_stack_get_layer(const ufbx_anim_stack *anim_stack, size_t index) {
+    if (!anim_stack || index >= anim_stack->layers.count) return NULL;
+    return anim_stack->layers.data[index];
+}
+
+// AnimLayer access
+const char* ufbx_wrapper_anim_layer_get_name(const ufbx_anim_layer *anim_layer) {
+    if (!anim_layer) return "";
+    return anim_layer->name.data ? anim_layer->name.data : "";
+}
+
+double ufbx_wrapper_anim_layer_get_weight(const ufbx_anim_layer *anim_layer) {
+    return anim_layer ? anim_layer->weight : 0.0;
+}
+
+bool ufbx_wrapper_anim_layer_get_weight_is_animated(const ufbx_anim_layer *anim_layer) {
+    return anim_layer ? anim_layer->weight_is_animated : false;
+}
+
+bool ufbx_wrapper_anim_layer_get_blended(const ufbx_anim_layer *anim_layer) {
+    return anim_layer ? anim_layer->blended : false;
+}
+
+bool ufbx_wrapper_anim_layer_get_additive(const ufbx_anim_layer *anim_layer) {
+    return anim_layer ? anim_layer->additive : false;
+}
+
+bool ufbx_wrapper_anim_layer_get_compose_rotation(const ufbx_anim_layer *anim_layer) {
+    return anim_layer ? anim_layer->compose_rotation : false;
+}
+
+bool ufbx_wrapper_anim_layer_get_compose_scale(const ufbx_anim_layer *anim_layer) {
+    return anim_layer ? anim_layer->compose_scale : false;
+}
+
+// AnimCurve access
+size_t ufbx_wrapper_scene_get_num_anim_curves(const ufbx_scene *scene) {
+    return scene ? scene->anim_curves.count : 0;
+}
+
+ufbx_anim_curve* ufbx_wrapper_scene_get_anim_curve(const ufbx_scene *scene, size_t index) {
+    if (!scene || index >= scene->anim_curves.count) return NULL;
+    return scene->anim_curves.data[index];
+}
+
+const char* ufbx_wrapper_anim_curve_get_name(const ufbx_anim_curve *anim_curve) {
+    if (!anim_curve) return "";
+    return anim_curve->name.data ? anim_curve->name.data : "";
+}
+
+size_t ufbx_wrapper_anim_curve_get_num_keyframes(const ufbx_anim_curve *anim_curve) {
+    return anim_curve ? anim_curve->keyframes.count : 0;
+}
+
+double ufbx_wrapper_anim_curve_get_min_value(const ufbx_anim_curve *anim_curve) {
+    return anim_curve ? anim_curve->min_value : 0.0;
+}
+
+double ufbx_wrapper_anim_curve_get_max_value(const ufbx_anim_curve *anim_curve) {
+    return anim_curve ? anim_curve->max_value : 0.0;
+}
+
+double ufbx_wrapper_anim_curve_get_min_time(const ufbx_anim_curve *anim_curve) {
+    return anim_curve ? anim_curve->min_time : 0.0;
+}
+
+double ufbx_wrapper_anim_curve_get_max_time(const ufbx_anim_curve *anim_curve) {
+    return anim_curve ? anim_curve->max_time : 0.0;
+}
+
+// SkinDeformer access
+size_t ufbx_wrapper_scene_get_num_skin_deformers(const ufbx_scene *scene) {
+    return scene ? scene->skin_deformers.count : 0;
+}
+
+ufbx_skin_deformer* ufbx_wrapper_scene_get_skin_deformer(const ufbx_scene *scene, size_t index) {
+    if (!scene || index >= scene->skin_deformers.count) return NULL;
+    return scene->skin_deformers.data[index];
+}
+
+const char* ufbx_wrapper_skin_deformer_get_name(const ufbx_skin_deformer *skin_deformer) {
+    if (!skin_deformer) return "";
+    return skin_deformer->name.data ? skin_deformer->name.data : "";
+}
+
+size_t ufbx_wrapper_skin_deformer_get_num_clusters(const ufbx_skin_deformer *skin_deformer) {
+    return skin_deformer ? skin_deformer->clusters.count : 0;
+}
+
+ufbx_skin_cluster* ufbx_wrapper_skin_deformer_get_cluster(const ufbx_skin_deformer *skin_deformer, size_t index) {
+    if (!skin_deformer || index >= skin_deformer->clusters.count) return NULL;
+    return skin_deformer->clusters.data[index];
+}
+
+// SkinCluster access
+const char* ufbx_wrapper_skin_cluster_get_name(const ufbx_skin_cluster *skin_cluster) {
+    if (!skin_cluster) return "";
+    return skin_cluster->name.data ? skin_cluster->name.data : "";
+}
+
+size_t ufbx_wrapper_skin_cluster_get_num_weights(const ufbx_skin_cluster *skin_cluster) {
+    return skin_cluster ? skin_cluster->num_weights : 0;
+}
+
+// BlendDeformer access
+size_t ufbx_wrapper_scene_get_num_blend_deformers(const ufbx_scene *scene) {
+    return scene ? scene->blend_deformers.count : 0;
+}
+
+ufbx_blend_deformer* ufbx_wrapper_scene_get_blend_deformer(const ufbx_scene *scene, size_t index) {
+    if (!scene || index >= scene->blend_deformers.count) return NULL;
+    return scene->blend_deformers.data[index];
+}
+
+const char* ufbx_wrapper_blend_deformer_get_name(const ufbx_blend_deformer *blend_deformer) {
+    if (!blend_deformer) return "";
+    return blend_deformer->name.data ? blend_deformer->name.data : "";
+}
+
+size_t ufbx_wrapper_blend_deformer_get_num_channels(const ufbx_blend_deformer *blend_deformer) {
+    return blend_deformer ? blend_deformer->channels.count : 0;
+}
+
+ufbx_blend_channel* ufbx_wrapper_blend_deformer_get_channel(const ufbx_blend_deformer *blend_deformer, size_t index) {
+    if (!blend_deformer || index >= blend_deformer->channels.count) return NULL;
+    return blend_deformer->channels.data[index];
+}
+
+// BlendChannel access
+const char* ufbx_wrapper_blend_channel_get_name(const ufbx_blend_channel *blend_channel) {
+    if (!blend_channel) return "";
+    return blend_channel->name.data ? blend_channel->name.data : "";
+}
+
+double ufbx_wrapper_blend_channel_get_weight(const ufbx_blend_channel *blend_channel) {
+    return blend_channel ? blend_channel->weight : 0.0;
+}
+
+// BlendShape access
+size_t ufbx_wrapper_scene_get_num_blend_shapes(const ufbx_scene *scene) {
+    return scene ? scene->blend_shapes.count : 0;
+}
+
+ufbx_blend_shape* ufbx_wrapper_scene_get_blend_shape(const ufbx_scene *scene, size_t index) {
+    if (!scene || index >= scene->blend_shapes.count) return NULL;
+    return scene->blend_shapes.data[index];
+}
+
+const char* ufbx_wrapper_blend_shape_get_name(const ufbx_blend_shape *blend_shape) {
+    if (!blend_shape) return "";
+    return blend_shape->name.data ? blend_shape->name.data : "";
+}
+
+size_t ufbx_wrapper_blend_shape_get_num_offsets(const ufbx_blend_shape *blend_shape) {
+    return blend_shape ? blend_shape->num_offsets : 0;
+}
+
+// Constraint access
+size_t ufbx_wrapper_scene_get_num_constraints(const ufbx_scene *scene) {
+    return scene ? scene->constraints.count : 0;
+}
+
+ufbx_constraint* ufbx_wrapper_scene_get_constraint(const ufbx_scene *scene, size_t index) {
+    if (!scene || index >= scene->constraints.count) return NULL;
+    return scene->constraints.data[index];
+}
+
+const char* ufbx_wrapper_constraint_get_name(const ufbx_constraint *constraint) {
+    if (!constraint) return "";
+    return constraint->name.data ? constraint->name.data : "";
+}
+
+int ufbx_wrapper_constraint_get_type(const ufbx_constraint *constraint) {
+    return constraint ? (int)constraint->type : 0;
+}
+
+double ufbx_wrapper_constraint_get_weight(const ufbx_constraint *constraint) {
+    return constraint ? constraint->weight : 0.0;
+}
+
+bool ufbx_wrapper_constraint_get_active(const ufbx_constraint *constraint) {
+    return constraint ? constraint->active : false;
+}

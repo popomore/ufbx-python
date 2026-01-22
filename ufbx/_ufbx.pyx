@@ -29,6 +29,24 @@ cdef extern from "ufbx_wrapper.h":
         pass
     ctypedef struct ufbx_texture:
         pass
+    ctypedef struct ufbx_anim_stack:
+        pass
+    ctypedef struct ufbx_anim_layer:
+        pass
+    ctypedef struct ufbx_anim_curve:
+        pass
+    ctypedef struct ufbx_skin_deformer:
+        pass
+    ctypedef struct ufbx_skin_cluster:
+        pass
+    ctypedef struct ufbx_blend_deformer:
+        pass
+    ctypedef struct ufbx_blend_channel:
+        pass
+    ctypedef struct ufbx_blend_shape:
+        pass
+    ctypedef struct ufbx_constraint:
+        pass
 
     # Scene management
     ufbx_scene* ufbx_wrapper_load_file(const char *filename, char **error_msg)
@@ -123,6 +141,70 @@ cdef extern from "ufbx_wrapper.h":
     const char* ufbx_wrapper_texture_get_absolute_filename(const ufbx_texture *texture)
     const char* ufbx_wrapper_texture_get_relative_filename(const ufbx_texture *texture)
     int ufbx_wrapper_texture_get_type(const ufbx_texture *texture)
+
+    # AnimStack access
+    size_t ufbx_wrapper_scene_get_num_anim_stacks(const ufbx_scene *scene)
+    ufbx_anim_stack* ufbx_wrapper_scene_get_anim_stack(const ufbx_scene *scene, size_t index)
+    const char* ufbx_wrapper_anim_stack_get_name(const ufbx_anim_stack *anim_stack)
+    double ufbx_wrapper_anim_stack_get_time_begin(const ufbx_anim_stack *anim_stack)
+    double ufbx_wrapper_anim_stack_get_time_end(const ufbx_anim_stack *anim_stack)
+    size_t ufbx_wrapper_anim_stack_get_num_layers(const ufbx_anim_stack *anim_stack)
+    ufbx_anim_layer* ufbx_wrapper_anim_stack_get_layer(const ufbx_anim_stack *anim_stack, size_t index)
+
+    # AnimLayer access
+    const char* ufbx_wrapper_anim_layer_get_name(const ufbx_anim_layer *anim_layer)
+    double ufbx_wrapper_anim_layer_get_weight(const ufbx_anim_layer *anim_layer)
+    bint ufbx_wrapper_anim_layer_get_weight_is_animated(const ufbx_anim_layer *anim_layer)
+    bint ufbx_wrapper_anim_layer_get_blended(const ufbx_anim_layer *anim_layer)
+    bint ufbx_wrapper_anim_layer_get_additive(const ufbx_anim_layer *anim_layer)
+    bint ufbx_wrapper_anim_layer_get_compose_rotation(const ufbx_anim_layer *anim_layer)
+    bint ufbx_wrapper_anim_layer_get_compose_scale(const ufbx_anim_layer *anim_layer)
+
+    # AnimCurve access
+    size_t ufbx_wrapper_scene_get_num_anim_curves(const ufbx_scene *scene)
+    ufbx_anim_curve* ufbx_wrapper_scene_get_anim_curve(const ufbx_scene *scene, size_t index)
+    const char* ufbx_wrapper_anim_curve_get_name(const ufbx_anim_curve *anim_curve)
+    size_t ufbx_wrapper_anim_curve_get_num_keyframes(const ufbx_anim_curve *anim_curve)
+    double ufbx_wrapper_anim_curve_get_min_value(const ufbx_anim_curve *anim_curve)
+    double ufbx_wrapper_anim_curve_get_max_value(const ufbx_anim_curve *anim_curve)
+    double ufbx_wrapper_anim_curve_get_min_time(const ufbx_anim_curve *anim_curve)
+    double ufbx_wrapper_anim_curve_get_max_time(const ufbx_anim_curve *anim_curve)
+
+    # SkinDeformer access
+    size_t ufbx_wrapper_scene_get_num_skin_deformers(const ufbx_scene *scene)
+    ufbx_skin_deformer* ufbx_wrapper_scene_get_skin_deformer(const ufbx_scene *scene, size_t index)
+    const char* ufbx_wrapper_skin_deformer_get_name(const ufbx_skin_deformer *skin_deformer)
+    size_t ufbx_wrapper_skin_deformer_get_num_clusters(const ufbx_skin_deformer *skin_deformer)
+    ufbx_skin_cluster* ufbx_wrapper_skin_deformer_get_cluster(const ufbx_skin_deformer *skin_deformer, size_t index)
+
+    # SkinCluster access
+    const char* ufbx_wrapper_skin_cluster_get_name(const ufbx_skin_cluster *skin_cluster)
+    size_t ufbx_wrapper_skin_cluster_get_num_weights(const ufbx_skin_cluster *skin_cluster)
+
+    # BlendDeformer access
+    size_t ufbx_wrapper_scene_get_num_blend_deformers(const ufbx_scene *scene)
+    ufbx_blend_deformer* ufbx_wrapper_scene_get_blend_deformer(const ufbx_scene *scene, size_t index)
+    const char* ufbx_wrapper_blend_deformer_get_name(const ufbx_blend_deformer *blend_deformer)
+    size_t ufbx_wrapper_blend_deformer_get_num_channels(const ufbx_blend_deformer *blend_deformer)
+    ufbx_blend_channel* ufbx_wrapper_blend_deformer_get_channel(const ufbx_blend_deformer *blend_deformer, size_t index)
+
+    # BlendChannel access
+    const char* ufbx_wrapper_blend_channel_get_name(const ufbx_blend_channel *blend_channel)
+    double ufbx_wrapper_blend_channel_get_weight(const ufbx_blend_channel *blend_channel)
+
+    # BlendShape access
+    size_t ufbx_wrapper_scene_get_num_blend_shapes(const ufbx_scene *scene)
+    ufbx_blend_shape* ufbx_wrapper_scene_get_blend_shape(const ufbx_scene *scene, size_t index)
+    const char* ufbx_wrapper_blend_shape_get_name(const ufbx_blend_shape *blend_shape)
+    size_t ufbx_wrapper_blend_shape_get_num_offsets(const ufbx_blend_shape *blend_shape)
+
+    # Constraint access
+    size_t ufbx_wrapper_scene_get_num_constraints(const ufbx_scene *scene)
+    ufbx_constraint* ufbx_wrapper_scene_get_constraint(const ufbx_scene *scene, size_t index)
+    const char* ufbx_wrapper_constraint_get_name(const ufbx_constraint *constraint)
+    int ufbx_wrapper_constraint_get_type(const ufbx_constraint *constraint)
+    double ufbx_wrapper_constraint_get_weight(const ufbx_constraint *constraint)
+    bint ufbx_wrapper_constraint_get_active(const ufbx_constraint *constraint)
 
 
 # Python classes
@@ -739,44 +821,373 @@ cdef class Texture(Element):
         return TextureType(ufbx_wrapper_texture_get_type(self._texture))
 
 
-cdef class Anim(Element):
-    pass
-
-
 cdef class AnimStack(Element):
-    pass
+    """Animation stack (timeline)"""
+    cdef Scene _scene
+    cdef ufbx_anim_stack* _anim_stack
+
+    @staticmethod
+    cdef AnimStack _create(Scene scene, ufbx_anim_stack* anim_stack):
+        """Internal factory method"""
+        cdef AnimStack obj = AnimStack.__new__(AnimStack)
+        obj._scene = scene
+        obj._anim_stack = anim_stack
+        return obj
+
+    @property
+    def name(self):
+        """Animation stack name"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_anim_stack_get_name(self._anim_stack).decode('utf-8', errors='replace')
+
+    @property
+    def time_begin(self):
+        """Start time of the animation"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_anim_stack_get_time_begin(self._anim_stack)
+
+    @property
+    def time_end(self):
+        """End time of the animation"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_anim_stack_get_time_end(self._anim_stack)
+
+    @property
+    def layers(self):
+        """Animation layers in this stack"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        cdef size_t count = ufbx_wrapper_anim_stack_get_num_layers(self._anim_stack)
+        cdef list result = []
+        cdef ufbx_anim_layer* layer
+        for i in range(count):
+            layer = ufbx_wrapper_anim_stack_get_layer(self._anim_stack, i)
+            if layer != NULL:
+                result.append(AnimLayer._create(self._scene, layer))
+        return result
 
 
 cdef class AnimLayer(Element):
-    pass
+    """Animation layer"""
+    cdef Scene _scene
+    cdef ufbx_anim_layer* _anim_layer
+
+    @staticmethod
+    cdef AnimLayer _create(Scene scene, ufbx_anim_layer* anim_layer):
+        """Internal factory method"""
+        cdef AnimLayer obj = AnimLayer.__new__(AnimLayer)
+        obj._scene = scene
+        obj._anim_layer = anim_layer
+        return obj
+
+    @property
+    def name(self):
+        """Animation layer name"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_anim_layer_get_name(self._anim_layer).decode('utf-8', errors='replace')
+
+    @property
+    def weight(self):
+        """Layer weight"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_anim_layer_get_weight(self._anim_layer)
+
+    @property
+    def weight_is_animated(self):
+        """Whether the layer weight is animated"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_anim_layer_get_weight_is_animated(self._anim_layer)
+
+    @property
+    def blended(self):
+        """Whether the layer is blended"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_anim_layer_get_blended(self._anim_layer)
+
+    @property
+    def additive(self):
+        """Whether the layer is additive"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_anim_layer_get_additive(self._anim_layer)
+
+    @property
+    def compose_rotation(self):
+        """Whether to compose rotation"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_anim_layer_get_compose_rotation(self._anim_layer)
+
+    @property
+    def compose_scale(self):
+        """Whether to compose scale"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_anim_layer_get_compose_scale(self._anim_layer)
 
 
 cdef class AnimCurve(Element):
+    """Animation curve"""
+    cdef Scene _scene
+    cdef ufbx_anim_curve* _anim_curve
+
+    @staticmethod
+    cdef AnimCurve _create(Scene scene, ufbx_anim_curve* anim_curve):
+        """Internal factory method"""
+        cdef AnimCurve obj = AnimCurve.__new__(AnimCurve)
+        obj._scene = scene
+        obj._anim_curve = anim_curve
+        return obj
+
+    @property
+    def name(self):
+        """Animation curve name"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_anim_curve_get_name(self._anim_curve).decode('utf-8', errors='replace')
+
+    @property
+    def num_keyframes(self):
+        """Number of keyframes in the curve"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_anim_curve_get_num_keyframes(self._anim_curve)
+
+    @property
+    def min_value(self):
+        """Minimum value in the curve"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_anim_curve_get_min_value(self._anim_curve)
+
+    @property
+    def max_value(self):
+        """Maximum value in the curve"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_anim_curve_get_max_value(self._anim_curve)
+
+    @property
+    def min_time(self):
+        """Minimum time in the curve"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_anim_curve_get_min_time(self._anim_curve)
+
+    @property
+    def max_time(self):
+        """Maximum time in the curve"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_anim_curve_get_max_time(self._anim_curve)
+
+
+cdef class Anim(Element):
+    """Animation definition (placeholder for future implementation)"""
     pass
 
 
 cdef class SkinDeformer(Element):
-    pass
+    """Skin deformer (skinning/rigging)"""
+    cdef Scene _scene
+    cdef ufbx_skin_deformer* _skin_deformer
+
+    @staticmethod
+    cdef SkinDeformer _create(Scene scene, ufbx_skin_deformer* skin_deformer):
+        """Internal factory method"""
+        cdef SkinDeformer obj = SkinDeformer.__new__(SkinDeformer)
+        obj._scene = scene
+        obj._skin_deformer = skin_deformer
+        return obj
+
+    @property
+    def name(self):
+        """Skin deformer name"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_skin_deformer_get_name(self._skin_deformer).decode('utf-8', errors='replace')
+
+    @property
+    def clusters(self):
+        """Skin clusters (bones) in this deformer"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        cdef size_t count = ufbx_wrapper_skin_deformer_get_num_clusters(self._skin_deformer)
+        cdef list result = []
+        cdef ufbx_skin_cluster* cluster
+        for i in range(count):
+            cluster = ufbx_wrapper_skin_deformer_get_cluster(self._skin_deformer, i)
+            if cluster != NULL:
+                result.append(SkinCluster._create(self._scene, cluster))
+        return result
 
 
 cdef class SkinCluster(Element):
-    pass
+    """Skin cluster (single bone binding)"""
+    cdef Scene _scene
+    cdef ufbx_skin_cluster* _skin_cluster
+
+    @staticmethod
+    cdef SkinCluster _create(Scene scene, ufbx_skin_cluster* skin_cluster):
+        """Internal factory method"""
+        cdef SkinCluster obj = SkinCluster.__new__(SkinCluster)
+        obj._scene = scene
+        obj._skin_cluster = skin_cluster
+        return obj
+
+    @property
+    def name(self):
+        """Skin cluster name"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_skin_cluster_get_name(self._skin_cluster).decode('utf-8', errors='replace')
+
+    @property
+    def num_weights(self):
+        """Number of vertex weights"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_skin_cluster_get_num_weights(self._skin_cluster)
 
 
 cdef class BlendDeformer(Element):
-    pass
+    """Blend shape deformer"""
+    cdef Scene _scene
+    cdef ufbx_blend_deformer* _blend_deformer
+
+    @staticmethod
+    cdef BlendDeformer _create(Scene scene, ufbx_blend_deformer* blend_deformer):
+        """Internal factory method"""
+        cdef BlendDeformer obj = BlendDeformer.__new__(BlendDeformer)
+        obj._scene = scene
+        obj._blend_deformer = blend_deformer
+        return obj
+
+    @property
+    def name(self):
+        """Blend deformer name"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_blend_deformer_get_name(self._blend_deformer).decode('utf-8', errors='replace')
+
+    @property
+    def channels(self):
+        """Blend channels (morph targets)"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        cdef size_t count = ufbx_wrapper_blend_deformer_get_num_channels(self._blend_deformer)
+        cdef list result = []
+        cdef ufbx_blend_channel* channel
+        for i in range(count):
+            channel = ufbx_wrapper_blend_deformer_get_channel(self._blend_deformer, i)
+            if channel != NULL:
+                result.append(BlendChannel._create(self._scene, channel))
+        return result
 
 
 cdef class BlendChannel(Element):
-    pass
+    """Blend channel (single morph target)"""
+    cdef Scene _scene
+    cdef ufbx_blend_channel* _blend_channel
+
+    @staticmethod
+    cdef BlendChannel _create(Scene scene, ufbx_blend_channel* blend_channel):
+        """Internal factory method"""
+        cdef BlendChannel obj = BlendChannel.__new__(BlendChannel)
+        obj._scene = scene
+        obj._blend_channel = blend_channel
+        return obj
+
+    @property
+    def name(self):
+        """Blend channel name"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_blend_channel_get_name(self._blend_channel).decode('utf-8', errors='replace')
+
+    @property
+    def weight(self):
+        """Current weight of the channel"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_blend_channel_get_weight(self._blend_channel)
 
 
 cdef class BlendShape(Element):
-    pass
+    """Blend shape (vertex offsets)"""
+    cdef Scene _scene
+    cdef ufbx_blend_shape* _blend_shape
+
+    @staticmethod
+    cdef BlendShape _create(Scene scene, ufbx_blend_shape* blend_shape):
+        """Internal factory method"""
+        cdef BlendShape obj = BlendShape.__new__(BlendShape)
+        obj._scene = scene
+        obj._blend_shape = blend_shape
+        return obj
+
+    @property
+    def name(self):
+        """Blend shape name"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_blend_shape_get_name(self._blend_shape).decode('utf-8', errors='replace')
+
+    @property
+    def num_offsets(self):
+        """Number of vertex offsets"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_blend_shape_get_num_offsets(self._blend_shape)
 
 
 cdef class Constraint(Element):
-    pass
+    """Constraint"""
+    cdef Scene _scene
+    cdef ufbx_constraint* _constraint
+
+    @staticmethod
+    cdef Constraint _create(Scene scene, ufbx_constraint* constraint):
+        """Internal factory method"""
+        cdef Constraint obj = Constraint.__new__(Constraint)
+        obj._scene = scene
+        obj._constraint = constraint
+        return obj
+
+    @property
+    def name(self):
+        """Constraint name"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_constraint_get_name(self._constraint).decode('utf-8', errors='replace')
+
+    @property
+    def type(self):
+        """Constraint type (ConstraintType enum)"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ConstraintType(ufbx_wrapper_constraint_get_type(self._constraint))
+
+    @property
+    def weight(self):
+        """Constraint weight"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_constraint_get_weight(self._constraint)
+
+    @property
+    def active(self):
+        """Whether the constraint is active"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_constraint_get_active(self._constraint)
 
 
 cdef class Scene:
@@ -888,6 +1299,54 @@ cdef class Scene:
         cdef size_t count = ufbx_wrapper_scene_get_num_textures(self._scene)
         return [self._get_texture(i) for i in range(count)]
 
+    @property
+    def anim_stacks(self):
+        """Get all animation stacks in the scene"""
+        if self._closed:
+            raise RuntimeError("Scene is closed")
+        cdef size_t count = ufbx_wrapper_scene_get_num_anim_stacks(self._scene)
+        return [self._get_anim_stack(i) for i in range(count)]
+
+    @property
+    def anim_curves(self):
+        """Get all animation curves in the scene"""
+        if self._closed:
+            raise RuntimeError("Scene is closed")
+        cdef size_t count = ufbx_wrapper_scene_get_num_anim_curves(self._scene)
+        return [self._get_anim_curve(i) for i in range(count)]
+
+    @property
+    def skin_deformers(self):
+        """Get all skin deformers in the scene"""
+        if self._closed:
+            raise RuntimeError("Scene is closed")
+        cdef size_t count = ufbx_wrapper_scene_get_num_skin_deformers(self._scene)
+        return [self._get_skin_deformer(i) for i in range(count)]
+
+    @property
+    def blend_deformers(self):
+        """Get all blend deformers in the scene"""
+        if self._closed:
+            raise RuntimeError("Scene is closed")
+        cdef size_t count = ufbx_wrapper_scene_get_num_blend_deformers(self._scene)
+        return [self._get_blend_deformer(i) for i in range(count)]
+
+    @property
+    def blend_shapes(self):
+        """Get all blend shapes in the scene"""
+        if self._closed:
+            raise RuntimeError("Scene is closed")
+        cdef size_t count = ufbx_wrapper_scene_get_num_blend_shapes(self._scene)
+        return [self._get_blend_shape(i) for i in range(count)]
+
+    @property
+    def constraints(self):
+        """Get all constraints in the scene"""
+        if self._closed:
+            raise RuntimeError("Scene is closed")
+        cdef size_t count = ufbx_wrapper_scene_get_num_constraints(self._scene)
+        return [self._get_constraint(i) for i in range(count)]
+
     cdef Node _get_node(self, size_t index):
         """Internal: get node by index"""
         cdef ufbx_node* node = ufbx_wrapper_scene_get_node(self._scene, index)
@@ -935,6 +1394,48 @@ cdef class Scene:
         cdef ufbx_texture* texture = ufbx_wrapper_scene_get_texture(self._scene, index)
         if texture != NULL:
             return Texture._create(self, texture)
+        return None
+
+    cdef AnimStack _get_anim_stack(self, size_t index):
+        """Internal: get animation stack by index"""
+        cdef ufbx_anim_stack* anim_stack = ufbx_wrapper_scene_get_anim_stack(self._scene, index)
+        if anim_stack != NULL:
+            return AnimStack._create(self, anim_stack)
+        return None
+
+    cdef AnimCurve _get_anim_curve(self, size_t index):
+        """Internal: get animation curve by index"""
+        cdef ufbx_anim_curve* anim_curve = ufbx_wrapper_scene_get_anim_curve(self._scene, index)
+        if anim_curve != NULL:
+            return AnimCurve._create(self, anim_curve)
+        return None
+
+    cdef SkinDeformer _get_skin_deformer(self, size_t index):
+        """Internal: get skin deformer by index"""
+        cdef ufbx_skin_deformer* skin_deformer = ufbx_wrapper_scene_get_skin_deformer(self._scene, index)
+        if skin_deformer != NULL:
+            return SkinDeformer._create(self, skin_deformer)
+        return None
+
+    cdef BlendDeformer _get_blend_deformer(self, size_t index):
+        """Internal: get blend deformer by index"""
+        cdef ufbx_blend_deformer* blend_deformer = ufbx_wrapper_scene_get_blend_deformer(self._scene, index)
+        if blend_deformer != NULL:
+            return BlendDeformer._create(self, blend_deformer)
+        return None
+
+    cdef BlendShape _get_blend_shape(self, size_t index):
+        """Internal: get blend shape by index"""
+        cdef ufbx_blend_shape* blend_shape = ufbx_wrapper_scene_get_blend_shape(self._scene, index)
+        if blend_shape != NULL:
+            return BlendShape._create(self, blend_shape)
+        return None
+
+    cdef Constraint _get_constraint(self, size_t index):
+        """Internal: get constraint by index"""
+        cdef ufbx_constraint* constraint = ufbx_wrapper_scene_get_constraint(self._scene, index)
+        if constraint != NULL:
+            return Constraint._create(self, constraint)
         return None
 
 
