@@ -44,3 +44,4 @@ coverage.xml
 # Test fixtures (large binary FBX files)
 tests/fixtures/*.fbx
 tests/fixtures/*.glb
+ufbx_cffi_backup/
