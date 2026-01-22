@@ -1,11 +1,12 @@
 """
 ufbx Cython bindings - High-performance Python wrapper for ufbx
 """
+
 from ._ufbx import (
-    Scene,
-    Node,
-    Mesh,
     Material,
+    Mesh,
+    Node,
+    Scene,
     load_file,
 )
 

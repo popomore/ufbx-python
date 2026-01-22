@@ -1,13 +1,14 @@
 """
-ufbx-python setup script
+ufbx-python setup script - Cython implementation
 """
 
 import os
+from setuptools import setup, Extension, find_packages
+from Cython.Build import cythonize
+import numpy as np
 
-from setuptools import find_packages, setup
 
-
-# 读取版本号
+# Read version
 def get_version():
     version_file = os.path.join(os.path.dirname(__file__), "ufbx", "__init__.py")
     with open(version_file) as f:
@@ -17,7 +18,7 @@ def get_version():
     return "0.1.0"
 
 
-# 读取长描述
+# Read long description
 def get_long_description():
     readme_file = os.path.join(os.path.dirname(__file__), "README.md")
     if os.path.exists(readme_file):
@@ -25,6 +26,26 @@ def get_long_description():
             return f.read()
     return ""
 
+
+# Define Cython extension
+extensions = [
+    Extension(
+        "ufbx._ufbx",
+        sources=[
+            "ufbx/_ufbx.pyx",
+            "ufbx/src/ufbx_wrapper.c",
+            "ufbx-c/ufbx.c",
+        ],
+        include_dirs=[
+            "ufbx",
+            "ufbx/src",
+            ".",
+            np.get_include(),
+        ],
+        define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")],
+        extra_compile_args=["-O3"],
+    )
+]
 
 setup(
     name="pyufbx",
@@ -40,26 +61,23 @@ setup(
         "Documentation": "https://github.com/popomore/ufbx-python#readme",
     },
     packages=find_packages(exclude=["tests", "tests.*", "examples", "bindgen"]),
-    package_data={
-        "ufbx": [
-            "*.h",      # 包含生成的头文件
-            "*.pyi",    # 包含类型提示文件
-            "py.typed", # PEP 561 标记文件
-        ],
-    },
-    setup_requires=["cffi>=1.15.0"],
-    install_requires=[
-        "cffi>=1.15.0",
-    ],
-    cffi_modules=["ufbx/_ufbx_build.py:ffibuilder"],
+    ext_modules=cythonize(
+        extensions,
+        compiler_directives={
+            "language_level": 3,
+            "embedsignature": True,
+        },
+    ),
+    install_requires=["numpy"],
     python_requires=">=3.9",
-    keywords="fbx 3d graphics modeling autodesk loader",
+    keywords="fbx 3d graphics modeling autodesk loader cython",
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
         "Programming Language :: C",
+        "Programming Language :: Cython",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
@@ -69,4 +87,5 @@ setup(
         "Topic :: Multimedia :: Graphics :: 3D Modeling",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
+    zip_safe=False,
 )
