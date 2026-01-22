@@ -3,9 +3,10 @@ ufbx-python setup script - Cython implementation
 """
 
 import os
-from setuptools import setup, Extension, find_packages
-from Cython.Build import cythonize
+
 import numpy as np
+from Cython.Build import cythonize
+from setuptools import Extension, find_packages, setup
 
 
 # Read version

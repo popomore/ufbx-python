@@ -6,6 +6,7 @@ Demonstrates how to use ufbx-python to load FBX files
 """
 
 import sys
+
 import ufbx
 
 
@@ -44,7 +45,7 @@ def main():
             # List first few nodes
             print("First 5 nodes:")
             for i, node in enumerate(scene.nodes[:5]):
-                mesh_info = f" [has mesh]" if node.mesh else ""
+                mesh_info = " [has mesh]" if node.mesh else ""
                 print(f"  {i}: {node.name}{mesh_info}")
             print()
 
@@ -73,7 +74,7 @@ def main():
 
                 print()
 
-    except FileNotFoundError as e:
+    except FileNotFoundError:
         print(f"Error: File not found - {filename}")
         sys.exit(1)
     except Exception as e:
@@ -81,5 +82,5 @@ def main():
         sys.exit(1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

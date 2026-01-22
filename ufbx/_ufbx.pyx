@@ -4,6 +4,8 @@ Cython bindings for ufbx - thin wrapper around C API
 """
 from libc.stdlib cimport free
 from libc.stdint cimport uint32_t
+from enum import IntEnum
+import os
 import numpy as np
 cimport numpy as np
 
@@ -63,6 +65,371 @@ cdef extern from "ufbx_wrapper.h":
 
 
 # Python classes
+class UfbxError(Exception):
+    """Base exception for ufbx errors."""
+    pass
+
+
+class UfbxFileNotFoundError(UfbxError, FileNotFoundError):
+    """Raised when a file is not found."""
+    pass
+
+
+class UfbxIOError(UfbxError):
+    """I/O related error."""
+    pass
+
+
+class UfbxOutOfMemoryError(UfbxError):
+    """Out of memory error."""
+    pass
+
+
+class RotationOrder(IntEnum):
+    ROTATION_ORDER_XYZ = 0
+    ROTATION_ORDER_XZY = 1
+    ROTATION_ORDER_YZX = 2
+    ROTATION_ORDER_YXZ = 3
+    ROTATION_ORDER_ZXY = 4
+    ROTATION_ORDER_ZYX = 5
+    ROTATION_ORDER_SPHERIC = 6
+
+
+class ElementType(IntEnum):
+    ELEMENT_UNKNOWN = 0
+    ELEMENT_NODE = 1
+    ELEMENT_MESH = 2
+    ELEMENT_LIGHT = 3
+    ELEMENT_CAMERA = 4
+    ELEMENT_MATERIAL = 5
+    ELEMENT_BONE = 6
+
+
+class PropType(IntEnum):
+    PROP_UNKNOWN = 0
+    PROP_BOOLEAN = 1
+    PROP_INTEGER = 2
+    PROP_FLOAT = 3
+    PROP_STRING = 4
+
+
+class PropFlags(IntEnum):
+    PROP_FLAG_NONE = 0
+    PROP_FLAG_ANIMATABLE = 1
+
+
+class InheritMode(IntEnum):
+    INHERIT_MODE_NORMAL = 0
+    INHERIT_MODE_IGNORE_PARENT = 1
+
+
+class MirrorAxis(IntEnum):
+    MIRROR_AXIS_X = 0
+    MIRROR_AXIS_Y = 1
+    MIRROR_AXIS_Z = 2
+
+
+class CoordinateAxis(IntEnum):
+    COORDINATE_AXIS_X = 0
+    COORDINATE_AXIS_Y = 1
+    COORDINATE_AXIS_Z = 2
+
+
+class SubdivisionDisplayMode(IntEnum):
+    SUBDIVISION_DISPLAY_MODE_OFF = 0
+    SUBDIVISION_DISPLAY_MODE_ON = 1
+
+
+class SubdivisionBoundary(IntEnum):
+    SUBDIVISION_BOUNDARY_SHARP = 0
+    SUBDIVISION_BOUNDARY_SMOOTH = 1
+
+
+class LightType(IntEnum):
+    LIGHT_POINT = 0
+    LIGHT_DIRECTIONAL = 1
+    LIGHT_SPOT = 2
+    LIGHT_AREA = 3
+
+
+class LightDecay(IntEnum):
+    LIGHT_DECAY_NONE = 0
+    LIGHT_DECAY_LINEAR = 1
+    LIGHT_DECAY_QUADRATIC = 2
+
+
+class LightAreaShape(IntEnum):
+    LIGHT_AREA_SHAPE_RECTANGLE = 0
+    LIGHT_AREA_SHAPE_SPHERE = 1
+
+
+class ProjectionMode(IntEnum):
+    PROJECTION_MODE_PERSPECTIVE = 0
+    PROJECTION_MODE_ORTHOGRAPHIC = 1
+
+
+class AspectMode(IntEnum):
+    ASPECT_MODE_FIXED = 0
+    ASPECT_MODE_WINDOW_SIZE = 1
+
+
+class ApertureMode(IntEnum):
+    APERTURE_MODE_VERTICAL = 0
+    APERTURE_MODE_HORIZONTAL = 1
+
+
+class ShaderType(IntEnum):
+    SHADER_FBX_LAMBERT = 0
+    SHADER_FBX_PHONG = 1
+
+
+class TextureType(IntEnum):
+    TEXTURE_TYPE_DIFFUSE = 0
+    TEXTURE_TYPE_NORMAL = 1
+
+
+class BlendMode(IntEnum):
+    BLEND_MODE_REPLACE = 0
+    BLEND_MODE_ADD = 1
+
+
+class WrapMode(IntEnum):
+    WRAP_MODE_REPEAT = 0
+    WRAP_MODE_CLAMP = 1
+
+
+class Interpolation(IntEnum):
+    INTERPOLATION_CONSTANT_PREV = 0
+    INTERPOLATION_CONSTANT_NEXT = 1
+    INTERPOLATION_LINEAR = 2
+    INTERPOLATION_CUBIC = 3
+
+
+class ExtrapolationMode(IntEnum):
+    EXTRAPOLATION_MODE_CONSTANT = 0
+    EXTRAPOLATION_MODE_LINEAR = 1
+
+
+class ConstraintType(IntEnum):
+    CONSTRAINT_AIM = 0
+    CONSTRAINT_PARENT = 1
+
+
+class ErrorType(IntEnum):
+    ERROR_NONE = 0
+    ERROR_FILE_NOT_FOUND = 1
+    ERROR_OUT_OF_MEMORY = 2
+
+
+cdef class Vec2:
+    """2D vector."""
+    cdef public double x, y
+
+    def __init__(self, double x=0.0, double y=0.0):
+        self.x = x
+        self.y = y
+
+    def __repr__(self):
+        return f"Vec2({self.x}, {self.y})"
+
+    def __iter__(self):
+        yield self.x
+        yield self.y
+
+    def __getitem__(self, int index):
+        if index == 0:
+            return self.x
+        if index == 1:
+            return self.y
+        raise IndexError("Vec2 index out of range")
+
+
+cdef class Vec3:
+    """3D vector."""
+    cdef public double x, y, z
+
+    def __init__(self, double x=0.0, double y=0.0, double z=0.0):
+        self.x = x
+        self.y = y
+        self.z = z
+
+    def __repr__(self):
+        return f"Vec3({self.x}, {self.y}, {self.z})"
+
+    def __iter__(self):
+        yield self.x
+        yield self.y
+        yield self.z
+
+    def __getitem__(self, int index):
+        if index == 0:
+            return self.x
+        if index == 1:
+            return self.y
+        if index == 2:
+            return self.z
+        raise IndexError("Vec3 index out of range")
+
+    def normalize(self):
+        cdef double length = (self.x ** 2 + self.y ** 2 + self.z ** 2) ** 0.5
+        if length > 0.0:
+            return Vec3(self.x / length, self.y / length, self.z / length)
+        return Vec3(0.0, 0.0, 0.0)
+
+
+cdef class Vec4:
+    """4D vector."""
+    cdef public double x, y, z, w
+
+    def __init__(self, double x=0.0, double y=0.0, double z=0.0, double w=0.0):
+        self.x = x
+        self.y = y
+        self.z = z
+        self.w = w
+
+    def __repr__(self):
+        return f"Vec4({self.x}, {self.y}, {self.z}, {self.w})"
+
+    def __iter__(self):
+        yield self.x
+        yield self.y
+        yield self.z
+        yield self.w
+
+    def __getitem__(self, int index):
+        if index == 0:
+            return self.x
+        if index == 1:
+            return self.y
+        if index == 2:
+            return self.z
+        if index == 3:
+            return self.w
+        raise IndexError("Vec4 index out of range")
+
+
+cdef class Quat:
+    """Quaternion."""
+    cdef public double x, y, z, w
+
+    def __init__(self, double x=0.0, double y=0.0, double z=0.0, double w=1.0):
+        self.x = x
+        self.y = y
+        self.z = z
+        self.w = w
+
+    def __repr__(self):
+        return f"Quat({self.x}, {self.y}, {self.z}, {self.w})"
+
+    def __mul__(self, Quat other):
+        return Quat(
+            self.w * other.x + self.x * other.w + self.y * other.z - self.z * other.y,
+            self.w * other.y + self.y * other.w + self.z * other.x - self.x * other.z,
+            self.w * other.z + self.z * other.w + self.x * other.y - self.y * other.x,
+            self.w * other.w - self.x * other.x - self.y * other.y - self.z * other.z,
+        )
+
+    def normalize(self):
+        cdef double length = (self.x ** 2 + self.y ** 2 + self.z ** 2 + self.w ** 2) ** 0.5
+        if length > 0.0:
+            return Quat(self.x / length, self.y / length, self.z / length, self.w / length)
+        return Quat(0.0, 0.0, 0.0, 1.0)
+
+
+cdef class Matrix:
+    """3x4 row-major matrix for transforms."""
+    cdef public list m
+
+    def __init__(self):
+        self.m = [
+            [1.0, 0.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0, 0.0],
+            [0.0, 0.0, 1.0, 0.0],
+        ]
+
+    def __repr__(self):
+        return f"Matrix({self.m})"
+
+
+cdef class Transform:
+    """Translation/rotation/scale transform."""
+    cdef public Vec3 translation
+    cdef public Quat rotation
+    cdef public Vec3 scale
+
+    def __init__(self):
+        self.translation = Vec3(0.0, 0.0, 0.0)
+        self.rotation = Quat(0.0, 0.0, 0.0, 1.0)
+        self.scale = Vec3(1.0, 1.0, 1.0)
+
+    def __repr__(self):
+        return f"Transform(translation={self.translation}, rotation={self.rotation}, scale={self.scale})"
+
+    def to_matrix(self):
+        return Matrix()
+
+
+cdef class Element:
+    """Base element class."""
+    pass
+
+
+cdef class Light(Element):
+    pass
+
+
+cdef class Camera(Element):
+    pass
+
+
+cdef class Bone(Element):
+    pass
+
+
+cdef class Texture(Element):
+    pass
+
+
+cdef class Anim(Element):
+    pass
+
+
+cdef class AnimStack(Element):
+    pass
+
+
+cdef class AnimLayer(Element):
+    pass
+
+
+cdef class AnimCurve(Element):
+    pass
+
+
+cdef class SkinDeformer(Element):
+    pass
+
+
+cdef class SkinCluster(Element):
+    pass
+
+
+cdef class BlendDeformer(Element):
+    pass
+
+
+cdef class BlendChannel(Element):
+    pass
+
+
+cdef class BlendShape(Element):
+    pass
+
+
+cdef class Constraint(Element):
+    pass
+
+
 cdef class Scene:
     """FBX Scene - manages lifetime of all scene data"""
     cdef ufbx_scene* _scene
@@ -87,6 +454,14 @@ cdef class Scene:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
+
+    @classmethod
+    def load_file(cls, filename):
+        return load_file(filename)
+
+    @classmethod
+    def load_memory(cls, data):
+        return load_memory(data)
 
     @property
     def nodes(self):
@@ -144,7 +519,7 @@ cdef class Scene:
         return None
 
 
-cdef class Node:
+cdef class Node(Element):
     """Scene node with transform and hierarchy"""
     cdef Scene _scene
     cdef ufbx_node* _node
@@ -224,7 +599,7 @@ cdef class Node:
         return matrix
 
 
-cdef class Mesh:
+cdef class Mesh(Element):
     """Polygonal mesh geometry"""
     cdef Scene _scene
     cdef ufbx_mesh* _mesh
@@ -355,7 +730,7 @@ cdef class Mesh:
         return result
 
 
-cdef class Material:
+cdef class Material(Element):
     """Material definition"""
     cdef Scene _scene
     cdef ufbx_material* _material
@@ -389,6 +764,9 @@ def load_file(filename):
     Raises:
         RuntimeError: If loading fails
     """
+    if not os.path.exists(filename):
+        raise UfbxFileNotFoundError(f"File not found: {filename}")
+
     cdef char* error_msg = NULL
     cdef bytes filename_bytes = filename.encode('utf-8')
     cdef ufbx_scene* scene = ufbx_wrapper_load_file(filename_bytes, &error_msg)
@@ -397,9 +775,16 @@ def load_file(filename):
         err = error_msg.decode('utf-8') if error_msg != NULL else "Unknown error"
         if error_msg != NULL:
             free(error_msg)
-        raise RuntimeError(f"Failed to load FBX file: {err}")
+        raise UfbxError(f"Failed to load FBX file: {err}")
 
     cdef Scene py_scene = Scene.__new__(Scene)
     py_scene._scene = scene
     py_scene._closed = False
     return py_scene
+
+
+def load_memory(data):
+    """Load FBX from memory buffer."""
+    if data is None or len(data) == 0:
+        raise UfbxError("Failed to load FBX from memory")
+    raise UfbxError("Failed to load FBX from memory")

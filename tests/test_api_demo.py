@@ -71,13 +71,13 @@ def demo_api_coverage():
     print_section("2. Enum Types (60+ enums)")
 
     enum_samples = [
-        ('RotationOrder', ufbx.RotationOrder, ['ROTATION_ORDER_XYZ', 'ROTATION_ORDER_YZX']),
-        ('ElementType', ufbx.ElementType, ['ELEMENT_NODE', 'ELEMENT_MESH', 'ELEMENT_LIGHT']),
-        ('LightType', ufbx.LightType, ['LIGHT_POINT', 'LIGHT_DIRECTIONAL', 'LIGHT_SPOT']),
-        ('ProjectionMode', ufbx.ProjectionMode, ['PROJECTION_MODE_PERSPECTIVE', 'PROJECTION_MODE_ORTHOGRAPHIC']),
-        ('ShaderType', ufbx.ShaderType, ['SHADER_FBX_LAMBERT', 'SHADER_FBX_PHONG']),
-        ('Interpolation', ufbx.Interpolation, ['INTERPOLATION_LINEAR', 'INTERPOLATION_CUBIC']),
-        ('ConstraintType', ufbx.ConstraintType, ['CONSTRAINT_AIM', 'CONSTRAINT_PARENT']),
+        ("RotationOrder", ufbx.RotationOrder, ["ROTATION_ORDER_XYZ", "ROTATION_ORDER_YZX"]),
+        ("ElementType", ufbx.ElementType, ["ELEMENT_NODE", "ELEMENT_MESH", "ELEMENT_LIGHT"]),
+        ("LightType", ufbx.LightType, ["LIGHT_POINT", "LIGHT_DIRECTIONAL", "LIGHT_SPOT"]),
+        ("ProjectionMode", ufbx.ProjectionMode, ["PROJECTION_MODE_PERSPECTIVE", "PROJECTION_MODE_ORTHOGRAPHIC"]),
+        ("ShaderType", ufbx.ShaderType, ["SHADER_FBX_LAMBERT", "SHADER_FBX_PHONG"]),
+        ("Interpolation", ufbx.Interpolation, ["INTERPOLATION_LINEAR", "INTERPOLATION_CUBIC"]),
+        ("ConstraintType", ufbx.ConstraintType, ["CONSTRAINT_AIM", "CONSTRAINT_PARENT"]),
     ]
 
     for enum_name, enum_class, sample_values in enum_samples:
@@ -90,32 +90,47 @@ def demo_api_coverage():
     print_section("3. Element Classes (20+ types)")
 
     element_classes = [
-        'Scene', 'Element', 'Node', 'Mesh',
-        'Light', 'Camera', 'Bone',
-        'Material', 'Texture',
-        'Anim', 'AnimStack', 'AnimLayer', 'AnimCurve',
-        'SkinDeformer', 'SkinCluster',
-        'BlendDeformer', 'BlendChannel', 'BlendShape',
-        'CacheDeformer', 'CacheFile',
-        'Constraint',
-        'DisplayLayer', 'SelectionSet', 'Character',
+        "Scene",
+        "Element",
+        "Node",
+        "Mesh",
+        "Light",
+        "Camera",
+        "Bone",
+        "Material",
+        "Texture",
+        "Anim",
+        "AnimStack",
+        "AnimLayer",
+        "AnimCurve",
+        "SkinDeformer",
+        "SkinCluster",
+        "BlendDeformer",
+        "BlendChannel",
+        "BlendShape",
+        "CacheDeformer",
+        "CacheFile",
+        "Constraint",
+        "DisplayLayer",
+        "SelectionSet",
+        "Character",
     ]
 
     print("\nAvailable element wrapper classes:")
     for i, cls_name in enumerate(element_classes, 1):
         cls = getattr(ufbx, cls_name)
         doc = cls.__doc__ or "No description"
-        doc = doc.split('\n')[0]  # First line only
+        doc = doc.split("\n")[0]  # First line only
         print(f"  {i:2d}. {cls_name:20s} - {doc}")
 
     # 4. Error Handling
     print_section("4. Error Handling")
 
     error_types = [
-        'UfbxError',
-        'UfbxFileNotFoundError',
-        'UfbxIOError',
-        'UfbxOutOfMemoryError',
+        "UfbxError",
+        "UfbxFileNotFoundError",
+        "UfbxIOError",
+        "UfbxOutOfMemoryError",
     ]
 
     print("\nException hierarchy:")
@@ -140,8 +155,8 @@ def demo_api_coverage():
     print_section("5. API Functions")
 
     functions = [
-        ('load_file', 'Load FBX from file path'),
-        ('load_memory', 'Load FBX from memory buffer'),
+        ("load_file", "Load FBX from file path"),
+        ("load_memory", "Load FBX from memory buffer"),
     ]
 
     print("\nTop-level functions:")
@@ -155,7 +170,7 @@ def demo_api_coverage():
 
     all_exports = ufbx.__all__
     classes = [x for x in all_exports if x[0].isupper()]
-    functions = [x for x in all_exports if x[0].islower() and not x.startswith('_')]
+    functions = [x for x in all_exports if x[0].islower() and not x.startswith("_")]
 
     print("\nTotal API Coverage:")
     print(f"  Total exports:     {len(all_exports)}")
@@ -171,5 +186,5 @@ def demo_api_coverage():
     print(f"{'=' * 70}\n")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     demo_api_coverage()

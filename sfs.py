@@ -100,9 +100,7 @@ def parse_str(desc: Desc, name: str, default: Optional[str] = None):
         raise ConfigError(f"{desc.ctx}: Expected string {name}")
     value = desc.dict[name]
     if not isinstance(value, str):
-        raise ConfigError(
-            f"{desc.ctx}: Expected {name} to be a string, got {fmt_type(value)}"
-        )
+        raise ConfigError(f"{desc.ctx}: Expected {name} to be a string, got {fmt_type(value)}")
     return value
 
 
@@ -113,9 +111,7 @@ def parse_list(desc: Desc, name: str, default=None):
         raise ConfigError(f"{desc.ctx}: Expected list {name}")
     value = desc.dict[name]
     if not isinstance(value, list):
-        raise ConfigError(
-            f"{desc.ctx}: Expected {name} to be a list, got {fmt_type(value)}"
-        )
+        raise ConfigError(f"{desc.ctx}: Expected {name} to be a list, got {fmt_type(value)}")
     return value
 
 
@@ -126,9 +122,7 @@ def parse_bool(desc: Desc, name: str, default=None):
         raise ConfigError(f"{desc.ctx}: Expected boolean {name}")
     value = desc.dict[name]
     if not isinstance(value, bool):
-        raise ConfigError(
-            f"{desc.ctx}: Expected {name} to be a boolean, got {fmt_type(value)}"
-        )
+        raise ConfigError(f"{desc.ctx}: Expected {name} to be a boolean, got {fmt_type(value)}")
     return value
 
 
@@ -266,11 +260,7 @@ class Dependency:
                 )
                 for file in glob.iglob(spec_remote):
                     remote = os.path.relpath(file, remote_path)
-                    local = (
-                        local_pre
-                        + remote[len(remote_pre) : -len(remote_post)]
-                        + local_post
-                    )
+                    local = local_pre + remote[len(remote_pre) : -len(remote_post)] + local_post
                     spec = spec._replace(remote=remote, local=local)
                     yield spec
             else:
@@ -370,11 +360,7 @@ class GitClone(Clone):
                     )
                     for file in glob.iglob(os.path.join(input.path, filespec.remote)):
                         remote = os.path.relpath(file, input.path)
-                        local = (
-                            local_pre
-                            + remote[len(remote_pre) : -len(remote_post)]
-                            + local_post
-                        )
+                        local = local_pre + remote[len(remote_pre) : -len(remote_post)] + local_post
                         spec = filespec._replace(remote=remote, local=local)
                         files.append(spec)
                 else:
@@ -455,9 +441,7 @@ def do_update(argv, config: Config):
             deps[dep] = ""
 
     if not deps:
-        info(
-            "No dependencies listed, list dependencies or use '--all' to update everything"
-        )
+        info("No dependencies listed, list dependencies or use '--all' to update everything")
 
     locks = {}
     try:
@@ -498,9 +482,7 @@ def do_update(argv, config: Config):
         lock = locks.get(dep.name)
 
         verbose(f"-- Querying new revision {dep.name}")
-        new_clone = dep.clone(
-            CloneInput(path=new_dep_dir, version=version, exact=False)
-        )
+        new_clone = dep.clone(CloneInput(path=new_dep_dir, version=version, exact=False))
         new_revision = new_clone.get_revision()
 
         if new_revision == lock:
@@ -513,9 +495,7 @@ def do_update(argv, config: Config):
 
         if lock is not None:
             verbose(f"-- Cloning old revision {dep.name} {lock}")
-            old_clone = dep.clone(
-                CloneInput(path=old_dep_dir, version=lock, exact=True)
-            )
+            old_clone = dep.clone(CloneInput(path=old_dep_dir, version=lock, exact=True))
             old_clone.get_revision()
             old_clone.finish()
 
@@ -527,21 +507,15 @@ def do_update(argv, config: Config):
         for file in old_files:
             local_path = os.path.join(dst_dir, file.local)
             remote_path = os.path.join(old_dep_dir, file.remote)
-            if os.path.exists(local_path) and not files_equal(
-                local_path, remote_path, file.binary
-            ):
+            if os.path.exists(local_path) and not files_equal(local_path, remote_path, file.binary):
                 new_remote_path = os.path.join(new_dep_dir, file.remote)
-                if os.path.exists(new_remote_path) and files_equal(
-                    local_path, new_remote_path, file.binary
-                ):
+                if os.path.exists(new_remote_path) and files_equal(local_path, new_remote_path, file.binary):
                     info(f"  Already updated {file.local}")
                 else:
                     modified_files.add(file.local)
 
         if modified_files and not (argv.merge or argv.overwrite):
-            info(
-                "WARNING: Not updated! Files modified locally (specify '--merge' or '--overwrite' to resolve):"
-            )
+            info("WARNING: Not updated! Files modified locally (specify '--merge' or '--overwrite' to resolve):")
             for file in modified_files:
                 info(f"  {file}")
             continue
@@ -549,9 +523,7 @@ def do_update(argv, config: Config):
         for file in new_files:
             local_path = os.path.join(dst_dir, file.local)
             new_path = os.path.join(new_dep_dir, file.remote)
-            if os.path.exists(local_path) and files_equal(
-                local_path, new_path, file.binary
-            ):
+            if os.path.exists(local_path) and files_equal(local_path, new_path, file.binary):
                 continue
             if file.local in modified_files and argv.merge:
                 verbose(f"Merging file {local_path}")
@@ -565,9 +537,7 @@ def do_update(argv, config: Config):
                     exec_git("merge-file", local_path, old_path, new_path)
                     info(f"  Merged {file.local} cleanly")
                 except ReturnCodeError:
-                    info(
-                        f"  Merged {file.local}, {file_num_conflicts(local_path)} conflicts remaining"
-                    )
+                    info(f"  Merged {file.local}, {file_num_conflicts(local_path)} conflicts remaining")
             else:
                 verbose(f"Copiying file {file.local}")
                 if file.local in modified_files:
@@ -598,35 +568,19 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser("sfs.py")
     parser.add_argument("--git", default="git", help="Git executable path")
-    parser.add_argument(
-        "--verbose", action="store_true", help="Print verbose information"
-    )
-    parser.add_argument(
-        "--show-stderr", action="store_true", help="Show stderr of ran commands"
-    )
-    parser.add_argument(
-        "--keep-temp", action="store_true", help="Retain the temporary directory"
-    )
-    parser.add_argument(
-        "--remove-temp", action="store_true", help="Remove exiting temporary directory"
-    )
-    parser.add_argument(
-        "--config", "-c", default="sfs-deps.json", help="Configuration .json file path"
-    )
+    parser.add_argument("--verbose", action="store_true", help="Print verbose information")
+    parser.add_argument("--show-stderr", action="store_true", help="Show stderr of ran commands")
+    parser.add_argument("--keep-temp", action="store_true", help="Retain the temporary directory")
+    parser.add_argument("--remove-temp", action="store_true", help="Remove exiting temporary directory")
+    parser.add_argument("--config", "-c", default="sfs-deps.json", help="Configuration .json file path")
 
     subparsers = parser.add_subparsers(metavar="cmd")
 
     parser_update = subparsers.add_parser("update", help="Update files")
     parser_update.add_argument("dependencies", nargs="*", help="Dependencies to update")
-    parser_update.add_argument(
-        "--all", action="store_true", help="Update all dependencies"
-    )
-    parser_update.add_argument(
-        "--merge", action="store_true", help="Merge locally modified files"
-    )
-    parser_update.add_argument(
-        "--overwrite", action="store_true", help="Overwrite locally modified files"
-    )
+    parser_update.add_argument("--all", action="store_true", help="Update all dependencies")
+    parser_update.add_argument("--merge", action="store_true", help="Merge locally modified files")
+    parser_update.add_argument("--overwrite", action="store_true", help="Overwrite locally modified files")
     parser_update.set_defaults(func=do_update)
 
     parser_revert = subparsers.add_parser("revert", help="Revert files")

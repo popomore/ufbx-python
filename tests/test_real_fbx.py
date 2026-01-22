@@ -131,6 +131,7 @@ def _test_load_fbx_impl():
     except Exception as e:
         print(f"\n✗ Unexpected error: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -138,6 +139,7 @@ def _test_load_fbx_impl():
 def test_load_fbx():
     """Pytest wrapper for test_load_fbx"""
     import pytest
+
     fbx_file = os.path.join(os.path.dirname(__file__), "fixtures", "maya_cube.fbx")
 
     if not os.path.exists(fbx_file):
@@ -148,6 +150,6 @@ def test_load_fbx():
         pytest.skip("FBX file may be corrupted or not a valid FBX file")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     success = _test_load_fbx_impl()
     sys.exit(0 if success else 1)

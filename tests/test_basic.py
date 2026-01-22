@@ -9,25 +9,25 @@ import ufbx
 
 def test_version():
     """Test version number"""
-    assert ufbx.__version__ == '0.0.0'
+    assert ufbx.__version__ == "0.0.0"
 
 
 def test_imports():
     """Test that all public APIs can be imported"""
-    assert hasattr(ufbx, 'Scene')
-    assert hasattr(ufbx, 'load_file')
-    assert hasattr(ufbx, 'load_memory')
-    assert hasattr(ufbx, 'UfbxError')
-    assert hasattr(ufbx, 'UfbxFileNotFoundError')
-    assert hasattr(ufbx, 'RotationOrder')
+    assert hasattr(ufbx, "Scene")
+    assert hasattr(ufbx, "load_file")
+    assert hasattr(ufbx, "load_memory")
+    assert hasattr(ufbx, "UfbxError")
+    assert hasattr(ufbx, "UfbxFileNotFoundError")
+    assert hasattr(ufbx, "RotationOrder")
 
 
 def test_file_not_found():
     """Test that exception is raised when file does not exist"""
     with pytest.raises(ufbx.UfbxFileNotFoundError) as exc_info:
-        ufbx.load_file('nonexistent_file.fbx')
+        ufbx.load_file("nonexistent_file.fbx")
 
-    assert 'nonexistent_file.fbx' in str(exc_info.value)
+    assert "nonexistent_file.fbx" in str(exc_info.value)
 
 
 def test_rotation_order_enum():
@@ -42,8 +42,8 @@ def test_rotation_order_enum():
 def test_scene_class():
     """Test basic properties of Scene class"""
     # Scene should have load_file class method
-    assert hasattr(ufbx.Scene, 'load_file')
-    assert hasattr(ufbx.Scene, 'load_memory')
+    assert hasattr(ufbx.Scene, "load_file")
+    assert hasattr(ufbx.Scene, "load_memory")
 
     # Should not directly construct Scene
     # (Can construct, but requires passing valid C pointer)
@@ -61,11 +61,11 @@ def test_load_memory_empty():
     """Test loading empty data"""
     # Empty data should fail
     with pytest.raises(ufbx.UfbxError):
-        ufbx.load_memory(b'')
+        ufbx.load_memory(b"")
 
 
 def test_load_memory_invalid():
     """Test loading invalid data"""
     # Invalid FBX data should fail
     with pytest.raises(ufbx.UfbxError):
-        ufbx.load_memory(b'not a valid fbx file')
+        ufbx.load_memory(b"not a valid fbx file")

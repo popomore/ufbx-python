@@ -15,7 +15,7 @@ recursive-include ufbx-c *.h *.c
 recursive-include bindgen *.py
 
 # 包含生成的绑定代码
-recursive-include ufbx *.py *.h
+recursive-include ufbx *.py *.h *.pyi
 
 # 排除不必要的文件
 global-exclude *.pyc
