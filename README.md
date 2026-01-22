@@ -9,14 +9,14 @@ Python bindings for [ufbx](https://github.com/ufbx/ufbx) - a single source file 
 
 ## Status
 
-✅ **Feature Complete** - Full ufbx API coverage with comprehensive Python bindings
+🚧 **In Progress** - Core API is available, broader coverage is under active development.
 
-All major ufbx features are now accessible from Python:
-- Complete scene loading and querying
-- All element types with Pythonic wrappers
-- Animation evaluation and manipulation
-- Mesh operations and geometry processing
-- Full math library (vectors, quaternions, matrices, transforms)
+Currently implemented:
+- Core scene loading and querying (Scene, Node, Mesh, Material)
+- Zero-copy numpy arrays for vertex data
+- Basic math types (Vec2/Vec3/Vec4/Quat/Matrix/Transform)
+- Core enums and error types
+- Type hints via `.pyi`
 
 ## Installation
 
@@ -71,10 +71,9 @@ import ufbx
 # Load FBX file
 with ufbx.load_file("model.fbx") as scene:
     # Basic scene info
-    print(f"Nodes: {scene.node_count}")
-    print(f"Meshes: {scene.mesh_count}")
-    print(f"Materials: {scene.material_count}")
-    print(f"Animations: {scene.animation_count}")
+    print(f"Nodes: {len(scene.nodes)}")
+    print(f"Meshes: {len(scene.meshes)}")
+    print(f"Materials: {len(scene.materials)}")
 
     # Access scene hierarchy
     for node in scene.nodes:
@@ -82,29 +81,20 @@ with ufbx.load_file("model.fbx") as scene:
         if node.mesh:
             mesh = node.mesh
             print(f"  Mesh: {mesh.num_vertices} vertices, {mesh.num_faces} faces")
-        if node.light:
-            print(f"  Light: {node.light.light_type}")
-        if node.camera:
-            print(f"  Camera: {node.camera.projection_mode}")
+        # Light/Camera/etc. wrappers are placeholders for now
 
     # Access mesh data
     for mesh in scene.meshes:
-        positions = mesh.vertex_position
-        normals = mesh.vertex_normal
-        uvs = mesh.vertex_uv
+        positions = mesh.vertex_positions
+        normals = mesh.vertex_normals
+        uvs = mesh.vertex_uvs
         print(f"Mesh '{mesh.name}': {len(positions)} vertices")
 
     # Math operations
     node = scene.find_node("MyNode")
     if node:
-        transform = node.local_transform
-        print(f"Translation: {transform.translation}")
-        print(f"Rotation: {transform.rotation}")
-        print(f"Scale: {transform.scale}")
-
-        # Convert to matrix
-        matrix = transform.to_matrix()
-        print(f"Matrix: {matrix}")
+        local_matrix = node.local_transform
+        print(f"Local matrix: {local_matrix}")
 
 # Or use class method
 scene = ufbx.Scene.load_file("model.fbx")
@@ -133,9 +123,9 @@ python3 examples/basic_usage.py tests/data/your_model.fbx
 - [x] Proper lifetime management with context managers
 - [x] Write example code
 - [ ] Add more element types (Light, Camera, Animation, Deformers, etc.)
-- [ ] Add math types (Vec2, Vec3, Vec4, Quat, Matrix, Transform)
-- [ ] Add enum types
-- [ ] Add type hints (.pyi files)
+- [x] Add math types (Vec2, Vec3, Vec4, Quat, Matrix, Transform)
+- [x] Add enum types (core set used by tests)
+- [x] Add type hints (.pyi files)
 
 ## Dependency Management
 
@@ -153,19 +143,10 @@ cat sfs-deps.json.lock
 
 - ✅ **High Performance**: Cython-based bindings compiled to native code
 - ✅ **Zero-Copy Access**: Numpy arrays directly reference ufbx memory
-- ✅ **Type Safe**: Static typing in Cython layer with runtime checks
 - ✅ **Memory Management**: Automatic resource cleanup with context managers
 - ✅ **Pythonic API**: Context managers, property access, Python idioms
 - ✅ **Core Functionality**: Scene loading, mesh data, materials, node hierarchy
-  - 38 Element types (Node, Mesh, Light, Camera, Material, Animation, Deformers, etc.)
-  - 60+ Enum types (all ufbx enums fully exposed)
-  - Math types (Vec2, Vec3, Vec4, Quat, Matrix, Transform)
-  - Animation evaluation and baking
-  - Mesh operations (triangulation, subdivision, topology)
-  - Transform and hierarchy manipulation
-  - Material and texture queries
-  - Deformers (Skin, Blend, Cache)
-  - Constraints and collections
+- 🚧 **Expanding Coverage**: More element types, enums, and APIs are being added
 
 ## Development
 
