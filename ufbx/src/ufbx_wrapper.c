@@ -44,6 +44,18 @@ ufbx_node* ufbx_wrapper_scene_get_root_node(const ufbx_scene *scene) {
     return scene ? scene->root_node : NULL;
 }
 
+int ufbx_wrapper_scene_get_axes_right(const ufbx_scene *scene) {
+    return scene ? (int)scene->settings.axes.right : (int)UFBX_COORDINATE_AXIS_UNKNOWN;
+}
+
+int ufbx_wrapper_scene_get_axes_up(const ufbx_scene *scene) {
+    return scene ? (int)scene->settings.axes.up : (int)UFBX_COORDINATE_AXIS_UNKNOWN;
+}
+
+int ufbx_wrapper_scene_get_axes_front(const ufbx_scene *scene) {
+    return scene ? (int)scene->settings.axes.front : (int)UFBX_COORDINATE_AXIS_UNKNOWN;
+}
+
 // Node access
 ufbx_node* ufbx_wrapper_scene_get_node(const ufbx_scene *scene, size_t index) {
     if (!scene || index >= scene->nodes.count) return NULL;
