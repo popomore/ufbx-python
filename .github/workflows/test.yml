@@ -33,11 +33,9 @@ jobs:
         run: |
           uv pip install --group dev
 
-      - name: Build extension
-        shell: bash
+      - name: Build Cython extension
         run: |
-          chmod +x build.sh
-          ./build.sh
+          uv run python setup.py build_ext --inplace
 
       - name: Run tests
         run: |
@@ -70,11 +68,9 @@ jobs:
         run: |
           uv pip install --group dev
 
-      - name: Build extension
-        shell: bash
+      - name: Build Cython extension
         run: |
-          chmod +x build.sh
-          ./build.sh
+          uv run python setup.py build_ext --inplace
 
       - name: Lint with ruff
         run: |

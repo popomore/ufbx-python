@@ -10,7 +10,7 @@ from ._ufbx import (
     load_file,
 )
 
-__version__ = "0.1.0"
+__version__ = "0.0.0"
 
 __all__ = [
     "Scene",

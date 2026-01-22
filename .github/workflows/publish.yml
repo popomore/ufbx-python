@@ -58,12 +58,6 @@ jobs:
         run: |
           uv pip install --group dev
 
-      - name: Generate bindings
-        shell: bash
-        run: |
-          chmod +x build.sh
-          ./build.sh
-
       - name: Build source distribution
         run: |
           # Build only source distribution (sdist)
