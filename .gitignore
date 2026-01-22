@@ -21,16 +21,9 @@ ENV/
 *.swp
 *.swo
 
-# Generated files
-ufbx/generated.py
-ufbx/_ufbx_cdef.h
-ufbx/_ufbx.*.so
+# Cython generated files
 ufbx/_ufbx.c
-ufbx/.libs/
-
-# IR files
-ufbx_ast.json
-ufbx_ir.json
+ufbx/_ufbx.*.so
 
 # macOS
 .DS_Store

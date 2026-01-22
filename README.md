@@ -40,8 +40,9 @@ pip install .
 
 ## Technical Stack
 
-- **Binding Method**: cffi (API mode)
-- **Code Generation**: using automatic code generator
+- **Binding Method**: Cython with thin C wrapper
+- **Performance**: Zero-copy numpy arrays for vertex data
+- **Architecture**: C wrapper layer hides complex ufbx structures, Cython provides Pythonic API
 - **Dependency Management**: Using sfs.py to manage dependencies with exact commit hashes
 
 ## Quick Start
@@ -50,16 +51,16 @@ pip install .
 
 ```bash
 # Install dependencies
+pip install Cython numpy
+
+# Update ufbx C library (if needed)
 python3 sfs.py update --all
 
-# Build
-./build.sh
+# Build Cython extension
+python setup.py build_ext --inplace
 
-# Or manual steps:
-python3 bindgen/ufbx_parser.py -i ufbx-c/ufbx.h -o bindgen/build/ufbx.json
-python3 bindgen/ufbx_ir.py
-python3 bindgen/generate_python.py
-python3 setup.py build_ext --inplace
+# Or install in development mode
+pip install -e .
 ```
 
 ### Usage Example
@@ -125,16 +126,15 @@ python3 examples/basic_usage.py tests/data/your_model.fbx
 - [x] Project structure setup
 - [x] Dependency management with sfs.py
 - [x] Download ufbx source (commit: `6ecd6177af59c82ec363356ac36c3a4245b85321`)
-- [x] Python code generator
-- [x] Build system (setup.py, pyproject.toml, build.sh)
-- [x] Generate cffi bindings (enums, structs, key functions)
-- [x] Implement core API (Scene class, error handling)
-- [x] **100% ufbx API coverage** - All element types, enums, and functions
-- [x] Comprehensive test suite (27 tests all passing)
+- [x] Build system (setup.py, pyproject.toml)
+- [x] Cython implementation with C wrapper
+- [x] Implement core API (Scene, Node, Mesh, Material classes)
+- [x] Zero-copy numpy array support for vertex data
+- [x] Proper lifetime management with context managers
 - [x] Write example code
-- [x] Full element wrappers (Node, Mesh, Material, Light, Camera, Animation, Deformers, etc.)
-- [x] Math types (Vec2, Vec3, Vec4, Quat, Matrix, Transform)
-- [x] All 60+ enum types
+- [ ] Add more element types (Light, Camera, Animation, Deformers, etc.)
+- [ ] Add math types (Vec2, Vec3, Vec4, Quat, Matrix, Transform)
+- [ ] Add enum types
 - [ ] Add type hints (.pyi files)
 
 ## Dependency Management
@@ -151,11 +151,12 @@ cat sfs-deps.json.lock
 
 ## Features
 
-- ✅ **Zero Dependencies**: Only requires cffi, no other runtime dependencies
-- ✅ **Type Safe**: Complete error handling and exception hierarchy
-- ✅ **Memory Management**: Automatic resource cleanup (RAII pattern)
+- ✅ **High Performance**: Cython-based bindings compiled to native code
+- ✅ **Zero-Copy Access**: Numpy arrays directly reference ufbx memory
+- ✅ **Type Safe**: Static typing in Cython layer with runtime checks
+- ✅ **Memory Management**: Automatic resource cleanup with context managers
 - ✅ **Pythonic API**: Context managers, property access, Python idioms
-- ✅ **100% API Coverage**: Complete bindings for all ufbx features
+- ✅ **Core Functionality**: Scene loading, mesh data, materials, node hierarchy
   - 38 Element types (Node, Mesh, Light, Camera, Material, Animation, Deformers, etc.)
   - 60+ Enum types (all ufbx enums fully exposed)
   - Math types (Vec2, Vec3, Vec4, Quat, Matrix, Transform)
@@ -178,8 +179,11 @@ cd ufbx-python
 # Download dependencies
 python3 sfs.py update --all
 
+# Install development dependencies
+pip install -e .[dev]
+
 # Build
-./build.sh
+python setup.py build_ext --inplace
 
 # Run tests
 pytest tests/ -v
@@ -192,8 +196,8 @@ See [Release Guide](RELEASING.md) for how to publish new versions to PyPI.
 ## References
 
 - ufbx Documentation: https://ufbx.github.io/
-- ufbx-rust Implementation: https://github.com/ufbx/ufbx-rust
-- cffi Documentation: https://cffi.readthedocs.io/
+- ufbx C Library: https://github.com/ufbx/ufbx
+- Cython Documentation: https://cython.readthedocs.io/
 - PyPI Project Page: https://pypi.org/project/pyufbx/
 
 ## License

@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=45", "wheel", "cffi>=1.15.0"]
+requires = ["setuptools>=45", "wheel", "Cython>=3.0.0", "numpy>=1.20.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -19,6 +19,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: C",
+    "Programming Language :: Cython",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
@@ -29,7 +30,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
-    "cffi>=1.15.0",
+    "numpy>=1.20.0",
 ]
 
 [project.urls]
@@ -89,7 +90,8 @@ dev = [
     "pytest-cov>=4.1.0",
     "setuptools>=45",
     "wheel",
-    "cffi>=1.15.0",
+    "Cython>=3.0.0",
+    "numpy>=1.20.0",
     "build>=1.0.0",
     "ruff>=0.1.0",
 ]
