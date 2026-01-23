@@ -61,13 +61,14 @@ def get_coordinate_system_info(axes):
         front_axis = axes.front.value // 2
         front_sign = 1.0 if axes.front.value % 2 == 0 else -1.0
 
-        # Right vector (first column)
-        matrix[0][right_axis] = right_sign
-        # Up vector (second column)
-        matrix[1][up_axis] = up_sign
-        # Front vector (third column)
-        matrix[2][front_axis] = front_sign
-        # W component (fourth column)
+        # Column-major matrix: matrix[col][row]
+        # Column 0: Right
+        matrix[right_axis][0] = right_sign
+        # Column 1: Up
+        matrix[up_axis][1] = up_sign
+        # Column 2: Front
+        matrix[front_axis][2] = front_sign
+        # Column 3: Translation / W
         matrix[3][3] = 1.0
 
         # Determine handedness (right-handed or left-handed coordinate system)
@@ -86,9 +87,12 @@ def get_coordinate_system_info(axes):
         front_vec = [0, 0, 0]
         front_vec[front_axis] = front_sign
 
-        if cross == front_vec:
+        # Determine handedness using dot product (more robust than exact match)
+        dot = cross[0] * front_vec[0] + cross[1] * front_vec[1] + cross[2] * front_vec[2]
+
+        if dot > 0.5:
             handedness = "Right-handed"
-        elif cross == [-x for x in front_vec]:
+        elif dot < -0.5:
             handedness = "Left-handed"
         else:
             handedness = "Unknown"
@@ -142,29 +146,31 @@ def extract_euler_angles(matrix, scale_x, scale_y, scale_z):
     import math
 
     # Normalize rotation matrix (remove scaling)
+    # Matrix is column-major: columns are basis vectors
     if scale_x == 0 or scale_y == 0 or scale_z == 0:
         return (0.0, 0.0, 0.0)
 
+    # Extract column vectors and normalize
     r00 = matrix[0, 0] / scale_x
-    r01 = matrix[0, 1] / scale_x
-    r02 = matrix[0, 2] / scale_x
-    r10 = matrix[1, 0] / scale_y
+    r10 = matrix[1, 0] / scale_x
+    r20 = matrix[2, 0] / scale_x
+    r01 = matrix[0, 1] / scale_y
     r11 = matrix[1, 1] / scale_y
-    r12 = matrix[1, 2] / scale_y
-    r20 = matrix[2, 0] / scale_z
-    r21 = matrix[2, 1] / scale_z
+    r21 = matrix[2, 1] / scale_y
+    r02 = matrix[0, 2] / scale_z
+    r12 = matrix[1, 2] / scale_z
     r22 = matrix[2, 2] / scale_z
 
     # Extract Euler angles (XYZ order)
     # Note: Using standard XYZ rotation order
-    if abs(r02) < 0.99999:
-        rot_y = math.asin(-r02)
-        rot_x = math.atan2(r12, r22)
-        rot_z = math.atan2(r01, r00)
+    if abs(r20) < 0.99999:
+        rot_y = math.asin(-r20)
+        rot_x = math.atan2(r21, r22)
+        rot_z = math.atan2(r10, r00)
     else:
         # Gimbal lock case
-        rot_y = -math.pi / 2 if r02 > 0 else math.pi / 2
-        rot_x = math.atan2(-r21, r11)
+        rot_y = -math.pi / 2 if r20 > 0 else math.pi / 2
+        rot_x = math.atan2(-r12, r11)
         rot_z = 0
 
     # Convert to degrees
@@ -176,17 +182,21 @@ def print_transform_info(node):
     import math
 
     # Local transform (relative to parent) - returns 4x4 numpy array (column-major)
+    # Column-major means: columns are basis vectors [right, up, forward, position]
     local_matrix = node.local_transform
     print("      - Transform (Local, relative to parent):")
 
-    # Extract position (4th column: [3, 0], [3, 1], [3, 2])
-    pos_x, pos_y, pos_z = local_matrix[3, 0], local_matrix[3, 1], local_matrix[3, 2]
+    # Extract position (4th column: column 3)
+    pos_x, pos_y, pos_z = local_matrix[0, 3], local_matrix[1, 3], local_matrix[2, 3]
     print(f"          Position: ({pos_x:8.3f}, {pos_y:8.3f}, {pos_z:8.3f})")
 
     # Extract scale (length of each column vector)
-    scale_x = math.sqrt(local_matrix[0, 0] ** 2 + local_matrix[0, 1] ** 2 + local_matrix[0, 2] ** 2)
-    scale_y = math.sqrt(local_matrix[1, 0] ** 2 + local_matrix[1, 1] ** 2 + local_matrix[1, 2] ** 2)
-    scale_z = math.sqrt(local_matrix[2, 0] ** 2 + local_matrix[2, 1] ** 2 + local_matrix[2, 2] ** 2)
+    # Column 0: X-axis basis vector
+    scale_x = math.sqrt(local_matrix[0, 0] ** 2 + local_matrix[1, 0] ** 2 + local_matrix[2, 0] ** 2)
+    # Column 1: Y-axis basis vector
+    scale_y = math.sqrt(local_matrix[0, 1] ** 2 + local_matrix[1, 1] ** 2 + local_matrix[2, 1] ** 2)
+    # Column 2: Z-axis basis vector
+    scale_z = math.sqrt(local_matrix[0, 2] ** 2 + local_matrix[1, 2] ** 2 + local_matrix[2, 2] ** 2)
     print(f"          Scale:    ({scale_x:8.3f}, {scale_y:8.3f}, {scale_z:8.3f})")
 
     # Extract rotation (Euler angles)
@@ -214,15 +224,15 @@ def print_transform_info(node):
     # World transform
     world_matrix = node.world_transform
     print("      - Transform (World):")
-    world_pos_x = world_matrix[3, 0]
-    world_pos_y = world_matrix[3, 1]
-    world_pos_z = world_matrix[3, 2]
+    world_pos_x = world_matrix[0, 3]
+    world_pos_y = world_matrix[1, 3]
+    world_pos_z = world_matrix[2, 3]
     print(f"          Position: ({world_pos_x:8.3f}, {world_pos_y:8.3f}, {world_pos_z:8.3f})")
 
     # World space scale and rotation
-    world_scale_x = math.sqrt(world_matrix[0, 0] ** 2 + world_matrix[0, 1] ** 2 + world_matrix[0, 2] ** 2)
-    world_scale_y = math.sqrt(world_matrix[1, 0] ** 2 + world_matrix[1, 1] ** 2 + world_matrix[1, 2] ** 2)
-    world_scale_z = math.sqrt(world_matrix[2, 0] ** 2 + world_matrix[2, 1] ** 2 + world_matrix[2, 2] ** 2)
+    world_scale_x = math.sqrt(world_matrix[0, 0] ** 2 + world_matrix[1, 0] ** 2 + world_matrix[2, 0] ** 2)
+    world_scale_y = math.sqrt(world_matrix[0, 1] ** 2 + world_matrix[1, 1] ** 2 + world_matrix[2, 1] ** 2)
+    world_scale_z = math.sqrt(world_matrix[0, 2] ** 2 + world_matrix[1, 2] ** 2 + world_matrix[2, 2] ** 2)
     world_rot_x, world_rot_y, world_rot_z = extract_euler_angles(world_matrix, world_scale_x, world_scale_y, world_scale_z)
     print(f"          Rotation: ({world_rot_x:8.3f}°, {world_rot_y:8.3f}°, {world_rot_z:8.3f}°) [XYZ Euler]")
 
