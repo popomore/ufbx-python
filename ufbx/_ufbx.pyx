@@ -397,6 +397,9 @@ cdef extern from "ufbx_wrapper.h":
     bint ufbx_wrapper_node_is_root(const ufbx_node *node)
     void ufbx_wrapper_node_get_world_transform(const ufbx_node *node, double *matrix16)
     void ufbx_wrapper_node_get_local_transform(const ufbx_node *node, double *matrix16)
+    void ufbx_wrapper_node_get_node_to_world(const ufbx_node *node, double *matrix16)
+    void ufbx_wrapper_node_get_node_to_parent(const ufbx_node *node, double *matrix16)
+    void ufbx_wrapper_node_get_geometry_transform(const ufbx_node *node, double *translation3, double *rotation4, double *scale3)
 
     # Mesh access
     ufbx_mesh* ufbx_wrapper_scene_get_mesh(const ufbx_scene *scene, size_t index)
@@ -2181,6 +2184,43 @@ cdef class Node(Element):
         cdef np.ndarray[np.float64_t, ndim=2] matrix = np.zeros((4, 4), dtype=np.float64)
         ufbx_wrapper_node_get_local_transform(self._node, <double*>matrix.data)
         return matrix
+
+    @property
+    def node_to_world(self):
+        """Node to world transform matrix (4x4, column-major)"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        cdef np.ndarray[np.float64_t, ndim=2] matrix = np.zeros((4, 4), dtype=np.float64)
+        ufbx_wrapper_node_get_node_to_world(self._node, <double*>matrix.data)
+        return matrix
+
+    @property
+    def node_to_parent(self):
+        """Node to parent transform matrix (4x4, column-major)"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        cdef np.ndarray[np.float64_t, ndim=2] matrix = np.zeros((4, 4), dtype=np.float64)
+        ufbx_wrapper_node_get_node_to_parent(self._node, <double*>matrix.data)
+        return matrix
+
+    @property
+    def geometry_transform(self):
+        """Geometry transform (translation, rotation, scale)"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        
+        cdef double translation[3]
+        cdef double rotation[4]
+        cdef double scale[3]
+        
+        ufbx_wrapper_node_get_geometry_transform(self._node, translation, rotation, scale)
+        
+        cdef Transform transform = Transform()
+        transform.translation = Vec3(translation[0], translation[1], translation[2])
+        transform.rotation = Quat(rotation[0], rotation[1], rotation[2], rotation[3])
+        transform.scale = Vec3(scale[0], scale[1], scale[2])
+        
+        return transform
 
 
 cdef class Mesh(Element):
