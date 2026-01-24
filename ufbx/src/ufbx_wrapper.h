@@ -68,6 +68,9 @@ size_t ufbx_wrapper_mesh_get_num_triangles(const ufbx_mesh *mesh);
 const float* ufbx_wrapper_mesh_get_vertex_positions(const ufbx_mesh *mesh, size_t *out_count);
 const float* ufbx_wrapper_mesh_get_vertex_normals(const ufbx_mesh *mesh, size_t *out_count);
 const float* ufbx_wrapper_mesh_get_vertex_uvs(const ufbx_mesh *mesh, size_t *out_count);
+const float* ufbx_wrapper_mesh_get_vertex_tangents(const ufbx_mesh *mesh, size_t *out_count);
+const float* ufbx_wrapper_mesh_get_vertex_bitangents(const ufbx_mesh *mesh, size_t *out_count);
+const float* ufbx_wrapper_mesh_get_vertex_colors(const ufbx_mesh *mesh, size_t *out_count);
 const uint32_t* ufbx_wrapper_mesh_get_indices(const ufbx_mesh *mesh, size_t *out_count);
 
 // Material access

@@ -410,6 +410,9 @@ cdef extern from "ufbx_wrapper.h":
     const float* ufbx_wrapper_mesh_get_vertex_positions(const ufbx_mesh *mesh, size_t *out_count)
     const float* ufbx_wrapper_mesh_get_vertex_normals(const ufbx_mesh *mesh, size_t *out_count)
     const float* ufbx_wrapper_mesh_get_vertex_uvs(const ufbx_mesh *mesh, size_t *out_count)
+    const float* ufbx_wrapper_mesh_get_vertex_tangents(const ufbx_mesh *mesh, size_t *out_count)
+    const float* ufbx_wrapper_mesh_get_vertex_bitangents(const ufbx_mesh *mesh, size_t *out_count)
+    const float* ufbx_wrapper_mesh_get_vertex_colors(const ufbx_mesh *mesh, size_t *out_count)
     const uint32_t* ufbx_wrapper_mesh_get_indices(const ufbx_mesh *mesh, size_t *out_count)
 
     # Material access
@@ -2237,6 +2240,57 @@ cdef class Mesh(Element):
         cdef np.npy_intp shape[2]
         shape[0] = <np.npy_intp>count
         shape[1] = 2
+        return np.PyArray_SimpleNewFromData(2, shape, np.NPY_FLOAT32, <void*>data)
+
+    @property
+    def vertex_tangent(self):
+        """Vertex tangents as numpy array (N, 3) - required for normal mapping"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+
+        cdef size_t count = 0
+        cdef const float* data = ufbx_wrapper_mesh_get_vertex_tangents(self._mesh, &count)
+
+        if data == NULL or count == 0:
+            return None
+
+        cdef np.npy_intp shape[2]
+        shape[0] = <np.npy_intp>count
+        shape[1] = 3
+        return np.PyArray_SimpleNewFromData(2, shape, np.NPY_FLOAT32, <void*>data)
+
+    @property
+    def vertex_bitangent(self):
+        """Vertex bitangents as numpy array (N, 3) - required for normal mapping"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+
+        cdef size_t count = 0
+        cdef const float* data = ufbx_wrapper_mesh_get_vertex_bitangents(self._mesh, &count)
+
+        if data == NULL or count == 0:
+            return None
+
+        cdef np.npy_intp shape[2]
+        shape[0] = <np.npy_intp>count
+        shape[1] = 3
+        return np.PyArray_SimpleNewFromData(2, shape, np.NPY_FLOAT32, <void*>data)
+
+    @property
+    def vertex_color(self):
+        """Vertex colors as numpy array (N, 4) - RGBA format"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+
+        cdef size_t count = 0
+        cdef const float* data = ufbx_wrapper_mesh_get_vertex_colors(self._mesh, &count)
+
+        if data == NULL or count == 0:
+            return None
+
+        cdef np.npy_intp shape[2]
+        shape[0] = <np.npy_intp>count
+        shape[1] = 4
         return np.PyArray_SimpleNewFromData(2, shape, np.NPY_FLOAT32, <void*>data)
 
     @property
