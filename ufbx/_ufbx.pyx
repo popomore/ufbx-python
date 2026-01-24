@@ -319,6 +319,13 @@ cdef extern from "ufbx-c/ufbx.h":
     ctypedef struct ufbx_texture_layer_list:
         void** data
         size_t count
+    ctypedef struct ufbx_texture_list:
+        ufbx_texture** data
+        size_t count
+    ctypedef struct ufbx_transform:
+        ufbx_vec3 translation
+        ufbx_vec4 rotation  # quaternion (x, y, z, w)
+        ufbx_vec3 scale
 
     # Full ufbx_texture structure matching ufbx.h layout
     ctypedef struct ufbx_texture:
@@ -352,6 +359,17 @@ cdef extern from "ufbx-c/ufbx.h":
         bint has_file
         # Layered textures
         ufbx_texture_layer_list layers
+        # Shader reference (not exposed yet)
+        void* shader  # ufbx_shader_texture*
+        # File textures list (not exposed yet)
+        ufbx_texture_list file_textures
+        # UV settings
+        ufbx_string uv_set
+        int wrap_u  # ufbx_wrap_mode
+        int wrap_v  # ufbx_wrap_mode
+        # UV transform (not exposed yet)
+        bint has_uv_transform
+        ufbx_transform uv_transform
 
     ctypedef struct ufbx_anim_stack:
         pass
