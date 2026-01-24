@@ -199,6 +199,356 @@ const char* ufbx_wrapper_material_get_name(const ufbx_material *material) {
     return material->name.data ? material->name.data : "";
 }
 
+int ufbx_wrapper_material_get_shader_type(const ufbx_material *material) {
+    if (!material) return 0;
+    return (int)material->shader_type;
+}
+
+const char* ufbx_wrapper_material_get_shading_model_name(const ufbx_material *material) {
+    if (!material) return "";
+    return material->shading_model_name.data ? material->shading_model_name.data : "";
+}
+
+size_t ufbx_wrapper_material_get_num_textures(const ufbx_material *material) {
+    if (!material) return 0;
+    return material->textures.count;
+}
+
+void ufbx_wrapper_material_get_pbr_base_color(const ufbx_material *material, double *out_vec3, bool *has_texture) {
+    if (!material || !out_vec3 || !has_texture) return;
+    out_vec3[0] = material->pbr.base_color.value_vec3.x;
+    out_vec3[1] = material->pbr.base_color.value_vec3.y;
+    out_vec3[2] = material->pbr.base_color.value_vec3.z;
+    *has_texture = (material->pbr.base_color.texture != NULL);
+}
+
+void ufbx_wrapper_material_get_pbr_roughness(const ufbx_material *material, double *out_value, bool *has_texture) {
+    if (!material || !out_value || !has_texture) return;
+    *out_value = material->pbr.roughness.value_real;
+    *has_texture = (material->pbr.roughness.texture != NULL);
+}
+
+void ufbx_wrapper_material_get_pbr_metalness(const ufbx_material *material, double *out_value, bool *has_texture) {
+    if (!material || !out_value || !has_texture) return;
+    *out_value = material->pbr.metalness.value_real;
+    *has_texture = (material->pbr.metalness.texture != NULL);
+}
+
+void ufbx_wrapper_material_get_pbr_normal(const ufbx_material *material, bool *has_texture) {
+    if (!material || !has_texture) return;
+    *has_texture = (material->pbr.normal_map.texture != NULL);
+}
+
+void ufbx_wrapper_material_get_fbx_diffuse_color(const ufbx_material *material, double *out_vec3, bool *has_texture) {
+    if (!material || !out_vec3 || !has_texture) return;
+    out_vec3[0] = material->fbx.diffuse_color.value_vec3.x;
+    out_vec3[1] = material->fbx.diffuse_color.value_vec3.y;
+    out_vec3[2] = material->fbx.diffuse_color.value_vec3.z;
+    *has_texture = (material->fbx.diffuse_color.texture != NULL);
+}
+
+void ufbx_wrapper_material_get_fbx_specular_color(const ufbx_material *material, double *out_vec3, bool *has_texture) {
+    if (!material || !out_vec3 || !has_texture) return;
+    out_vec3[0] = material->fbx.specular_color.value_vec3.x;
+    out_vec3[1] = material->fbx.specular_color.value_vec3.y;
+    out_vec3[2] = material->fbx.specular_color.value_vec3.z;
+    *has_texture = (material->fbx.specular_color.texture != NULL);
+}
+
+void ufbx_wrapper_material_get_fbx_normal(const ufbx_material *material, bool *has_texture) {
+    if (!material || !has_texture) return;
+    *has_texture = (material->fbx.normal_map.texture != NULL);
+}
+
+void ufbx_wrapper_material_get_pbr_emission_color(const ufbx_material *material, double *out_vec3, bool *has_texture) {
+    if (!material || !out_vec3 || !has_texture) return;
+    out_vec3[0] = material->pbr.emission_color.value_vec3.x;
+    out_vec3[1] = material->pbr.emission_color.value_vec3.y;
+    out_vec3[2] = material->pbr.emission_color.value_vec3.z;
+    *has_texture = (material->pbr.emission_color.texture != NULL);
+}
+
+void ufbx_wrapper_material_get_pbr_emission_factor(const ufbx_material *material, double *out_value, bool *has_texture) {
+    if (!material || !out_value || !has_texture) return;
+    *out_value = material->pbr.emission_factor.value_real;
+    *has_texture = (material->pbr.emission_factor.texture != NULL);
+}
+
+void ufbx_wrapper_material_get_pbr_opacity(const ufbx_material *material, double *out_value, bool *has_texture) {
+    if (!material || !out_value || !has_texture) return;
+    *out_value = material->pbr.opacity.value_real;
+    *has_texture = (material->pbr.opacity.texture != NULL);
+}
+
+void ufbx_wrapper_material_get_pbr_ambient_occlusion(const ufbx_material *material, bool *has_texture) {
+    if (!material || !has_texture) return;
+    *has_texture = (material->pbr.ambient_occlusion.texture != NULL);
+}
+
+void ufbx_wrapper_material_get_pbr_specular_factor(const ufbx_material *material, double *out_value, bool *has_texture) {
+    if (!material || !out_value || !has_texture) return;
+    *out_value = material->pbr.specular_factor.value_real;
+    *has_texture = (material->pbr.specular_factor.texture != NULL);
+}
+
+void ufbx_wrapper_material_get_pbr_specular_color(const ufbx_material *material, double *out_vec3, bool *has_texture) {
+    if (!material || !out_vec3 || !has_texture) return;
+    out_vec3[0] = material->pbr.specular_color.value_vec3.x;
+    out_vec3[1] = material->pbr.specular_color.value_vec3.y;
+    out_vec3[2] = material->pbr.specular_color.value_vec3.z;
+    *has_texture = (material->pbr.specular_color.texture != NULL);
+}
+
+void ufbx_wrapper_material_get_pbr_specular_ior(const ufbx_material *material, double *out_value, bool *has_texture) {
+    if (!material || !out_value || !has_texture) return;
+    *out_value = material->pbr.specular_ior.value_real;
+    *has_texture = (material->pbr.specular_ior.texture != NULL);
+}
+
+void ufbx_wrapper_material_get_fbx_emission_color(const ufbx_material *material, double *out_vec3, bool *has_texture) {
+    if (!material || !out_vec3 || !has_texture) return;
+    out_vec3[0] = material->fbx.emission_color.value_vec3.x;
+    out_vec3[1] = material->fbx.emission_color.value_vec3.y;
+    out_vec3[2] = material->fbx.emission_color.value_vec3.z;
+    *has_texture = (material->fbx.emission_color.texture != NULL);
+}
+
+void ufbx_wrapper_material_get_fbx_emission_factor(const ufbx_material *material, double *out_value, bool *has_texture) {
+    if (!material || !out_value || !has_texture) return;
+    *out_value = material->fbx.emission_factor.value_real;
+    *has_texture = (material->fbx.emission_factor.texture != NULL);
+}
+
+void ufbx_wrapper_material_get_fbx_ambient_color(const ufbx_material *material, double *out_vec3, bool *has_texture) {
+    if (!material || !out_vec3 || !has_texture) return;
+    out_vec3[0] = material->fbx.ambient_color.value_vec3.x;
+    out_vec3[1] = material->fbx.ambient_color.value_vec3.y;
+    out_vec3[2] = material->fbx.ambient_color.value_vec3.z;
+    *has_texture = (material->fbx.ambient_color.texture != NULL);
+}
+
+void ufbx_wrapper_material_get_fbx_bump(const ufbx_material *material, bool *has_texture) {
+    if (!material || !has_texture) return;
+    *has_texture = (material->fbx.bump.texture != NULL);
+}
+
+void ufbx_wrapper_material_get_fbx_bump_factor(const ufbx_material *material, double *out_value, bool *has_texture) {
+    if (!material || !out_value || !has_texture) return;
+    *out_value = material->fbx.bump_factor.value_real;
+    *has_texture = (material->fbx.bump_factor.texture != NULL);
+}
+
+void ufbx_wrapper_material_get_fbx_displacement(const ufbx_material *material, bool *has_texture) {
+    if (!material || !has_texture) return;
+    *has_texture = (material->fbx.displacement.texture != NULL);
+}
+
+void ufbx_wrapper_material_get_pbr_transmission_factor(const ufbx_material *material, double *out_value, bool *has_texture) {
+    if (!material || !out_value || !has_texture) return;
+    *out_value = material->pbr.transmission_factor.value_real;
+    *has_texture = (material->pbr.transmission_factor.texture != NULL);
+}
+
+void ufbx_wrapper_material_get_pbr_transmission_color(const ufbx_material *material, double *out_vec3, bool *has_texture) {
+    if (!material || !out_vec3 || !has_texture) return;
+    out_vec3[0] = material->pbr.transmission_color.value_vec3.x;
+    out_vec3[1] = material->pbr.transmission_color.value_vec3.y;
+    out_vec3[2] = material->pbr.transmission_color.value_vec3.z;
+    *has_texture = (material->pbr.transmission_color.texture != NULL);
+}
+
+void ufbx_wrapper_material_get_pbr_subsurface_factor(const ufbx_material *material, double *out_value, bool *has_texture) {
+    if (!material || !out_value || !has_texture) return;
+    *out_value = material->pbr.subsurface_factor.value_real;
+    *has_texture = (material->pbr.subsurface_factor.texture != NULL);
+}
+
+void ufbx_wrapper_material_get_pbr_subsurface_color(const ufbx_material *material, double *out_vec3, bool *has_texture) {
+    if (!material || !out_vec3 || !has_texture) return;
+    out_vec3[0] = material->pbr.subsurface_color.value_vec3.x;
+    out_vec3[1] = material->pbr.subsurface_color.value_vec3.y;
+    out_vec3[2] = material->pbr.subsurface_color.value_vec3.z;
+    *has_texture = (material->pbr.subsurface_color.texture != NULL);
+}
+
+void ufbx_wrapper_material_get_pbr_subsurface_radius(const ufbx_material *material, double *out_vec3, bool *has_texture) {
+    if (!material || !out_vec3 || !has_texture) return;
+    out_vec3[0] = material->pbr.subsurface_radius.value_vec3.x;
+    out_vec3[1] = material->pbr.subsurface_radius.value_vec3.y;
+    out_vec3[2] = material->pbr.subsurface_radius.value_vec3.z;
+    *has_texture = (material->pbr.subsurface_radius.texture != NULL);
+}
+
+void ufbx_wrapper_material_get_pbr_coat_factor(const ufbx_material *material, double *out_value, bool *has_texture) {
+    if (!material || !out_value || !has_texture) return;
+    *out_value = material->pbr.coat_factor.value_real;
+    *has_texture = (material->pbr.coat_factor.texture != NULL);
+}
+
+void ufbx_wrapper_material_get_pbr_coat_color(const ufbx_material *material, double *out_vec3, bool *has_texture) {
+    if (!material || !out_vec3 || !has_texture) return;
+    out_vec3[0] = material->pbr.coat_color.value_vec3.x;
+    out_vec3[1] = material->pbr.coat_color.value_vec3.y;
+    out_vec3[2] = material->pbr.coat_color.value_vec3.z;
+    *has_texture = (material->pbr.coat_color.texture != NULL);
+}
+
+void ufbx_wrapper_material_get_pbr_coat_roughness(const ufbx_material *material, double *out_value, bool *has_texture) {
+    if (!material || !out_value || !has_texture) return;
+    *out_value = material->pbr.coat_roughness.value_real;
+    *has_texture = (material->pbr.coat_roughness.texture != NULL);
+}
+
+void ufbx_wrapper_material_get_pbr_coat_normal(const ufbx_material *material, bool *has_texture) {
+    if (!material || !has_texture) return;
+    *has_texture = (material->pbr.coat_normal.texture != NULL);
+}
+
+void ufbx_wrapper_material_get_pbr_sheen_factor(const ufbx_material *material, double *out_value, bool *has_texture) {
+    if (!material || !out_value || !has_texture) return;
+    *out_value = material->pbr.sheen_factor.value_real;
+    *has_texture = (material->pbr.sheen_factor.texture != NULL);
+}
+
+void ufbx_wrapper_material_get_pbr_sheen_color(const ufbx_material *material, double *out_vec3, bool *has_texture) {
+    if (!material || !out_vec3 || !has_texture) return;
+    out_vec3[0] = material->pbr.sheen_color.value_vec3.x;
+    out_vec3[1] = material->pbr.sheen_color.value_vec3.y;
+    out_vec3[2] = material->pbr.sheen_color.value_vec3.z;
+    *has_texture = (material->pbr.sheen_color.texture != NULL);
+}
+
+void ufbx_wrapper_material_get_pbr_sheen_roughness(const ufbx_material *material, double *out_value, bool *has_texture) {
+    if (!material || !out_value || !has_texture) return;
+    *out_value = material->pbr.sheen_roughness.value_real;
+    *has_texture = (material->pbr.sheen_roughness.texture != NULL);
+}
+
+ufbx_texture* ufbx_wrapper_material_get_pbr_base_color_texture(const ufbx_material *material) {
+    if (!material) return NULL;
+    return material->pbr.base_color.texture;
+}
+
+ufbx_texture* ufbx_wrapper_material_get_pbr_roughness_texture(const ufbx_material *material) {
+    if (!material) return NULL;
+    return material->pbr.roughness.texture;
+}
+
+ufbx_texture* ufbx_wrapper_material_get_pbr_metalness_texture(const ufbx_material *material) {
+    if (!material) return NULL;
+    return material->pbr.metalness.texture;
+}
+
+ufbx_texture* ufbx_wrapper_material_get_pbr_normal_texture(const ufbx_material *material) {
+    if (!material) return NULL;
+    return material->pbr.normal_map.texture;
+}
+
+ufbx_texture* ufbx_wrapper_material_get_fbx_diffuse_texture(const ufbx_material *material) {
+    if (!material) return NULL;
+    return material->fbx.diffuse_color.texture;
+}
+
+ufbx_texture* ufbx_wrapper_material_get_fbx_specular_texture(const ufbx_material *material) {
+    if (!material) return NULL;
+    return material->fbx.specular_color.texture;
+}
+
+ufbx_texture* ufbx_wrapper_material_get_fbx_normal_texture(const ufbx_material *material) {
+    if (!material) return NULL;
+    return material->fbx.normal_map.texture;
+}
+
+ufbx_texture* ufbx_wrapper_material_get_pbr_emission_texture(const ufbx_material *material) {
+    if (!material) return NULL;
+    return material->pbr.emission_color.texture;
+}
+
+ufbx_texture* ufbx_wrapper_material_get_pbr_opacity_texture(const ufbx_material *material) {
+    if (!material) return NULL;
+    return material->pbr.opacity.texture;
+}
+
+ufbx_texture* ufbx_wrapper_material_get_pbr_ambient_occlusion_texture(const ufbx_material *material) {
+    if (!material) return NULL;
+    return material->pbr.ambient_occlusion.texture;
+}
+
+ufbx_texture* ufbx_wrapper_material_get_pbr_specular_color_texture(const ufbx_material *material) {
+    if (!material) return NULL;
+    return material->pbr.specular_color.texture;
+}
+
+ufbx_texture* ufbx_wrapper_material_get_fbx_emission_texture(const ufbx_material *material) {
+    if (!material) return NULL;
+    return material->fbx.emission_color.texture;
+}
+
+ufbx_texture* ufbx_wrapper_material_get_fbx_ambient_texture(const ufbx_material *material) {
+    if (!material) return NULL;
+    return material->fbx.ambient_color.texture;
+}
+
+ufbx_texture* ufbx_wrapper_material_get_fbx_bump_texture(const ufbx_material *material) {
+    if (!material) return NULL;
+    return material->fbx.bump.texture;
+}
+
+ufbx_texture* ufbx_wrapper_material_get_fbx_displacement_texture(const ufbx_material *material) {
+    if (!material) return NULL;
+    return material->fbx.displacement.texture;
+}
+
+ufbx_texture* ufbx_wrapper_material_get_pbr_transmission_texture(const ufbx_material *material) {
+    if (!material) return NULL;
+    return material->pbr.transmission_color.texture;
+}
+
+ufbx_texture* ufbx_wrapper_material_get_pbr_subsurface_color_texture(const ufbx_material *material) {
+    if (!material) return NULL;
+    return material->pbr.subsurface_color.texture;
+}
+
+ufbx_texture* ufbx_wrapper_material_get_pbr_coat_color_texture(const ufbx_material *material) {
+    if (!material) return NULL;
+    return material->pbr.coat_color.texture;
+}
+
+ufbx_texture* ufbx_wrapper_material_get_pbr_coat_normal_texture(const ufbx_material *material) {
+    if (!material) return NULL;
+    return material->pbr.coat_normal.texture;
+}
+
+ufbx_texture* ufbx_wrapper_material_get_pbr_sheen_color_texture(const ufbx_material *material) {
+    if (!material) return NULL;
+    return material->pbr.sheen_color.texture;
+}
+
+const char* ufbx_wrapper_texture_get_name(const ufbx_texture *texture) {
+    if (!texture) return "";
+    return texture->name.data ? texture->name.data : "";
+}
+
+const char* ufbx_wrapper_texture_get_filename(const ufbx_texture *texture) {
+    if (!texture) return "";
+    return texture->filename.data ? texture->filename.data : "";
+}
+
+const char* ufbx_wrapper_texture_get_relative_filename(const ufbx_texture *texture) {
+    if (!texture) return "";
+    return texture->relative_filename.data ? texture->relative_filename.data : "";
+}
+
+const char* ufbx_wrapper_texture_get_absolute_filename(const ufbx_texture *texture) {
+    if (!texture) return "";
+    return texture->absolute_filename.data ? texture->absolute_filename.data : "";
+}
+
+int ufbx_wrapper_texture_get_type(const ufbx_texture *texture) {
+    if (!texture) return 0;
+    return (int)texture->type;
+}
+
 // Light access
 size_t ufbx_wrapper_scene_get_num_lights(const ufbx_scene *scene) {
     return scene ? scene->lights.count : 0;
@@ -370,30 +720,6 @@ size_t ufbx_wrapper_scene_get_num_textures(const ufbx_scene *scene) {
 ufbx_texture* ufbx_wrapper_scene_get_texture(const ufbx_scene *scene, size_t index) {
     if (!scene || index >= scene->textures.count) return NULL;
     return scene->textures.data[index];
-}
-
-const char* ufbx_wrapper_texture_get_name(const ufbx_texture *texture) {
-    if (!texture) return "";
-    return texture->name.data ? texture->name.data : "";
-}
-
-const char* ufbx_wrapper_texture_get_filename(const ufbx_texture *texture) {
-    if (!texture) return "";
-    return texture->filename.data ? texture->filename.data : "";
-}
-
-const char* ufbx_wrapper_texture_get_absolute_filename(const ufbx_texture *texture) {
-    if (!texture) return "";
-    return texture->absolute_filename.data ? texture->absolute_filename.data : "";
-}
-
-const char* ufbx_wrapper_texture_get_relative_filename(const ufbx_texture *texture) {
-    if (!texture) return "";
-    return texture->relative_filename.data ? texture->relative_filename.data : "";
-}
-
-int ufbx_wrapper_texture_get_type(const ufbx_texture *texture) {
-    return texture ? (int)texture->type : 0;
 }
 
 // AnimStack access

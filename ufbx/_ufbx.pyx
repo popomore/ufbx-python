@@ -12,14 +12,121 @@ cimport numpy as np
 np.import_array()
 
 # C declarations
-cdef extern from "ufbx_wrapper.h":
+cdef extern from "ufbx-c/ufbx.h":
+    ctypedef struct ufbx_vec4:
+        double x
+        double y
+        double z
+        double w
+
+    ctypedef struct ufbx_material_map:
+        ufbx_vec4 value_vec4
+        long long value_int
+        ufbx_texture* texture
+        bint has_value
+        bint texture_enabled
+        bint feature_disabled
+        unsigned int value_components
+
+    ctypedef struct ufbx_material_fbx_maps:
+        ufbx_material_map diffuse_factor
+        ufbx_material_map diffuse_color
+        ufbx_material_map specular_factor
+        ufbx_material_map specular_color
+        ufbx_material_map specular_exponent
+        ufbx_material_map reflection_factor
+        ufbx_material_map reflection_color
+        ufbx_material_map transparency_factor
+        ufbx_material_map transparency_color
+        ufbx_material_map emission_factor
+        ufbx_material_map emission_color
+        ufbx_material_map ambient_factor
+        ufbx_material_map ambient_color
+        ufbx_material_map normal_map
+        ufbx_material_map bump
+        ufbx_material_map bump_factor
+        ufbx_material_map displacement_factor
+        ufbx_material_map displacement
+        ufbx_material_map vector_displacement_factor
+        ufbx_material_map vector_displacement
+
+    ctypedef struct ufbx_material_pbr_maps:
+        ufbx_material_map base_factor
+        ufbx_material_map base_color
+        ufbx_material_map roughness
+        ufbx_material_map metalness
+        ufbx_material_map diffuse_roughness
+        ufbx_material_map specular_factor
+        ufbx_material_map specular_color
+        ufbx_material_map specular_ior
+        ufbx_material_map specular_anisotropy
+        ufbx_material_map specular_rotation
+        ufbx_material_map transmission_factor
+        ufbx_material_map transmission_color
+        ufbx_material_map transmission_depth
+        ufbx_material_map transmission_scatter
+        ufbx_material_map transmission_scatter_anisotropy
+        ufbx_material_map transmission_dispersion
+        ufbx_material_map transmission_roughness
+        ufbx_material_map transmission_extra_roughness
+        ufbx_material_map transmission_priority
+        ufbx_material_map transmission_enable_in_aov
+        ufbx_material_map subsurface_factor
+        ufbx_material_map subsurface_color
+        ufbx_material_map subsurface_radius
+        ufbx_material_map subsurface_scale
+        ufbx_material_map subsurface_anisotropy
+        ufbx_material_map subsurface_tint_color
+        ufbx_material_map subsurface_type
+        ufbx_material_map sheen_factor
+        ufbx_material_map sheen_color
+        ufbx_material_map sheen_roughness
+        ufbx_material_map coat_factor
+        ufbx_material_map coat_color
+        ufbx_material_map coat_roughness
+        ufbx_material_map coat_ior
+        ufbx_material_map coat_anisotropy
+        ufbx_material_map coat_rotation
+        ufbx_material_map coat_normal
+        ufbx_material_map coat_affect_base_color
+        ufbx_material_map coat_affect_base_roughness
+        ufbx_material_map thin_film_factor
+        ufbx_material_map thin_film_thickness
+        ufbx_material_map thin_film_ior
+        ufbx_material_map emission_factor
+        ufbx_material_map emission_color
+        ufbx_material_map opacity
+        ufbx_material_map indirect_diffuse
+        ufbx_material_map indirect_specular
+        ufbx_material_map normal_map
+        ufbx_material_map tangent_map
+        ufbx_material_map displacement_map
+        ufbx_material_map matte_factor
+        ufbx_material_map matte_color
+        ufbx_material_map ambient_occlusion
+        ufbx_material_map glossiness
+        ufbx_material_map coat_glossiness
+        ufbx_material_map transmission_glossiness
+
+    ctypedef struct ufbx_string:
+        const char* data
+        size_t length
+
+    ctypedef struct ufbx_element:
+        ufbx_string name
+
+    ctypedef struct ufbx_material:
+        ufbx_element element
+        ufbx_material_fbx_maps fbx
+        ufbx_material_pbr_maps pbr
+        int shader_type
+        ufbx_string shading_model_name
+
     ctypedef struct ufbx_scene:
         pass
     ctypedef struct ufbx_mesh:
         pass
     ctypedef struct ufbx_node:
-        pass
-    ctypedef struct ufbx_material:
         pass
     ctypedef struct ufbx_light:
         pass
@@ -28,7 +135,11 @@ cdef extern from "ufbx_wrapper.h":
     ctypedef struct ufbx_bone:
         pass
     ctypedef struct ufbx_texture:
-        pass
+        ufbx_element element
+        ufbx_string filename
+        ufbx_string relative_filename
+        ufbx_string absolute_filename
+        int type
     ctypedef struct ufbx_anim_stack:
         pass
     ctypedef struct ufbx_anim_layer:
@@ -47,6 +158,8 @@ cdef extern from "ufbx_wrapper.h":
         pass
     ctypedef struct ufbx_constraint:
         pass
+
+cdef extern from "ufbx_wrapper.h":
 
     # Scene management
     ufbx_scene* ufbx_wrapper_load_file(const char *filename, char **error_msg)
@@ -90,7 +203,13 @@ cdef extern from "ufbx_wrapper.h":
     ufbx_material* ufbx_wrapper_scene_get_material(const ufbx_scene *scene, size_t index)
     size_t ufbx_wrapper_mesh_get_num_materials(const ufbx_mesh *mesh)
     ufbx_material* ufbx_wrapper_mesh_get_material(const ufbx_mesh *mesh, size_t index)
-    const char* ufbx_wrapper_material_get_name(const ufbx_material *material)
+
+    # Texture properties
+    const char* ufbx_wrapper_texture_get_name(const ufbx_texture *texture)
+    const char* ufbx_wrapper_texture_get_filename(const ufbx_texture *texture)
+    const char* ufbx_wrapper_texture_get_relative_filename(const ufbx_texture *texture)
+    const char* ufbx_wrapper_texture_get_absolute_filename(const ufbx_texture *texture)
+    int ufbx_wrapper_texture_get_type(const ufbx_texture *texture)
 
     # Light access
     size_t ufbx_wrapper_scene_get_num_lights(const ufbx_scene *scene)
@@ -341,8 +460,19 @@ class ApertureMode(IntEnum):
 
 
 class ShaderType(IntEnum):
-    SHADER_FBX_LAMBERT = 0
-    SHADER_FBX_PHONG = 1
+    SHADER_UNKNOWN = 0
+    SHADER_FBX_LAMBERT = 1
+    SHADER_FBX_PHONG = 2
+    SHADER_OSL_STANDARD_SURFACE = 3
+    SHADER_ARNOLD_STANDARD_SURFACE = 4
+    SHADER_3DS_MAX_PHYSICAL_MATERIAL = 5
+    SHADER_3DS_MAX_PBR_METAL_ROUGH = 6
+    SHADER_3DS_MAX_PBR_SPEC_GLOSS = 7
+    SHADER_GLTF_MATERIAL = 8
+    SHADER_OPENPBR_MATERIAL = 9
+    SHADER_SHADERFX_GRAPH = 10
+    SHADER_BLENDER_PHONG = 11
+    SHADER_WAVEFRONT_MTL = 12
 
 
 class TextureType(IntEnum):
@@ -780,6 +910,8 @@ cdef class Texture(Element):
     @staticmethod
     cdef Texture _create(Scene scene, ufbx_texture* texture):
         """Internal factory method"""
+        if texture == NULL:
+            return None
         cdef Texture obj = Texture.__new__(Texture)
         obj._scene = scene
         obj._texture = texture
@@ -790,35 +922,39 @@ cdef class Texture(Element):
         """Texture name"""
         if self._scene._closed:
             raise RuntimeError("Scene is closed")
-        return ufbx_wrapper_texture_get_name(self._texture).decode('utf-8', errors='replace')
+        cdef bytes name_bytes = self._texture.element.name.data[:self._texture.element.name.length]
+        return name_bytes.decode('utf-8', errors='replace')
 
     @property
     def filename(self):
         """Texture filename"""
         if self._scene._closed:
             raise RuntimeError("Scene is closed")
-        return ufbx_wrapper_texture_get_filename(self._texture).decode('utf-8', errors='replace')
+        cdef bytes filename_bytes = self._texture.filename.data[:self._texture.filename.length]
+        return filename_bytes.decode('utf-8', errors='replace')
 
     @property
     def absolute_filename(self):
         """Absolute path to texture file"""
         if self._scene._closed:
             raise RuntimeError("Scene is closed")
-        return ufbx_wrapper_texture_get_absolute_filename(self._texture).decode('utf-8', errors='replace')
+        cdef bytes filename_bytes = self._texture.absolute_filename.data[:self._texture.absolute_filename.length]
+        return filename_bytes.decode('utf-8', errors='replace')
 
     @property
     def relative_filename(self):
         """Relative path to texture file"""
         if self._scene._closed:
             raise RuntimeError("Scene is closed")
-        return ufbx_wrapper_texture_get_relative_filename(self._texture).decode('utf-8', errors='replace')
+        cdef bytes filename_bytes = self._texture.relative_filename.data[:self._texture.relative_filename.length]
+        return filename_bytes.decode('utf-8', errors='replace')
 
     @property
     def type(self):
         """Texture type (TextureType enum)"""
         if self._scene._closed:
             raise RuntimeError("Scene is closed")
-        return TextureType(ufbx_wrapper_texture_get_type(self._texture))
+        return TextureType(self._texture.type)
 
 
 cdef class AnimStack(Element):
@@ -1680,8 +1816,74 @@ cdef class Mesh(Element):
         return result
 
 
+cdef class MaterialMap:
+    """Material map (direct access to ufbx_material_map fields)"""
+    cdef Scene _scene
+    cdef const ufbx_material_map* _map
+
+    @staticmethod
+    cdef MaterialMap _create(Scene scene, const ufbx_material_map* mat_map):
+        """Create MaterialMap from C struct"""
+        cdef MaterialMap obj = MaterialMap.__new__(MaterialMap)
+        obj._scene = scene
+        obj._map = mat_map
+        return obj
+
+    @property
+    def value_vec4(self):
+        """Vec4 value (x, y, z, w)"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return (self._map.value_vec4.x, self._map.value_vec4.y,
+                self._map.value_vec4.z, self._map.value_vec4.w)
+
+    @property
+    def value_int(self):
+        """Integer value"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._map.value_int
+
+    @property
+    def texture(self):
+        """Texture (Texture object or None)"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        if self._map.texture == NULL:
+            return None
+        return Texture._create(self._scene, self._map.texture)
+
+    @property
+    def has_value(self):
+        """Whether this map has a value"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._map.has_value
+
+    @property
+    def texture_enabled(self):
+        """Whether texture is enabled"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._map.texture_enabled
+
+    @property
+    def feature_disabled(self):
+        """Whether this feature is disabled"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._map.feature_disabled
+
+    @property
+    def value_components(self):
+        """Number of value components"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._map.value_components
+
+
 cdef class Material(Element):
-    """Material definition"""
+    """Material definition (Rust API style - direct struct access)"""
     cdef Scene _scene
     cdef ufbx_material* _material
 
@@ -1698,7 +1900,557 @@ cdef class Material(Element):
         """Material name"""
         if self._scene._closed:
             raise RuntimeError("Scene is closed")
-        return ufbx_wrapper_material_get_name(self._material).decode('utf-8', errors='replace')
+        cdef bytes name_bytes = self._material.element.name.data[:self._material.element.name.length]
+        return name_bytes.decode('utf-8', errors='replace')
+
+    @property
+    def shader_type(self):
+        """Shader type"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._material.shader_type
+
+    @property
+    def shading_model_name(self):
+        """Shading model name (e.g., 'lambert', 'phong', 'unknown')"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        cdef bytes name_bytes = self._material.shading_model_name.data[:self._material.shading_model_name.length]
+        return name_bytes.decode('utf-8', errors='replace')
+
+    # PBR Material Maps - 直接返回 MaterialMap
+    @property
+    def pbr_base_factor(self):
+        """PBR base factor"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.base_factor)
+
+    @property
+    def pbr_base_color(self):
+        """PBR base color"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.base_color)
+
+    @property
+    def pbr_roughness(self):
+        """PBR roughness"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.roughness)
+
+    @property
+    def pbr_metalness(self):
+        """PBR metalness"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.metalness)
+
+    @property
+    def pbr_diffuse_roughness(self):
+        """PBR diffuse roughness"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.diffuse_roughness)
+
+    @property
+    def pbr_specular_factor(self):
+        """PBR specular factor"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.specular_factor)
+
+    @property
+    def pbr_specular_color(self):
+        """PBR specular color"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.specular_color)
+
+    @property
+    def pbr_specular_ior(self):
+        """PBR specular IOR"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.specular_ior)
+
+    @property
+    def pbr_specular_anisotropy(self):
+        """PBR specular anisotropy"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.specular_anisotropy)
+
+    @property
+    def pbr_specular_rotation(self):
+        """PBR specular rotation"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.specular_rotation)
+
+    @property
+    def pbr_transmission_factor(self):
+        """PBR transmission factor"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.transmission_factor)
+
+    @property
+    def pbr_transmission_color(self):
+        """PBR transmission color"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.transmission_color)
+
+    @property
+    def pbr_transmission_depth(self):
+        """PBR transmission depth"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.transmission_depth)
+
+    @property
+    def pbr_transmission_scatter(self):
+        """PBR transmission scatter"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.transmission_scatter)
+
+    @property
+    def pbr_transmission_scatter_anisotropy(self):
+        """PBR transmission scatter anisotropy"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.transmission_scatter_anisotropy)
+
+    @property
+    def pbr_transmission_dispersion(self):
+        """PBR transmission dispersion"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.transmission_dispersion)
+
+    @property
+    def pbr_transmission_roughness(self):
+        """PBR transmission roughness"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.transmission_roughness)
+
+    @property
+    def pbr_transmission_extra_roughness(self):
+        """PBR transmission extra roughness"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.transmission_extra_roughness)
+
+    @property
+    def pbr_transmission_priority(self):
+        """PBR transmission priority"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.transmission_priority)
+
+    @property
+    def pbr_transmission_enable_in_aov(self):
+        """PBR transmission enable in AOV"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.transmission_enable_in_aov)
+
+    @property
+    def pbr_subsurface_factor(self):
+        """PBR subsurface factor"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.subsurface_factor)
+
+    @property
+    def pbr_subsurface_color(self):
+        """PBR subsurface color"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.subsurface_color)
+
+    @property
+    def pbr_subsurface_radius(self):
+        """PBR subsurface radius"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.subsurface_radius)
+
+    @property
+    def pbr_subsurface_scale(self):
+        """PBR subsurface scale"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.subsurface_scale)
+
+    @property
+    def pbr_subsurface_anisotropy(self):
+        """PBR subsurface anisotropy"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.subsurface_anisotropy)
+
+    @property
+    def pbr_subsurface_tint_color(self):
+        """PBR subsurface tint color"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.subsurface_tint_color)
+
+    @property
+    def pbr_subsurface_type(self):
+        """PBR subsurface type"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.subsurface_type)
+
+    @property
+    def pbr_sheen_factor(self):
+        """PBR sheen factor"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.sheen_factor)
+
+    @property
+    def pbr_sheen_color(self):
+        """PBR sheen color"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.sheen_color)
+
+    @property
+    def pbr_sheen_roughness(self):
+        """PBR sheen roughness"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.sheen_roughness)
+
+    @property
+    def pbr_coat_factor(self):
+        """PBR coat factor"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.coat_factor)
+
+    @property
+    def pbr_coat_color(self):
+        """PBR coat color"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.coat_color)
+
+    @property
+    def pbr_coat_roughness(self):
+        """PBR coat roughness"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.coat_roughness)
+
+    @property
+    def pbr_coat_ior(self):
+        """PBR coat IOR"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.coat_ior)
+
+    @property
+    def pbr_coat_anisotropy(self):
+        """PBR coat anisotropy"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.coat_anisotropy)
+
+    @property
+    def pbr_coat_rotation(self):
+        """PBR coat rotation"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.coat_rotation)
+
+    @property
+    def pbr_coat_normal(self):
+        """PBR coat normal"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.coat_normal)
+
+    @property
+    def pbr_coat_affect_base_color(self):
+        """PBR coat affect base color"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.coat_affect_base_color)
+
+    @property
+    def pbr_coat_affect_base_roughness(self):
+        """PBR coat affect base roughness"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.coat_affect_base_roughness)
+
+    @property
+    def pbr_thin_film_factor(self):
+        """PBR thin film factor"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.thin_film_factor)
+
+    @property
+    def pbr_thin_film_thickness(self):
+        """PBR thin film thickness"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.thin_film_thickness)
+
+    @property
+    def pbr_thin_film_ior(self):
+        """PBR thin film IOR"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.thin_film_ior)
+
+    @property
+    def pbr_emission_factor(self):
+        """PBR emission factor"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.emission_factor)
+
+    @property
+    def pbr_emission_color(self):
+        """PBR emission color"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.emission_color)
+
+    @property
+    def pbr_opacity(self):
+        """PBR opacity"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.opacity)
+
+    @property
+    def pbr_indirect_diffuse(self):
+        """PBR indirect diffuse"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.indirect_diffuse)
+
+    @property
+    def pbr_indirect_specular(self):
+        """PBR indirect specular"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.indirect_specular)
+
+    @property
+    def pbr_normal_map(self):
+        """PBR normal map"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.normal_map)
+
+    @property
+    def pbr_tangent_map(self):
+        """PBR tangent map"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.tangent_map)
+
+    @property
+    def pbr_displacement_map(self):
+        """PBR displacement map"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.displacement_map)
+
+    @property
+    def pbr_matte_factor(self):
+        """PBR matte factor"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.matte_factor)
+
+    @property
+    def pbr_matte_color(self):
+        """PBR matte color"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.matte_color)
+
+    @property
+    def pbr_ambient_occlusion(self):
+        """PBR ambient occlusion"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.ambient_occlusion)
+
+    @property
+    def pbr_glossiness(self):
+        """PBR glossiness"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.glossiness)
+
+    @property
+    def pbr_coat_glossiness(self):
+        """PBR coat glossiness"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.coat_glossiness)
+
+    @property
+    def pbr_transmission_glossiness(self):
+        """PBR transmission glossiness"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.pbr.transmission_glossiness)
+
+    # FBX Material Maps
+    @property
+    def fbx_diffuse_factor(self):
+        """FBX diffuse factor"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.fbx.diffuse_factor)
+
+    @property
+    def fbx_diffuse_color(self):
+        """FBX diffuse color"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.fbx.diffuse_color)
+
+    @property
+    def fbx_specular_factor(self):
+        """FBX specular factor"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.fbx.specular_factor)
+
+    @property
+    def fbx_specular_color(self):
+        """FBX specular color"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.fbx.specular_color)
+
+    @property
+    def fbx_specular_exponent(self):
+        """FBX specular exponent"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.fbx.specular_exponent)
+
+    @property
+    def fbx_reflection_factor(self):
+        """FBX reflection factor"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.fbx.reflection_factor)
+
+    @property
+    def fbx_reflection_color(self):
+        """FBX reflection color"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.fbx.reflection_color)
+
+    @property
+    def fbx_transparency_factor(self):
+        """FBX transparency factor"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.fbx.transparency_factor)
+
+    @property
+    def fbx_transparency_color(self):
+        """FBX transparency color"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.fbx.transparency_color)
+
+    @property
+    def fbx_emission_factor(self):
+        """FBX emission factor"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.fbx.emission_factor)
+
+    @property
+    def fbx_emission_color(self):
+        """FBX emission color"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.fbx.emission_color)
+
+    @property
+    def fbx_ambient_factor(self):
+        """FBX ambient factor"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.fbx.ambient_factor)
+
+    @property
+    def fbx_ambient_color(self):
+        """FBX ambient color"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.fbx.ambient_color)
+
+    @property
+    def fbx_normal_map(self):
+        """FBX normal map"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.fbx.normal_map)
+
+    @property
+    def fbx_bump(self):
+        """FBX bump"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.fbx.bump)
+
+    @property
+    def fbx_bump_factor(self):
+        """FBX bump factor"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.fbx.bump_factor)
+
+    @property
+    def fbx_displacement_factor(self):
+        """FBX displacement factor"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.fbx.displacement_factor)
+
+    @property
+    def fbx_displacement(self):
+        """FBX displacement"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.fbx.displacement)
+
+    @property
+    def fbx_vector_displacement_factor(self):
+        """FBX vector displacement factor"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.fbx.vector_displacement_factor)
+
+    @property
+    def fbx_vector_displacement(self):
+        """FBX vector displacement"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialMap._create(self._scene, &self._material.fbx.vector_displacement)
 
 
 # Module-level functions

@@ -75,6 +75,82 @@ ufbx_material* ufbx_wrapper_scene_get_material(const ufbx_scene *scene, size_t i
 size_t ufbx_wrapper_mesh_get_num_materials(const ufbx_mesh *mesh);
 ufbx_material* ufbx_wrapper_mesh_get_material(const ufbx_mesh *mesh, size_t index);
 const char* ufbx_wrapper_material_get_name(const ufbx_material *material);
+int ufbx_wrapper_material_get_shader_type(const ufbx_material *material);
+const char* ufbx_wrapper_material_get_shading_model_name(const ufbx_material *material);
+size_t ufbx_wrapper_material_get_num_textures(const ufbx_material *material);
+
+// Material PBR properties (most common)
+void ufbx_wrapper_material_get_pbr_base_color(const ufbx_material *material, double *out_vec3, bool *has_texture);
+void ufbx_wrapper_material_get_pbr_roughness(const ufbx_material *material, double *out_value, bool *has_texture);
+void ufbx_wrapper_material_get_pbr_metalness(const ufbx_material *material, double *out_value, bool *has_texture);
+void ufbx_wrapper_material_get_pbr_normal(const ufbx_material *material, bool *has_texture);
+
+// Material PBR properties (extended)
+void ufbx_wrapper_material_get_pbr_emission_color(const ufbx_material *material, double *out_vec3, bool *has_texture);
+void ufbx_wrapper_material_get_pbr_emission_factor(const ufbx_material *material, double *out_value, bool *has_texture);
+void ufbx_wrapper_material_get_pbr_opacity(const ufbx_material *material, double *out_value, bool *has_texture);
+void ufbx_wrapper_material_get_pbr_ambient_occlusion(const ufbx_material *material, bool *has_texture);
+void ufbx_wrapper_material_get_pbr_specular_factor(const ufbx_material *material, double *out_value, bool *has_texture);
+void ufbx_wrapper_material_get_pbr_specular_color(const ufbx_material *material, double *out_vec3, bool *has_texture);
+void ufbx_wrapper_material_get_pbr_specular_ior(const ufbx_material *material, double *out_value, bool *has_texture);
+
+// Material PBR properties (advanced - Phase 3)
+void ufbx_wrapper_material_get_pbr_transmission_factor(const ufbx_material *material, double *out_value, bool *has_texture);
+void ufbx_wrapper_material_get_pbr_transmission_color(const ufbx_material *material, double *out_vec3, bool *has_texture);
+void ufbx_wrapper_material_get_pbr_subsurface_factor(const ufbx_material *material, double *out_value, bool *has_texture);
+void ufbx_wrapper_material_get_pbr_subsurface_color(const ufbx_material *material, double *out_vec3, bool *has_texture);
+void ufbx_wrapper_material_get_pbr_subsurface_radius(const ufbx_material *material, double *out_vec3, bool *has_texture);
+void ufbx_wrapper_material_get_pbr_coat_factor(const ufbx_material *material, double *out_value, bool *has_texture);
+void ufbx_wrapper_material_get_pbr_coat_color(const ufbx_material *material, double *out_vec3, bool *has_texture);
+void ufbx_wrapper_material_get_pbr_coat_roughness(const ufbx_material *material, double *out_value, bool *has_texture);
+void ufbx_wrapper_material_get_pbr_coat_normal(const ufbx_material *material, bool *has_texture);
+void ufbx_wrapper_material_get_pbr_sheen_factor(const ufbx_material *material, double *out_value, bool *has_texture);
+void ufbx_wrapper_material_get_pbr_sheen_color(const ufbx_material *material, double *out_vec3, bool *has_texture);
+void ufbx_wrapper_material_get_pbr_sheen_roughness(const ufbx_material *material, double *out_value, bool *has_texture);
+
+// Material FBX properties (most common)
+void ufbx_wrapper_material_get_fbx_diffuse_color(const ufbx_material *material, double *out_vec3, bool *has_texture);
+void ufbx_wrapper_material_get_fbx_specular_color(const ufbx_material *material, double *out_vec3, bool *has_texture);
+void ufbx_wrapper_material_get_fbx_normal(const ufbx_material *material, bool *has_texture);
+
+// Material FBX properties (extended)
+void ufbx_wrapper_material_get_fbx_emission_color(const ufbx_material *material, double *out_vec3, bool *has_texture);
+void ufbx_wrapper_material_get_fbx_emission_factor(const ufbx_material *material, double *out_value, bool *has_texture);
+void ufbx_wrapper_material_get_fbx_ambient_color(const ufbx_material *material, double *out_vec3, bool *has_texture);
+void ufbx_wrapper_material_get_fbx_bump(const ufbx_material *material, bool *has_texture);
+void ufbx_wrapper_material_get_fbx_bump_factor(const ufbx_material *material, double *out_value, bool *has_texture);
+void ufbx_wrapper_material_get_fbx_displacement(const ufbx_material *material, bool *has_texture);
+
+// Texture access from material maps - PBR
+ufbx_texture* ufbx_wrapper_material_get_pbr_base_color_texture(const ufbx_material *material);
+ufbx_texture* ufbx_wrapper_material_get_pbr_roughness_texture(const ufbx_material *material);
+ufbx_texture* ufbx_wrapper_material_get_pbr_metalness_texture(const ufbx_material *material);
+ufbx_texture* ufbx_wrapper_material_get_pbr_normal_texture(const ufbx_material *material);
+ufbx_texture* ufbx_wrapper_material_get_pbr_emission_texture(const ufbx_material *material);
+ufbx_texture* ufbx_wrapper_material_get_pbr_opacity_texture(const ufbx_material *material);
+ufbx_texture* ufbx_wrapper_material_get_pbr_ambient_occlusion_texture(const ufbx_material *material);
+ufbx_texture* ufbx_wrapper_material_get_pbr_specular_color_texture(const ufbx_material *material);
+ufbx_texture* ufbx_wrapper_material_get_pbr_transmission_texture(const ufbx_material *material);
+ufbx_texture* ufbx_wrapper_material_get_pbr_subsurface_color_texture(const ufbx_material *material);
+ufbx_texture* ufbx_wrapper_material_get_pbr_coat_color_texture(const ufbx_material *material);
+ufbx_texture* ufbx_wrapper_material_get_pbr_coat_normal_texture(const ufbx_material *material);
+ufbx_texture* ufbx_wrapper_material_get_pbr_sheen_color_texture(const ufbx_material *material);
+
+// Texture access from material maps - FBX
+ufbx_texture* ufbx_wrapper_material_get_fbx_diffuse_texture(const ufbx_material *material);
+ufbx_texture* ufbx_wrapper_material_get_fbx_specular_texture(const ufbx_material *material);
+ufbx_texture* ufbx_wrapper_material_get_fbx_normal_texture(const ufbx_material *material);
+ufbx_texture* ufbx_wrapper_material_get_fbx_emission_texture(const ufbx_material *material);
+ufbx_texture* ufbx_wrapper_material_get_fbx_ambient_texture(const ufbx_material *material);
+ufbx_texture* ufbx_wrapper_material_get_fbx_bump_texture(const ufbx_material *material);
+ufbx_texture* ufbx_wrapper_material_get_fbx_displacement_texture(const ufbx_material *material);
+
+// Texture properties
+const char* ufbx_wrapper_texture_get_name(const ufbx_texture *texture);
+const char* ufbx_wrapper_texture_get_filename(const ufbx_texture *texture);
+const char* ufbx_wrapper_texture_get_relative_filename(const ufbx_texture *texture);
+const char* ufbx_wrapper_texture_get_absolute_filename(const ufbx_texture *texture);
+int ufbx_wrapper_texture_get_type(const ufbx_texture *texture);
 
 // Light access
 size_t ufbx_wrapper_scene_get_num_lights(const ufbx_scene *scene);
@@ -120,11 +196,6 @@ bool ufbx_wrapper_bone_is_root(const ufbx_bone *bone);
 // Texture access
 size_t ufbx_wrapper_scene_get_num_textures(const ufbx_scene *scene);
 ufbx_texture* ufbx_wrapper_scene_get_texture(const ufbx_scene *scene, size_t index);
-const char* ufbx_wrapper_texture_get_name(const ufbx_texture *texture);
-const char* ufbx_wrapper_texture_get_filename(const ufbx_texture *texture);
-const char* ufbx_wrapper_texture_get_absolute_filename(const ufbx_texture *texture);
-const char* ufbx_wrapper_texture_get_relative_filename(const ufbx_texture *texture);
-int ufbx_wrapper_texture_get_type(const ufbx_texture *texture);
 
 // AnimStack access
 size_t ufbx_wrapper_scene_get_num_anim_stacks(const ufbx_scene *scene);

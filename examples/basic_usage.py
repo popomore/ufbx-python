@@ -130,7 +130,11 @@ def print_node_hierarchy(node, depth=0, max_depth=3):
 
     indent = "  " * depth
     mesh_info = " [mesh]" if node.mesh else ""
-    print(f"{indent}- {node.name}{mesh_info}")
+    structure_note = ""
+    if node.mesh and node.children:
+        structure_note = " (note: mesh node has children)"
+
+    print(f"{indent}- {node.name}{mesh_info}{structure_note}")
 
     # Show node's parent
     if depth == 0 and node.parent:
@@ -197,11 +201,17 @@ def print_transform_info(node):
     scale_y = math.sqrt(local_matrix[0, 1] ** 2 + local_matrix[1, 1] ** 2 + local_matrix[2, 1] ** 2)
     # Column 2: Z-axis basis vector
     scale_z = math.sqrt(local_matrix[0, 2] ** 2 + local_matrix[1, 2] ** 2 + local_matrix[2, 2] ** 2)
-    print(f"          Scale:    ({scale_x:8.3f}, {scale_y:8.3f}, {scale_z:8.3f})")
+
+    if abs(scale_x - scale_y) < 1e-3 and abs(scale_y - scale_z) < 1e-3:
+        scale_note = "uniform"
+    else:
+        scale_note = "non-uniform"
+
+    print(f"          Scale:    ({scale_x:8.3f}, {scale_y:8.3f}, {scale_z:8.3f}) [{scale_note}]")
 
     # Extract rotation (Euler angles)
     rot_x, rot_y, rot_z = extract_euler_angles(local_matrix, scale_x, scale_y, scale_z)
-    print(f"          Rotation: ({rot_x:8.3f}°, {rot_y:8.3f}°, {rot_z:8.3f}°) [XYZ Euler]")
+    print(f"          Rotation: ({rot_x:8.3f}°, {rot_y:8.3f}°, {rot_z:8.3f}°) [derived Euler, from baked matrix, XYZ]")
 
     # Check if there are significant transformations
     has_translation = abs(pos_x) > 0.001 or abs(pos_y) > 0.001 or abs(pos_z) > 0.001
@@ -223,7 +233,7 @@ def print_transform_info(node):
 
     # World transform
     world_matrix = node.world_transform
-    print("      - Transform (World):")
+    print("      - Transform (World, inherited through hierarchy):")
     world_pos_x = world_matrix[0, 3]
     world_pos_y = world_matrix[1, 3]
     world_pos_z = world_matrix[2, 3]
@@ -235,6 +245,25 @@ def print_transform_info(node):
     world_scale_z = math.sqrt(world_matrix[0, 2] ** 2 + world_matrix[1, 2] ** 2 + world_matrix[2, 2] ** 2)
     world_rot_x, world_rot_y, world_rot_z = extract_euler_angles(world_matrix, world_scale_x, world_scale_y, world_scale_z)
     print(f"          Rotation: ({world_rot_x:8.3f}°, {world_rot_y:8.3f}°, {world_rot_z:8.3f}°) [XYZ Euler]")
+
+
+def format_texture_info(texture, indent="              "):
+    """Format detailed texture information"""
+    if not texture:
+        return None
+
+    info = []
+    if texture.name:
+        info.append(f"{indent}Name: {texture.name}")
+    if texture.filename:
+        info.append(f"{indent}File: {texture.filename}")
+    if texture.relative_filename:
+        info.append(f"{indent}Relative: {texture.relative_filename}")
+    if texture.absolute_filename:
+        info.append(f"{indent}Absolute: {texture.absolute_filename}")
+    info.append(f"{indent}Type: {texture.type}")
+
+    return "\n".join(info) if info else None
 
 
 def main():
@@ -262,7 +291,10 @@ def main():
             print(f"  Nodes: {stats['nodes']}")
             print(f"    - With mesh: {stats['nodes_with_mesh']}")
             print(f"    - Leaf nodes: {stats['leaf_nodes']}")
-            print(f"  Meshes: {stats['meshes']}")
+            mesh_note = ""
+            if stats["meshes"] == 1 and stats["nodes"] > 1:
+                mesh_note = " (note: many nodes reference a single mesh)"
+            print(f"  Meshes: {stats['meshes']}{mesh_note}")
             if stats["meshes"] > 0:
                 print(f"    - Total vertices: {stats['total_vertices']:,}")
                 print(f"    - Total faces: {stats['total_faces']:,}")
@@ -281,7 +313,7 @@ def main():
             print("  System type:")
             print(f"    - Handedness: {coord_info['handedness']}")
             if coord_info["description"]:
-                print(f"    - Description: {coord_info['description']}")
+                print(f"    - Description: {coord_info['description']} (axis conversion likely applied)")
             print("  Basis matrix (4x4, column-major):")
             matrix = coord_info["matrix"]
             for row in range(4):
@@ -337,7 +369,11 @@ def main():
                             )
 
                     if normals is not None:
-                        print(f"        ✓ Normals: shape={normals.shape}")
+                        note = ""
+                        if positions is not None and len(normals) != len(positions):
+                            note = " (note: normal count != vertex count)"
+
+                        print(f"        ✓ Normals: shape={normals.shape}{note}")
                         if len(normals) > 0:
                             print(f"          First normal: ({normals[0][0]:.3f}, {normals[0][1]:.3f}, {normals[0][2]:.3f})")
 
@@ -357,9 +393,155 @@ def main():
             # Material information
             if scene.materials:
                 print(f"🎨 Material Details ({len(scene.materials)} materials):")
-                for i, material in enumerate(scene.materials):
-                    print(f"  [{i}] Material: '{material.name}'")
+
+                # Collect statistics
+                shader_types = {}
+                shading_models = {}
+                materials_with_textures = 0
+
+                for material in scene.materials:
+                    # Count shader types
+                    shader_type = material.shader_type
+                    shader_types[shader_type] = shader_types.get(shader_type, 0) + 1
+
+                    # Count shading models
+                    shading_model = material.shading_model_name
+                    if shading_model:
+                        shading_models[shading_model] = shading_models.get(shading_model, 0) + 1
+
+                    # Count materials with textures (check common maps)
+                    has_texture = any([
+                        material.pbr_base_color.texture_enabled and material.pbr_base_color.texture,
+                        material.pbr_normal_map.texture_enabled and material.pbr_normal_map.texture,
+                        material.fbx_diffuse_color.texture_enabled and material.fbx_diffuse_color.texture,
+                    ])
+                    if has_texture:
+                        materials_with_textures += 1
+
+                # Display statistics
+                print("  Overview:")
+                print(f"    - Materials with textures: {materials_with_textures}")
+                if shading_models:
+                    print(f"    - Shading models: {', '.join(f'{k} ({v})' for k, v in sorted(shading_models.items()))}")
                 print()
+
+                # Display individual materials
+                print("  Materials:")
+                for i, material in enumerate(scene.materials):
+                    print(f"\n    [{i}] '{material.name}'")
+
+                    # Shading information
+                    shading_info = []
+                    if material.shading_model_name:
+                        shading_info.append(f"model={material.shading_model_name}")
+                    shading_info.append(f"shader_type={material.shader_type}")
+                    print(f"        - Shading: {', '.join(shading_info)}")
+
+                    # PBR properties
+                    print("        - PBR properties:")
+
+                    # Base properties
+                    base_color = material.pbr_base_color
+                    if base_color.has_value:
+                        r, g, b, a = base_color.value_vec4
+                        print(f"            Base color: RGB({r:.3f}, {g:.3f}, {b:.3f}), A={a:.3f}")
+                    if base_color.texture_enabled and base_color.texture:
+                        print("            Base color texture:")
+                        tex_info = format_texture_info(base_color.texture)
+                        if tex_info:
+                            print(tex_info)
+
+                    roughness = material.pbr_roughness
+                    if roughness.has_value:
+                        print(f"            Roughness: {roughness.value_vec4[0]:.3f}")
+                    if roughness.texture_enabled and roughness.texture:
+                        print("            Roughness texture:")
+                        tex_info = format_texture_info(roughness.texture)
+                        if tex_info:
+                            print(tex_info)
+
+                    metalness = material.pbr_metalness
+                    if metalness.has_value:
+                        print(f"            Metalness: {metalness.value_vec4[0]:.3f}")
+                    if metalness.texture_enabled and metalness.texture:
+                        print("            Metalness texture:")
+                        tex_info = format_texture_info(metalness.texture)
+                        if tex_info:
+                            print(tex_info)
+
+                    # Extended properties
+                    emission = material.pbr_emission_color
+                    if emission.has_value:
+                        r, g, b, a = emission.value_vec4
+                        print(f"            Emission: RGB({r:.3f}, {g:.3f}, {b:.3f})")
+                    if emission.texture_enabled and emission.texture:
+                        print("            Emission texture:")
+                        tex_info = format_texture_info(emission.texture)
+                        if tex_info:
+                            print(tex_info)
+
+                    opacity = material.pbr_opacity
+                    if opacity.has_value:
+                        alpha = opacity.value_vec4[0]
+                        print(f"            Opacity: {alpha:.3f}")
+                    if opacity.texture_enabled and opacity.texture:
+                        print("            Opacity texture:")
+                        tex_info = format_texture_info(opacity.texture)
+                        if tex_info:
+                            print(tex_info)
+
+                    # Maps
+                    normal_map = material.pbr_normal_map
+                    if normal_map.texture_enabled and normal_map.texture:
+                        print("            Normal map:")
+                        tex_info = format_texture_info(normal_map.texture)
+                        if tex_info:
+                            print(tex_info)
+
+                    ao_map = material.pbr_ambient_occlusion
+                    if ao_map.texture_enabled and ao_map.texture:
+                        print("            AO map:")
+                        tex_info = format_texture_info(ao_map.texture)
+                        if tex_info:
+                            print(tex_info)
+
+                    # FBX properties (for compatibility)
+                    fbx_diffuse = material.fbx_diffuse_color
+                    if fbx_diffuse.texture_enabled or (
+                        fbx_diffuse.has_value and any(v != 0 for v in fbx_diffuse.value_vec4[:3])
+                    ):
+                        print("        - FBX properties:")
+                        if fbx_diffuse.has_value:
+                            r, g, b, a = fbx_diffuse.value_vec4
+                            print(f"            Diffuse color: RGB({r:.3f}, {g:.3f}, {b:.3f})")
+                        if fbx_diffuse.texture_enabled and fbx_diffuse.texture:
+                            print("            Diffuse texture:")
+                            tex_info = format_texture_info(fbx_diffuse.texture)
+                            if tex_info:
+                                print(tex_info)
+
+                print()
+
+            # Texture information
+            if scene.textures:
+                print(f"🖼️  Texture Details ({len(scene.textures)} textures):")
+                print()
+
+                for i, texture in enumerate(scene.textures):
+                    print(f"  [{i}] Texture: '{texture.name}'")
+
+                    # File information
+                    if texture.filename:
+                        print(f"      - Filename: {texture.filename}")
+                    if texture.relative_filename:
+                        print(f"      - Relative: {texture.relative_filename}")
+                    if texture.absolute_filename:
+                        print(f"      - Absolute: {texture.absolute_filename}")
+
+                    # Texture type
+                    print(f"      - Type: {texture.type}")
+
+                    print()
 
     except FileNotFoundError:
         print(f"❌ Error: File not found - {filename}")
