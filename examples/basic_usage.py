@@ -252,13 +252,17 @@ def format_texture_info(texture, indent="              "):
     info = []
     if texture.name:
         info.append(f"{indent}Name: {texture.name}")
+
+    # Type information (now correctly aligned with C struct)
+    info.append(f"{indent}Type: {texture.type}")
+
+    # File paths (now correctly aligned with C struct)
     if texture.filename:
         info.append(f"{indent}File: {texture.filename}")
     if texture.relative_filename:
         info.append(f"{indent}Relative: {texture.relative_filename}")
     if texture.absolute_filename:
         info.append(f"{indent}Absolute: {texture.absolute_filename}")
-    info.append(f"{indent}Type: {texture.type}")
 
     return "\n".join(info) if info else None
 
@@ -297,6 +301,31 @@ def main():
                 print(f"    - Total faces: {stats['total_faces']:,}")
                 print(f"    - Total triangles: {stats['total_triangles']:,}")
             print(f"  Materials: {stats['materials']}")
+            print()
+
+            # Scene metadata and settings
+            meta = scene.metadata
+            settings = scene.settings
+            print("📄 Scene Info:")
+            print("  File:")
+            print(f"    - Version: FBX {meta.version / 1000:.1f}")
+            print(f"    - Format: {'ASCII' if meta.ascii else 'Binary'}")
+            if meta.creator:
+                print(f"    - Creator: {meta.creator}")
+            if meta.filename:
+                print(f"    - Filename: {meta.filename}")
+            print("  Settings:")
+            unit_name = (
+                "cm" if settings.unit_meters == 0.01 else ("m" if settings.unit_meters == 1.0 else f"{settings.unit_meters}m")
+            )
+            print(f"    - Units: {unit_name} (1 unit = {settings.unit_meters}m)")
+            print(f"    - FPS: {settings.frames_per_second}")
+            r, g, b = settings.ambient_color
+            if r > 0 or g > 0 or b > 0:
+                print(f"    - Ambient color: RGB({r:.2f}, {g:.2f}, {b:.2f})")
+            if scene.empties:
+                print("  Special objects:")
+                print(f"    - Empty nodes: {len(scene.empties)}")
             print()
 
             # Coordinate system
@@ -407,13 +436,11 @@ def main():
                         shading_models[shading_model] = shading_models.get(shading_model, 0) + 1
 
                     # Count materials with textures (check common maps)
-                    has_texture = any(
-                        [
-                            material.pbr_base_color.texture_enabled and material.pbr_base_color.texture,
-                            material.pbr_normal_map.texture_enabled and material.pbr_normal_map.texture,
-                            material.fbx_diffuse_color.texture_enabled and material.fbx_diffuse_color.texture,
-                        ]
-                    )
+                    has_texture = any([
+                        material.pbr_base_color.texture_enabled and material.pbr_base_color.texture,
+                        material.pbr_normal_map.texture_enabled and material.pbr_normal_map.texture,
+                        material.fbx_diffuse_color.texture_enabled and material.fbx_diffuse_color.texture,
+                    ])
                     if has_texture:
                         materials_with_textures += 1
 
@@ -435,6 +462,26 @@ def main():
                         shading_info.append(f"model={material.shading_model_name}")
                     shading_info.append(f"shader_type={material.shader_type}")
                     print(f"        - Shading: {', '.join(shading_info)}")
+
+                    # Material features (new API)
+                    features = material.features
+                    active_features = []
+                    if features.pbr:
+                        active_features.append("PBR")
+                    if features.metalness:
+                        active_features.append("metalness")
+                    if features.roughness:
+                        active_features.append("roughness")
+                    if features.transmission:
+                        active_features.append("transmission")
+                    if features.emission:
+                        active_features.append("emission")
+                    if features.sheen:
+                        active_features.append("sheen")
+                    if features.coat:
+                        active_features.append("clearcoat")
+                    if active_features:
+                        print(f"        - Features: {', '.join(active_features)}")
 
                     # PBR properties
                     print("        - PBR properties:")
@@ -518,6 +565,16 @@ def main():
                             tex_info = format_texture_info(fbx_diffuse.texture)
                             if tex_info:
                                 print(tex_info)
+
+                    # All textures used by this material (new API)
+                    mat_textures = material.textures
+                    if mat_textures:
+                        print(f"        - Texture mappings: {len(mat_textures)} total")
+                        # Show first few mappings as example
+                        for mt in mat_textures[:3]:
+                            print(f"            {mt.material_prop} → {mt.texture.name if mt.texture else 'None'}")
+                        if len(mat_textures) > 3:
+                            print(f"            ... and {len(mat_textures) - 3} more")
 
                 print()
 
