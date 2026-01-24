@@ -13,6 +13,11 @@ np.import_array()
 
 # C declarations
 cdef extern from "ufbx-c/ufbx.h":
+    ctypedef struct ufbx_vec3:
+        double x
+        double y
+        double z
+
     ctypedef struct ufbx_vec4:
         double x
         double y
@@ -157,20 +162,144 @@ cdef extern from "ufbx-c/ufbx.h":
         const char* data
         size_t length
 
+    # Forward declarations - pointers only
+    ctypedef struct ufbx_dom_node
+    ctypedef struct ufbx_scene
+    ctypedef struct ufbx_shader
+    ctypedef struct ufbx_video
+
+    # List structures
+    ctypedef struct ufbx_node_list:
+        void** data
+        size_t count
+    ctypedef struct ufbx_connection_list:
+        void** data
+        size_t count
+
+    # Full ufbx_element structure matching ufbx.h layout
     ctypedef struct ufbx_element:
         ufbx_string name
+        void* props  # ufbx_props - treated as opaque
+        unsigned int element_id
+        unsigned int typed_id
+        ufbx_node_list instances
+        int type  # ufbx_element_type
+        ufbx_connection_list connections_src
+        ufbx_connection_list connections_dst
+        ufbx_dom_node* dom_node
+        ufbx_scene* scene
 
+    # Forward declaration for shader
+    # (already declared above)
+
+    # Full ufbx_material structure matching ufbx.h layout
     ctypedef struct ufbx_material:
-        ufbx_element element
+        # Element fields (union expanded as struct fields)
+        ufbx_string name
+        void* props  # ufbx_props
+        unsigned int element_id
+        unsigned int typed_id
+        ufbx_node_list instances
+        int type  # ufbx_element_type
+        ufbx_connection_list connections_src
+        ufbx_connection_list connections_dst
+        ufbx_dom_node* dom_node
+        ufbx_scene* scene
+        # Material-specific fields
         ufbx_material_fbx_maps fbx
         ufbx_material_pbr_maps pbr
         ufbx_material_features features
         int shader_type
+        ufbx_shader* shader
         ufbx_string shading_model_name
+        ufbx_string shader_prop_prefix
         ufbx_material_texture_list textures
 
-    ctypedef struct ufbx_scene:
+    # Metadata structure
+    ctypedef struct ufbx_metadata:
+        bint ascii
+        unsigned int version
+        int file_format
+        ufbx_string creator
+        bint big_endian
+        ufbx_string filename
+        ufbx_string relative_root
+
+    # Time/Animation enums
+    ctypedef enum ufbx_time_mode:
         pass
+    ctypedef enum ufbx_time_protocol:
+        pass
+    ctypedef enum ufbx_snap_mode:
+        pass
+    ctypedef enum ufbx_coordinate_axis:
+        pass
+
+    # Coordinate axes structure
+    ctypedef struct ufbx_coordinate_axes:
+        int right
+        int up
+        int front
+
+    # Scene settings structure
+    ctypedef struct ufbx_scene_settings:
+        ufbx_coordinate_axes axes
+        double unit_meters
+        double frames_per_second
+        ufbx_vec3 ambient_color
+        ufbx_string default_camera
+        ufbx_time_mode time_mode
+        ufbx_time_protocol time_protocol
+        ufbx_snap_mode snap_mode
+        ufbx_coordinate_axis original_axis_up
+        double original_unit_meters
+
+    # Forward declarations for element types
+    ctypedef struct ufbx_empty:
+        # Element fields (union expanded)
+        ufbx_string name
+        void* props
+        unsigned int element_id
+        unsigned int typed_id
+        ufbx_node_list instances
+        int type
+        ufbx_connection_list connections_src
+        ufbx_connection_list connections_dst
+        ufbx_dom_node* dom_node
+        ufbx_scene* scene
+
+    ctypedef struct ufbx_unknown:
+        # Element fields (union expanded)
+        ufbx_string name
+        void* props
+        unsigned int element_id
+        unsigned int typed_id
+        ufbx_node_list instances
+        int element_type
+        ufbx_connection_list connections_src
+        ufbx_connection_list connections_dst
+        ufbx_dom_node* dom_node
+        ufbx_scene* scene_ptr
+        # Unknown-specific fields
+        ufbx_string type_name
+        ufbx_string super_type
+        ufbx_string sub_type
+
+    # List structures
+    ctypedef struct ufbx_empty_list:
+        ufbx_empty** data
+        size_t count
+    ctypedef struct ufbx_unknown_list:
+        ufbx_unknown** data
+        size_t count
+
+    # Scene structure with metadata and settings
+    ctypedef struct ufbx_scene:
+        ufbx_metadata metadata
+        ufbx_scene_settings settings
+        ufbx_empty_list empties
+        ufbx_unknown_list unknowns
+
     ctypedef struct ufbx_mesh:
         pass
     ctypedef struct ufbx_node:
@@ -181,12 +310,49 @@ cdef extern from "ufbx-c/ufbx.h":
         pass
     ctypedef struct ufbx_bone:
         pass
+
+    # Forward declarations for texture-related types
+    # (ufbx_video already declared above)
+    ctypedef struct ufbx_blob:
+        void* data
+        size_t size
+    ctypedef struct ufbx_texture_layer_list:
+        void** data
+        size_t count
+
+    # Full ufbx_texture structure matching ufbx.h layout
     ctypedef struct ufbx_texture:
-        ufbx_element element
+        # Element fields (union expanded as struct fields)
+        ufbx_string name
+        void* props  # ufbx_props
+        unsigned int element_id
+        unsigned int typed_id
+        ufbx_node_list instances
+        int element_type  # ufbx_element_type (renamed to avoid conflict with texture.type)
+        ufbx_connection_list connections_src
+        ufbx_connection_list connections_dst
+        ufbx_dom_node* dom_node
+        ufbx_scene* scene
+        # Texture-specific fields - MUST follow element fields
+        int type  # ufbx_texture_type - comes IMMEDIATELY after element
+        # File paths
         ufbx_string filename
-        ufbx_string relative_filename
         ufbx_string absolute_filename
-        int type
+        ufbx_string relative_filename
+        # Raw (non-UTF-8) paths
+        ufbx_blob raw_filename
+        ufbx_blob raw_absolute_filename
+        ufbx_blob raw_relative_filename
+        # Embedded content
+        ufbx_blob content
+        # Video reference
+        ufbx_video* video
+        # File info
+        unsigned int file_index
+        bint has_file
+        # Layered textures
+        ufbx_texture_layer_list layers
+
     ctypedef struct ufbx_anim_stack:
         pass
     ctypedef struct ufbx_anim_layer:
@@ -969,7 +1135,7 @@ cdef class Texture(Element):
         """Texture name"""
         if self._scene._closed:
             raise RuntimeError("Scene is closed")
-        cdef bytes name_bytes = self._texture.element.name.data[:self._texture.element.name.length]
+        cdef bytes name_bytes = self._texture.name.data[:self._texture.name.length]
         return name_bytes.decode('utf-8', errors='replace')
 
     @property
@@ -1373,6 +1539,209 @@ cdef class Constraint(Element):
         return ufbx_wrapper_constraint_get_active(self._constraint)
 
 
+cdef class Metadata:
+    """Scene metadata"""
+    cdef Scene _scene
+    cdef const ufbx_metadata* _metadata
+
+    @staticmethod
+    cdef Metadata _create(Scene scene, const ufbx_metadata* metadata):
+        """Create Metadata from C struct"""
+        cdef Metadata obj = Metadata.__new__(Metadata)
+        obj._scene = scene
+        obj._metadata = metadata
+        return obj
+
+    @property
+    def ascii(self):
+        """Whether the file is ASCII format"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._metadata.ascii
+
+    @property
+    def version(self):
+        """FBX version (e.g., 7400 for 7.4)"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._metadata.version
+
+    @property
+    def file_format(self):
+        """File format"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._metadata.file_format
+
+    @property
+    def creator(self):
+        """Creator application name"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        cdef bytes creator_bytes = self._metadata.creator.data[:self._metadata.creator.length]
+        return creator_bytes.decode('utf-8', errors='replace')
+
+    @property
+    def big_endian(self):
+        """Whether the file is big-endian"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._metadata.big_endian
+
+    @property
+    def filename(self):
+        """Original filename"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        cdef bytes filename_bytes = self._metadata.filename.data[:self._metadata.filename.length]
+        return filename_bytes.decode('utf-8', errors='replace')
+
+    @property
+    def relative_root(self):
+        """Relative root path"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        cdef bytes root_bytes = self._metadata.relative_root.data[:self._metadata.relative_root.length]
+        return root_bytes.decode('utf-8', errors='replace')
+
+
+cdef class SceneSettings:
+    """Scene settings"""
+    cdef Scene _scene
+    cdef const ufbx_scene_settings* _settings
+
+    @staticmethod
+    cdef SceneSettings _create(Scene scene, const ufbx_scene_settings* settings):
+        """Create SceneSettings from C struct"""
+        cdef SceneSettings obj = SceneSettings.__new__(SceneSettings)
+        obj._scene = scene
+        obj._settings = settings
+        return obj
+
+    @property
+    def axes(self):
+        """Coordinate axes"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return CoordinateAxes(
+            self._settings.axes.right,
+            self._settings.axes.up,
+            self._settings.axes.front
+        )
+
+    @property
+    def unit_meters(self):
+        """Units in meters (e.g., 0.01 for centimeters)"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._settings.unit_meters
+
+    @property
+    def frames_per_second(self):
+        """Animation frames per second"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._settings.frames_per_second
+
+    @property
+    def ambient_color(self):
+        """Ambient color (r, g, b)"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return (
+            self._settings.ambient_color.x,
+            self._settings.ambient_color.y,
+            self._settings.ambient_color.z
+        )
+
+    @property
+    def default_camera(self):
+        """Default camera name"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        cdef bytes camera_bytes = self._settings.default_camera.data[:self._settings.default_camera.length]
+        return camera_bytes.decode('utf-8', errors='replace')
+
+    @property
+    def time_mode(self):
+        """Time mode"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._settings.time_mode
+
+    @property
+    def time_protocol(self):
+        """Time protocol"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._settings.time_protocol
+
+    @property
+    def snap_mode(self):
+        """Snap mode"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._settings.snap_mode
+
+    @property
+    def original_axis_up(self):
+        """Original up axis"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._settings.original_axis_up
+
+    @property
+    def original_unit_meters(self):
+        """Original unit in meters"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._settings.original_unit_meters
+
+
+cdef class Empty(Element):
+    """Empty node (null object)"""
+    cdef Scene _scene
+    cdef ufbx_empty* _empty
+
+    @staticmethod
+    cdef Empty _create(Scene scene, ufbx_empty* empty):
+        """Create Empty from C struct"""
+        cdef Empty obj = Empty.__new__(Empty)
+        obj._scene = scene
+        obj._empty = empty
+        return obj
+
+    @property
+    def name(self):
+        """Empty name"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        cdef bytes name_bytes = self._empty.name.data[:self._empty.name.length]
+        return name_bytes.decode('utf-8', errors='replace')
+
+
+cdef class Unknown(Element):
+    """Unknown element type"""
+    cdef Scene _scene
+    cdef ufbx_unknown* _unknown
+
+    @staticmethod
+    cdef Unknown _create(Scene scene, ufbx_unknown* unknown):
+        """Create Unknown from C struct"""
+        cdef Unknown obj = Unknown.__new__(Unknown)
+        obj._scene = scene
+        obj._unknown = unknown
+        return obj
+
+    @property
+    def name(self):
+        """Unknown element name"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        cdef bytes name_bytes = self._unknown.name.data[:self._unknown.name.length]
+        return name_bytes.decode('utf-8', errors='replace')
+
+
 cdef class Scene:
     """FBX Scene - manages lifetime of all scene data"""
     cdef ufbx_scene* _scene
@@ -1405,6 +1774,20 @@ cdef class Scene:
     @classmethod
     def load_memory(cls, data):
         return load_memory(data)
+
+    @property
+    def metadata(self):
+        """Scene metadata (file info, creator, version, etc.)"""
+        if self._closed:
+            raise RuntimeError("Scene is closed")
+        return Metadata._create(self, &self._scene.metadata)
+
+    @property
+    def settings(self):
+        """Scene settings (axes, units, FPS, etc.)"""
+        if self._closed:
+            raise RuntimeError("Scene is closed")
+        return SceneSettings._create(self, &self._scene.settings)
 
     @property
     def nodes(self):
@@ -1473,6 +1856,30 @@ cdef class Scene:
             raise RuntimeError("Scene is closed")
         cdef size_t count = ufbx_wrapper_scene_get_num_bones(self._scene)
         return [self._get_bone(i) for i in range(count)]
+
+    @property
+    def empties(self):
+        """Get all empty nodes in the scene"""
+        if self._closed:
+            raise RuntimeError("Scene is closed")
+        cdef size_t count = self._scene.empties.count
+        cdef list result = []
+        cdef size_t i
+        for i in range(count):
+            result.append(Empty._create(self, self._scene.empties.data[i]))
+        return result
+
+    @property
+    def unknowns(self):
+        """Get all unknown elements in the scene"""
+        if self._closed:
+            raise RuntimeError("Scene is closed")
+        cdef size_t count = self._scene.unknowns.count
+        cdef list result = []
+        cdef size_t i
+        for i in range(count):
+            result.append(Unknown._create(self, self._scene.unknowns.data[i]))
+        return result
 
     @property
     def textures(self):
@@ -2161,7 +2568,7 @@ cdef class Material(Element):
         """Material name"""
         if self._scene._closed:
             raise RuntimeError("Scene is closed")
-        cdef bytes name_bytes = self._material.element.name.data[:self._material.element.name.length]
+        cdef bytes name_bytes = self._material.name.data[:self._material.name.length]
         return name_bytes.decode('utf-8', errors='replace')
 
     @property
