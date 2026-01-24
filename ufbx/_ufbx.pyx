@@ -19,6 +19,51 @@ cdef extern from "ufbx-c/ufbx.h":
         double z
         double w
 
+    ctypedef struct ufbx_string:
+        const char* data
+        size_t length
+
+    ctypedef struct ufbx_material_feature_info:
+        bint enabled
+
+    ctypedef struct ufbx_material_features:
+        ufbx_material_feature_info pbr
+        ufbx_material_feature_info metalness
+        ufbx_material_feature_info diffuse
+        ufbx_material_feature_info specular
+        ufbx_material_feature_info emission
+        ufbx_material_feature_info transmission
+        ufbx_material_feature_info coat
+        ufbx_material_feature_info sheen
+        ufbx_material_feature_info opacity
+        ufbx_material_feature_info ambient_occlusion
+        ufbx_material_feature_info matte
+        ufbx_material_feature_info unlit
+        ufbx_material_feature_info ior
+        ufbx_material_feature_info diffuse_roughness
+        ufbx_material_feature_info transmission_roughness
+        ufbx_material_feature_info thin_walled
+        ufbx_material_feature_info caustics
+        ufbx_material_feature_info exit_to_background
+        ufbx_material_feature_info internal_reflections
+        ufbx_material_feature_info double_sided
+        ufbx_material_feature_info roughness_as_glossiness
+        ufbx_material_feature_info coat_roughness_as_glossiness
+        ufbx_material_feature_info transmission_roughness_as_glossiness
+
+    # Forward declaration
+    ctypedef struct ufbx_texture
+
+    ctypedef struct ufbx_material_texture:
+        ufbx_string material_prop
+        ufbx_string shader_prop
+        ufbx_texture* texture
+
+    # Generic list structure
+    ctypedef struct ufbx_material_texture_list:
+        ufbx_material_texture* data
+        size_t count
+
     ctypedef struct ufbx_material_map:
         ufbx_vec4 value_vec4
         long long value_int
@@ -119,8 +164,10 @@ cdef extern from "ufbx-c/ufbx.h":
         ufbx_element element
         ufbx_material_fbx_maps fbx
         ufbx_material_pbr_maps pbr
+        ufbx_material_features features
         int shader_type
         ufbx_string shading_model_name
+        ufbx_material_texture_list textures
 
     ctypedef struct ufbx_scene:
         pass
@@ -1882,6 +1929,220 @@ cdef class MaterialMap:
         return self._map.value_components
 
 
+cdef class MaterialFeatures:
+    """Material features (direct access to ufbx_material_features fields)"""
+    cdef Scene _scene
+    cdef const ufbx_material_features* _features
+
+    @staticmethod
+    cdef MaterialFeatures _create(Scene scene, const ufbx_material_features* features):
+        """Create MaterialFeatures from C struct"""
+        cdef MaterialFeatures obj = MaterialFeatures.__new__(MaterialFeatures)
+        obj._scene = scene
+        obj._features = features
+        return obj
+
+    @property
+    def pbr(self):
+        """PBR feature enabled"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._features.pbr.enabled
+
+    @property
+    def metalness(self):
+        """Metalness feature enabled"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._features.metalness.enabled
+
+    @property
+    def diffuse(self):
+        """Diffuse feature enabled"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._features.diffuse.enabled
+
+    @property
+    def specular(self):
+        """Specular feature enabled"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._features.specular.enabled
+
+    @property
+    def emission(self):
+        """Emission feature enabled"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._features.emission.enabled
+
+    @property
+    def transmission(self):
+        """Transmission feature enabled"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._features.transmission.enabled
+
+    @property
+    def coat(self):
+        """Coat feature enabled"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._features.coat.enabled
+
+    @property
+    def sheen(self):
+        """Sheen feature enabled"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._features.sheen.enabled
+
+    @property
+    def opacity(self):
+        """Opacity feature enabled"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._features.opacity.enabled
+
+    @property
+    def ambient_occlusion(self):
+        """Ambient occlusion feature enabled"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._features.ambient_occlusion.enabled
+
+    @property
+    def matte(self):
+        """Matte feature enabled"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._features.matte.enabled
+
+    @property
+    def unlit(self):
+        """Unlit feature enabled"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._features.unlit.enabled
+
+    @property
+    def ior(self):
+        """IOR feature enabled"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._features.ior.enabled
+
+    @property
+    def diffuse_roughness(self):
+        """Diffuse roughness feature enabled"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._features.diffuse_roughness.enabled
+
+    @property
+    def transmission_roughness(self):
+        """Transmission roughness feature enabled"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._features.transmission_roughness.enabled
+
+    @property
+    def thin_walled(self):
+        """Thin walled feature enabled"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._features.thin_walled.enabled
+
+    @property
+    def caustics(self):
+        """Caustics feature enabled"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._features.caustics.enabled
+
+    @property
+    def exit_to_background(self):
+        """Exit to background feature enabled"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._features.exit_to_background.enabled
+
+    @property
+    def internal_reflections(self):
+        """Internal reflections feature enabled"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._features.internal_reflections.enabled
+
+    @property
+    def double_sided(self):
+        """Double sided feature enabled"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._features.double_sided.enabled
+
+    @property
+    def roughness_as_glossiness(self):
+        """Roughness as glossiness feature enabled"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._features.roughness_as_glossiness.enabled
+
+    @property
+    def coat_roughness_as_glossiness(self):
+        """Coat roughness as glossiness feature enabled"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._features.coat_roughness_as_glossiness.enabled
+
+    @property
+    def transmission_roughness_as_glossiness(self):
+        """Transmission roughness as glossiness feature enabled"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._features.transmission_roughness_as_glossiness.enabled
+
+
+cdef class MaterialTexture:
+    """Material texture mapping (direct access to ufbx_material_texture fields)"""
+    cdef Scene _scene
+    cdef const ufbx_material_texture* _mat_tex
+
+    @staticmethod
+    cdef MaterialTexture _create(Scene scene, const ufbx_material_texture* mat_tex):
+        """Create MaterialTexture from C struct"""
+        cdef MaterialTexture obj = MaterialTexture.__new__(MaterialTexture)
+        obj._scene = scene
+        obj._mat_tex = mat_tex
+        return obj
+
+    @property
+    def material_prop(self):
+        """Material property name"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        cdef bytes prop_bytes = self._mat_tex.material_prop.data[:self._mat_tex.material_prop.length]
+        return prop_bytes.decode('utf-8', errors='replace')
+
+    @property
+    def shader_prop(self):
+        """Shader property name"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        cdef bytes prop_bytes = self._mat_tex.shader_prop.data[:self._mat_tex.shader_prop.length]
+        return prop_bytes.decode('utf-8', errors='replace')
+
+    @property
+    def texture(self):
+        """Texture object"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        if self._mat_tex.texture == NULL:
+            return None
+        return Texture._create(self._scene, self._mat_tex.texture)
+
+
 cdef class Material(Element):
     """Material definition (Rust API style - direct struct access)"""
     cdef Scene _scene
@@ -1917,6 +2178,25 @@ cdef class Material(Element):
             raise RuntimeError("Scene is closed")
         cdef bytes name_bytes = self._material.shading_model_name.data[:self._material.shading_model_name.length]
         return name_bytes.decode('utf-8', errors='replace')
+
+    @property
+    def features(self):
+        """Material features"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return MaterialFeatures._create(self._scene, &self._material.features)
+
+    @property
+    def textures(self):
+        """List of textures used by this material"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        cdef size_t count = self._material.textures.count
+        cdef list result = []
+        cdef size_t i
+        for i in range(count):
+            result.append(MaterialTexture._create(self._scene, &self._material.textures.data[i]))
+        return result
 
     # PBR Material Maps - 直接返回 MaterialMap
     @property

@@ -459,13 +459,7 @@ def do_update(argv, config: Config):
     old_dir = os.path.join(tmp_dir, "old")
     new_dir = os.path.join(tmp_dir, "new")
 
-    try:
-        os.mkdir(tmp_dir)
-    except FileExistsError:
-        raise TempExistsError(
-            f"Temporary directory {tmp_dir} exists, delete it or use '--remove-temp' to automatically remove it"
-        )
-
+    os.mkdir(tmp_dir)
     os.mkdir(old_dir)
     os.mkdir(new_dir)
 

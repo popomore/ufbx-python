@@ -158,10 +158,10 @@ def extract_euler_angles(matrix, scale_x, scale_y, scale_z):
     r00 = matrix[0, 0] / scale_x
     r10 = matrix[1, 0] / scale_x
     r20 = matrix[2, 0] / scale_x
-    r01 = matrix[0, 1] / scale_y
+    matrix[0, 1] / scale_y
     r11 = matrix[1, 1] / scale_y
     r21 = matrix[2, 1] / scale_y
-    r02 = matrix[0, 2] / scale_z
+    matrix[0, 2] / scale_z
     r12 = matrix[1, 2] / scale_z
     r22 = matrix[2, 2] / scale_z
 
@@ -202,10 +202,7 @@ def print_transform_info(node):
     # Column 2: Z-axis basis vector
     scale_z = math.sqrt(local_matrix[0, 2] ** 2 + local_matrix[1, 2] ** 2 + local_matrix[2, 2] ** 2)
 
-    if abs(scale_x - scale_y) < 1e-3 and abs(scale_y - scale_z) < 1e-3:
-        scale_note = "uniform"
-    else:
-        scale_note = "non-uniform"
+    scale_note = "uniform" if abs(scale_x - scale_y) < 0.001 and abs(scale_y - scale_z) < 0.001 else "non-uniform"
 
     print(f"          Scale:    ({scale_x:8.3f}, {scale_y:8.3f}, {scale_z:8.3f}) [{scale_note}]")
 
@@ -410,11 +407,13 @@ def main():
                         shading_models[shading_model] = shading_models.get(shading_model, 0) + 1
 
                     # Count materials with textures (check common maps)
-                    has_texture = any([
-                        material.pbr_base_color.texture_enabled and material.pbr_base_color.texture,
-                        material.pbr_normal_map.texture_enabled and material.pbr_normal_map.texture,
-                        material.fbx_diffuse_color.texture_enabled and material.fbx_diffuse_color.texture,
-                    ])
+                    has_texture = any(
+                        [
+                            material.pbr_base_color.texture_enabled and material.pbr_base_color.texture,
+                            material.pbr_normal_map.texture_enabled and material.pbr_normal_map.texture,
+                            material.fbx_diffuse_color.texture_enabled and material.fbx_diffuse_color.texture,
+                        ]
+                    )
                     if has_texture:
                         materials_with_textures += 1
 
