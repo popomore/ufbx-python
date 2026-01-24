@@ -1172,6 +1172,47 @@ cdef class Texture(Element):
             raise RuntimeError("Scene is closed")
         return TextureType(self._texture.type)
 
+    @property
+    def content(self):
+        """Embedded texture content as bytes (e.g., raw PNG/JPEG data)"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        if self._texture.content.size == 0:
+            return None
+        cdef const unsigned char[:] view = <const unsigned char[:self._texture.content.size]>self._texture.content.data
+        return bytes(view)
+
+    @property
+    def has_file(self):
+        """True if texture has a file reference"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return self._texture.has_file
+
+    @property
+    def uv_set(self):
+        """Name of the UV set to use"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        if self._texture.uv_set.length == 0:
+            return ""
+        cdef bytes uv_set_bytes = self._texture.uv_set.data[:self._texture.uv_set.length]
+        return uv_set_bytes.decode('utf-8', errors='replace')
+
+    @property
+    def wrap_u(self):
+        """U wrapping mode (WrapMode enum)"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return WrapMode(self._texture.wrap_u)
+
+    @property
+    def wrap_v(self):
+        """V wrapping mode (WrapMode enum)"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return WrapMode(self._texture.wrap_v)
+
 
 cdef class AnimStack(Element):
     """Animation stack (timeline)"""
