@@ -390,6 +390,10 @@ cdef extern from "ufbx-c/ufbx.h":
     ctypedef struct ufbx_constraint:
         pass
 
+    # Find functions from ufbx
+    ufbx_node* ufbx_find_node(const ufbx_scene *scene, const char *name)
+    ufbx_material* ufbx_find_material(const ufbx_scene *scene, const char *name)
+
 cdef extern from "ufbx_wrapper.h":
 
     # Scene management
@@ -1897,6 +1901,40 @@ cdef class Scene:
         cdef int u = ufbx_wrapper_scene_get_axes_up(self._scene)
         cdef int f = ufbx_wrapper_scene_get_axes_front(self._scene)
         return CoordinateAxes(r, u, f)
+
+    @property
+    def node_count(self):
+        """Get the number of nodes in the scene"""
+        if self._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_scene_get_num_nodes(self._scene)
+
+    @property
+    def mesh_count(self):
+        """Get the number of meshes in the scene"""
+        if self._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_scene_get_num_meshes(self._scene)
+
+    def find_node(self, name):
+        """Find a node by name. Returns None if not found."""
+        if self._closed:
+            raise RuntimeError("Scene is closed")
+        cdef bytes name_bytes = name.encode('utf-8')
+        cdef ufbx_node* node = ufbx_find_node(self._scene, name_bytes)
+        if node != NULL:
+            return Node._create(self, node)
+        return None
+
+    def find_material(self, name):
+        """Find a material by name. Returns None if not found."""
+        if self._closed:
+            raise RuntimeError("Scene is closed")
+        cdef bytes name_bytes = name.encode('utf-8')
+        cdef ufbx_material* material = ufbx_find_material(self._scene, name_bytes)
+        if material != NULL:
+            return Material._create(self, material)
+        return None
 
     @property
     def lights(self):
