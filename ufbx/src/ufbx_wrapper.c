@@ -111,6 +111,53 @@ void ufbx_wrapper_node_get_local_transform(const ufbx_node *node, double *matrix
     matrix16[3] = 0.0;    matrix16[7] = 0.0;    matrix16[11] = 0.0;    matrix16[15] = 1.0;
 }
 
+void ufbx_wrapper_node_get_node_to_world(const ufbx_node *node, double *matrix16) {
+    if (!node || !matrix16) return;
+
+    const ufbx_matrix *m = &node->node_to_world;
+    // Column-major order
+    matrix16[0] = m->m00; matrix16[4] = m->m01; matrix16[8]  = m->m02; matrix16[12] = m->m03;
+    matrix16[1] = m->m10; matrix16[5] = m->m11; matrix16[9]  = m->m12; matrix16[13] = m->m13;
+    matrix16[2] = m->m20; matrix16[6] = m->m21; matrix16[10] = m->m22; matrix16[14] = m->m23;
+    matrix16[3] = 0.0;    matrix16[7] = 0.0;    matrix16[11] = 0.0;    matrix16[15] = 1.0;
+}
+
+void ufbx_wrapper_node_get_node_to_parent(const ufbx_node *node, double *matrix16) {
+    if (!node || !matrix16) return;
+
+    const ufbx_matrix *m = &node->node_to_parent;
+    // Column-major order
+    matrix16[0] = m->m00; matrix16[4] = m->m01; matrix16[8]  = m->m02; matrix16[12] = m->m03;
+    matrix16[1] = m->m10; matrix16[5] = m->m11; matrix16[9]  = m->m12; matrix16[13] = m->m13;
+    matrix16[2] = m->m20; matrix16[6] = m->m21; matrix16[10] = m->m22; matrix16[14] = m->m23;
+    matrix16[3] = 0.0;    matrix16[7] = 0.0;    matrix16[11] = 0.0;    matrix16[15] = 1.0;
+}
+
+void ufbx_wrapper_node_get_geometry_transform(const ufbx_node *node, double *translation3, double *rotation4, double *scale3) {
+    if (!node) return;
+
+    const ufbx_transform *t = &node->geometry_transform;
+    
+    if (translation3) {
+        translation3[0] = t->translation.x;
+        translation3[1] = t->translation.y;
+        translation3[2] = t->translation.z;
+    }
+    
+    if (rotation4) {
+        rotation4[0] = t->rotation.x;
+        rotation4[1] = t->rotation.y;
+        rotation4[2] = t->rotation.z;
+        rotation4[3] = t->rotation.w;
+    }
+    
+    if (scale3) {
+        scale3[0] = t->scale.x;
+        scale3[1] = t->scale.y;
+        scale3[2] = t->scale.z;
+    }
+}
+
 // Mesh access
 ufbx_mesh* ufbx_wrapper_scene_get_mesh(const ufbx_scene *scene, size_t index) {
     if (!scene || index >= scene->meshes.count) return NULL;
@@ -167,6 +214,36 @@ const float* ufbx_wrapper_mesh_get_vertex_uvs(const ufbx_mesh *mesh, size_t *out
 
     *out_count = mesh->vertex_uv.values.count;
     return (const float*)mesh->vertex_uv.values.data;
+}
+
+const float* ufbx_wrapper_mesh_get_vertex_tangents(const ufbx_mesh *mesh, size_t *out_count) {
+    if (!mesh || !mesh->vertex_tangent.exists || !out_count) {
+        if (out_count) *out_count = 0;
+        return NULL;
+    }
+
+    *out_count = mesh->vertex_tangent.values.count;
+    return (const float*)mesh->vertex_tangent.values.data;
+}
+
+const float* ufbx_wrapper_mesh_get_vertex_bitangents(const ufbx_mesh *mesh, size_t *out_count) {
+    if (!mesh || !mesh->vertex_bitangent.exists || !out_count) {
+        if (out_count) *out_count = 0;
+        return NULL;
+    }
+
+    *out_count = mesh->vertex_bitangent.values.count;
+    return (const float*)mesh->vertex_bitangent.values.data;
+}
+
+const float* ufbx_wrapper_mesh_get_vertex_colors(const ufbx_mesh *mesh, size_t *out_count) {
+    if (!mesh || !mesh->vertex_color.exists || !out_count) {
+        if (out_count) *out_count = 0;
+        return NULL;
+    }
+
+    *out_count = mesh->vertex_color.values.count;
+    return (const float*)mesh->vertex_color.values.data;
 }
 
 const uint32_t* ufbx_wrapper_mesh_get_indices(const ufbx_mesh *mesh, size_t *out_count) {

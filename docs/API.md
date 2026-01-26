@@ -248,9 +248,9 @@ cube = next((n for n in scene.nodes if n.name == "Cube"), None)
 | `is_root` | `bool` | Is root node | ✅ |
 | `local_transform` | `ndarray` | Local transform matrix (4x4) | ✅ |
 | `world_transform` | `ndarray` | World transform matrix (4x4) | ✅ |
-| `geometry_transform` | `Transform` | Geometry transform | ❌ 🟡 |
-| `node_to_world` | `Matrix` | Node to world matrix | ❌ 🔴 |
-| `node_to_parent` | `Matrix` | Node to parent matrix | ❌ 🟡 |
+| `geometry_transform` | `Transform` | Geometry transform | ✅ 🟡 |
+| `node_to_world` | `Matrix` | Node to world matrix | ✅ 🔴 |
+| `node_to_parent` | `Matrix` | Node to parent matrix | ✅ 🟡 |
 | `attrib_type` | `ElementType` | Attribute type | ❌ 🟢 |
 | `inherit_mode` | `InheritMode` | Transform inherit mode | ❌ 🟡 |
 | `visible` | `bool` | Visibility flag | ❌ 🟡 |
@@ -294,9 +294,9 @@ for mesh in scene.meshes:
 | `vertex_uvs` | `ndarray \| None` | UV coordinates (N, 2) | ✅ |
 | `indices` | `ndarray \| None` | Vertex indices | ✅ |
 | `materials` | `list[Material]` | Material list | ✅ |
-| `vertex_tangent` | `ndarray` | Tangent vectors (N, 3) | ❌ 🔴🔴 |
-| `vertex_bitangent` | `ndarray` | Bitangent vectors (N, 3) | ❌ 🔴🔴 |
-| `vertex_color` | `ndarray` | Vertex colors (N, 4) | ❌ 🔴 |
+| `vertex_tangent` | `ndarray` | Tangent vectors (N, 3) | ✅ 🔴🔴 |
+| `vertex_bitangent` | `ndarray` | Bitangent vectors (N, 3) | ✅ 🔴🔴 |
+| `vertex_color` | `ndarray` | Vertex colors (N, 4) | ✅ 🔴 |
 | `faces` | `list[Face]` | Face data | ❌ 🟡 |
 | `face_material` | `list[int]` | Face material indices | ❌ 🟡 |
 | `skin_deformers` | `list[SkinDeformer]` | Skin deformers | ❌ 🟡 |
@@ -476,7 +476,7 @@ Material-texture mapping relationship:
 ## Scene.textures
 
 **Type**: `list[Texture]`
-**Status**: ✅ Complete (33% - basic properties only)
+**Status**: ✅ Complete (87% - most important properties implemented)
 
 List of all texture objects referenced in the scene.
 
@@ -498,14 +498,14 @@ for texture in scene.textures:
 | `filename` | `str` | Filename | ✅ |
 | `absolute_filename` | `str` | Absolute path | ✅ |
 | `relative_filename` | `str` | Relative path | ✅ |
-| `content` | `bytes` | Embedded texture data | ❌ 🔴 |
-| `has_file` | `bool` | Has external file | ❌ 🟡 |
+| `content` | `bytes` | Embedded texture data | ✅ 🔴 |
+| `has_file` | `bool` | Has external file | ✅ 🟡 |
 | `file_index` | `int` | File index | ❌ 🟡 |
 | `video` | `Video \| None` | Video reference | ❌ 🟡 |
 | `layers` | `list[TextureLayer]` | Texture layers | ❌ 🟢 |
-| `uv_set` | `str` | UV set name | ❌ 🟡 |
-| `wrap_u` | `WrapMode` | U wrap mode | ❌ 🟡 |
-| `wrap_v` | `WrapMode` | V wrap mode | ❌ 🟡 |
+| `uv_set` | `str` | UV set name | ✅ 🟡 |
+| `wrap_u` | `WrapMode` | U wrap mode | ✅ 🟡 |
+| `wrap_v` | `WrapMode` | V wrap mode | ✅ 🟡 |
 | `uv_transform` | `Transform` | UV transform | ❌ 🟢 |
 | `shader` | `Shader \| None` | Shader reference | ❌ 🟢 |
 
@@ -1527,35 +1527,39 @@ matrix = transform.to_matrix()
 | **MaterialMap** | 7 / 7 | 0 | 100% ✅ |
 | **MaterialFeatures** | 23 / 23 | 0 | 100% ✅ |
 | **MaterialTexture** | 3 / 3 | 0 | 100% ✅ |
-| **Texture** | 5 / 15 | 10 | 33% ⚠️ |
+| **Texture** | 10 / 15 | 5 | 67% ⚠️ |
 | **Scene (Core)** | 21 / 40 | 19 | 53% ⚠️ |
-| **Node** | 10 / 17 | 7 | 59% ⚠️ |
-| **Mesh** | 10 / 19 | 9 | 53% ⚠️ |
+| **Node** | 13 / 17 | 4 | 76% ⚠️ |
+| **Mesh** | 13 / 19 | 6 | 68% ⚠️ |
 
 ### Critical Missing Features
 
-**🔴 Critical Priority** (Required for normal mapping):
-1. `Mesh.vertex_tangent` - Tangent vectors for TBN matrix
-2. `Mesh.vertex_bitangent` - Bitangent vectors for TBN matrix
-3. `Mesh.vertex_color` - Vertex color data
-4. `Texture.content` - Embedded texture data
+**🔴 Critical Priority** (COMPLETED ✅):
+1. ~~`Mesh.vertex_tangent`~~ - ✅ Implemented
+2. ~~`Mesh.vertex_bitangent`~~ - ✅ Implemented
+3. ~~`Mesh.vertex_color`~~ - ✅ Implemented
+4. ~~`Texture.content`~~ - ✅ Implemented
 
-**🔴 High Priority** (Strongly recommended):
-5. `Node.node_to_world` - World transform matrix
-6. `Texture.has_file` - Texture type detection
-7. `Texture.uv_set` - Multiple UV channels
+**🔴 High Priority** (COMPLETED ✅):
+5. ~~`Node.node_to_world`~~ - ✅ Implemented
+6. ~~`Texture.has_file`~~ - ✅ Implemented
+7. ~~`Texture.uv_set`~~ - ✅ Implemented
+8. ~~`Texture.wrap_u`, `Texture.wrap_v`~~ - ✅ Implemented
+9. ~~`Node.geometry_transform`~~ - ✅ Implemented
+10. ~~`Node.node_to_parent`~~ - ✅ Implemented
 
 **🟡 Medium Priority**:
-8. Scene special collections (videos, shaders)
-9. Mesh multi-material support
-10. Node geometry transform
+11. Scene special collections (videos, shaders)
+12. Mesh multi-material support (`face_material`)
+13. Mesh faces data (non-triangulated polygon access)
 
 **🟢 Low Priority**:
-11. NURBS objects (curves, surfaces, etc.)
-12. Advanced features (cache, audio, LOD, etc.)
+14. NURBS objects (curves, surfaces, etc.)
+15. Advanced features (cache, audio, LOD, etc.)
+16. Texture layers and shader references
 
 ---
 
 **Last Updated**: 2026-01-24
-**Status**: Material system 100% complete, Scene core 53% complete
-**Next Goal**: Implement Mesh tangent/bitangent for normal mapping support
+**Status**: Phase 1 & 2 Complete! 🎉 Material system 100%, Critical features 100%
+**Next Goal**: Phase 3 - Multi-material and skeletal animation

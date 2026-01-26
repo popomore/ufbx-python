@@ -55,6 +55,9 @@ bool ufbx_wrapper_node_is_root(const ufbx_node *node);
 // Node transform (4x4 matrix stored in column-major order)
 void ufbx_wrapper_node_get_world_transform(const ufbx_node *node, double *matrix16);
 void ufbx_wrapper_node_get_local_transform(const ufbx_node *node, double *matrix16);
+void ufbx_wrapper_node_get_node_to_world(const ufbx_node *node, double *matrix16);
+void ufbx_wrapper_node_get_node_to_parent(const ufbx_node *node, double *matrix16);
+void ufbx_wrapper_node_get_geometry_transform(const ufbx_node *node, double *translation3, double *rotation4, double *scale3);
 
 // Mesh access
 ufbx_mesh* ufbx_wrapper_scene_get_mesh(const ufbx_scene *scene, size_t index);
@@ -68,6 +71,9 @@ size_t ufbx_wrapper_mesh_get_num_triangles(const ufbx_mesh *mesh);
 const float* ufbx_wrapper_mesh_get_vertex_positions(const ufbx_mesh *mesh, size_t *out_count);
 const float* ufbx_wrapper_mesh_get_vertex_normals(const ufbx_mesh *mesh, size_t *out_count);
 const float* ufbx_wrapper_mesh_get_vertex_uvs(const ufbx_mesh *mesh, size_t *out_count);
+const float* ufbx_wrapper_mesh_get_vertex_tangents(const ufbx_mesh *mesh, size_t *out_count);
+const float* ufbx_wrapper_mesh_get_vertex_bitangents(const ufbx_mesh *mesh, size_t *out_count);
+const float* ufbx_wrapper_mesh_get_vertex_colors(const ufbx_mesh *mesh, size_t *out_count);
 const uint32_t* ufbx_wrapper_mesh_get_indices(const ufbx_mesh *mesh, size_t *out_count);
 
 // Material access
