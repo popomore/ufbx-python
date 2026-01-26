@@ -1902,20 +1902,6 @@ cdef class Scene:
         cdef int f = ufbx_wrapper_scene_get_axes_front(self._scene)
         return CoordinateAxes(r, u, f)
 
-    @property
-    def node_count(self):
-        """Get the number of nodes in the scene"""
-        if self._closed:
-            raise RuntimeError("Scene is closed")
-        return ufbx_wrapper_scene_get_num_nodes(self._scene)
-
-    @property
-    def mesh_count(self):
-        """Get the number of meshes in the scene"""
-        if self._closed:
-            raise RuntimeError("Scene is closed")
-        return ufbx_wrapper_scene_get_num_meshes(self._scene)
-
     def find_node(self, name):
         """Find a node by name. Returns None if not found."""
         if self._closed:

@@ -353,6 +353,21 @@ def main():
                 print_node_hierarchy(root, max_depth=10)
                 print()
 
+            # Demonstrate find_node and find_material
+            print("🔍 Find by Name:")
+            # Try to find common node names
+            for name in ["Cube", "Camera", "Light", "Armature"]:
+                node = scene.find_node(name)
+                if node:
+                    mesh_info = f" (mesh: {node.mesh.name})" if node.mesh else ""
+                    print(f"  Found node '{name}'{mesh_info}")
+            # Try to find materials
+            for material in scene.materials[:2]:  # Check first 2 materials
+                found = scene.find_material(material.name)
+                if found:
+                    print(f"  Found material '{material.name}'")
+            print()
+
             # All nodes details
             if scene.nodes:
                 print(f"🎯 Node Details ({len(scene.nodes)} nodes):")
