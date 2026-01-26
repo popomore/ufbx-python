@@ -27,8 +27,8 @@ def _test_load_fbx_impl():
         with ufbx.load_file(fbx_file) as scene:
             print("\n✓ Successfully loaded scene!")
             print("\nScene Statistics:")
-            print(f"  Nodes:      {scene.node_count}")
-            print(f"  Meshes:     {scene.mesh_count}")
+            print(f"  Nodes:      {len(scene.nodes)}")
+            print(f"  Meshes:     {len(scene.meshes)}")
             print(f"  Materials:  {scene.material_count}")
             print(f"  Textures:   {scene.texture_count}")
             print(f"  Lights:     {scene.light_count}")
@@ -59,7 +59,7 @@ def _test_load_fbx_impl():
                 print(f"{indent}    Scale: ({t.scale.x:.2f}, {t.scale.y:.2f}, {t.scale.z:.2f})")
 
             # Inspect meshes
-            if scene.mesh_count > 0:
+            if len(scene.meshes) > 0:
                 print(f"\n{'-' * 60}")
                 print("Mesh Details:")
                 print(f"{'-' * 60}")
@@ -113,7 +113,7 @@ def _test_load_fbx_impl():
             print(f"Quat multiply: {q1} * {q2} = {q3}")
 
             # Test transform to matrix conversion
-            if scene.node_count > 0:
+            if len(scene.nodes) > 0:
                 node = scene.nodes[0]
                 transform = node.local_transform
                 matrix = transform.to_matrix()

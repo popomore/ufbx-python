@@ -61,7 +61,7 @@ def test_node_properties() -> None:
     """Test node properties type hints"""
     try:
         scene = ufbx.load_file("test.fbx")
-        if scene.node_count > 0:
+        if len(scene.nodes) > 0:
             scene.nodes[0]
 
             # Test properties
@@ -81,7 +81,7 @@ def test_mesh_properties() -> None:
     """Test mesh properties type hints"""
     try:
         scene = ufbx.load_file("test.fbx")
-        if scene.mesh_count > 0:
+        if len(scene.meshes) > 0:
             mesh: ufbx.Mesh = scene.meshes[0]
 
             # Test integer properties
