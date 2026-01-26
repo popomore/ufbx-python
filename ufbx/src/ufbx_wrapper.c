@@ -158,6 +158,30 @@ void ufbx_wrapper_node_get_geometry_transform(const ufbx_node *node, double *tra
     }
 }
 
+// Node additional properties
+int ufbx_wrapper_node_get_attrib_type(const ufbx_node *node) {
+    return node ? (int)node->attrib_type : 0;
+}
+
+int ufbx_wrapper_node_get_inherit_mode(const ufbx_node *node) {
+    return node ? (int)node->inherit_mode : 0;
+}
+
+bool ufbx_wrapper_node_get_visible(const ufbx_node *node) {
+    return node ? node->visible : false;
+}
+
+void ufbx_wrapper_node_get_euler_rotation(const ufbx_node *node, double *xyz) {
+    if (!node || !xyz) return;
+    xyz[0] = node->euler_rotation.x;
+    xyz[1] = node->euler_rotation.y;
+    xyz[2] = node->euler_rotation.z;
+}
+
+int ufbx_wrapper_node_get_rotation_order(const ufbx_node *node) {
+    return node ? (int)node->rotation_order : 0;
+}
+
 // Mesh access
 ufbx_mesh* ufbx_wrapper_scene_get_mesh(const ufbx_scene *scene, size_t index) {
     if (!scene || index >= scene->meshes.count) return NULL;
@@ -254,6 +278,67 @@ const uint32_t* ufbx_wrapper_mesh_get_indices(const ufbx_mesh *mesh, size_t *out
 
     *out_count = mesh->vertex_position.indices.count;
     return mesh->vertex_position.indices.data;
+}
+
+// Mesh face data
+size_t ufbx_wrapper_mesh_get_face_count(const ufbx_mesh *mesh) {
+    return mesh ? mesh->faces.count : 0;
+}
+
+void ufbx_wrapper_mesh_get_face(const ufbx_mesh *mesh, size_t index, uint32_t *index_begin, uint32_t *num_indices) {
+    if (!mesh || index >= mesh->faces.count) {
+        if (index_begin) *index_begin = 0;
+        if (num_indices) *num_indices = 0;
+        return;
+    }
+    if (index_begin) *index_begin = mesh->faces.data[index].index_begin;
+    if (num_indices) *num_indices = mesh->faces.data[index].num_indices;
+}
+
+const uint32_t* ufbx_wrapper_mesh_get_face_material(const ufbx_mesh *mesh, size_t *out_count) {
+    if (!mesh || !out_count) {
+        if (out_count) *out_count = 0;
+        return NULL;
+    }
+    *out_count = mesh->face_material.count;
+    return mesh->face_material.data;
+}
+
+const double* ufbx_wrapper_mesh_get_edge_crease(const ufbx_mesh *mesh, size_t *out_count) {
+    if (!mesh || !out_count) {
+        if (out_count) *out_count = 0;
+        return NULL;
+    }
+    *out_count = mesh->edge_crease.count;
+    return mesh->edge_crease.data;
+}
+
+const float* ufbx_wrapper_mesh_get_vertex_crease(const ufbx_mesh *mesh, size_t *out_count) {
+    if (!mesh || !mesh->vertex_crease.exists || !out_count) {
+        if (out_count) *out_count = 0;
+        return NULL;
+    }
+    *out_count = mesh->vertex_crease.values.count;
+    return (const float*)mesh->vertex_crease.values.data;
+}
+
+// Mesh deformers
+size_t ufbx_wrapper_mesh_get_num_skin_deformers(const ufbx_mesh *mesh) {
+    return mesh ? mesh->skin_deformers.count : 0;
+}
+
+ufbx_skin_deformer* ufbx_wrapper_mesh_get_skin_deformer(const ufbx_mesh *mesh, size_t index) {
+    if (!mesh || index >= mesh->skin_deformers.count) return NULL;
+    return mesh->skin_deformers.data[index];
+}
+
+size_t ufbx_wrapper_mesh_get_num_blend_deformers(const ufbx_mesh *mesh) {
+    return mesh ? mesh->blend_deformers.count : 0;
+}
+
+ufbx_blend_deformer* ufbx_wrapper_mesh_get_blend_deformer(const ufbx_mesh *mesh, size_t index) {
+    if (!mesh || index >= mesh->blend_deformers.count) return NULL;
+    return mesh->blend_deformers.data[index];
 }
 
 // Material access

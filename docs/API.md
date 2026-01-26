@@ -251,10 +251,10 @@ cube = next((n for n in scene.nodes if n.name == "Cube"), None)
 | `geometry_transform` | `Transform` | Geometry transform | ✅ 🟡 |
 | `node_to_world` | `Matrix` | Node to world matrix | ✅ 🔴 |
 | `node_to_parent` | `Matrix` | Node to parent matrix | ✅ 🟡 |
-| `attrib_type` | `ElementType` | Attribute type | ❌ 🟢 |
-| `inherit_mode` | `InheritMode` | Transform inherit mode | ❌ 🟡 |
-| `visible` | `bool` | Visibility flag | ❌ 🟡 |
-| `euler_rotation` | `Vec3` | Euler angles | ❌ 🟡 |
+| `attrib_type` | `ElementType` | Attribute type | ✅ |
+| `inherit_mode` | `InheritMode` | Transform inherit mode | ✅ |
+| `visible` | `bool` | Visibility flag | ✅ |
+| `euler_rotation` | `Vec3` | Euler angles | ✅ |
 
 ---
 
@@ -297,12 +297,12 @@ for mesh in scene.meshes:
 | `vertex_tangent` | `ndarray` | Tangent vectors (N, 3) | ✅ 🔴🔴 |
 | `vertex_bitangent` | `ndarray` | Bitangent vectors (N, 3) | ✅ 🔴🔴 |
 | `vertex_color` | `ndarray` | Vertex colors (N, 4) | ✅ 🔴 |
-| `faces` | `list[Face]` | Face data | ❌ 🟡 |
-| `face_material` | `list[int]` | Face material indices | ❌ 🟡 |
-| `skin_deformers` | `list[SkinDeformer]` | Skin deformers | ❌ 🟡 |
-| `blend_deformers` | `list[BlendDeformer]` | Blend deformers | ❌ 🟡 |
-| `edge_crease` | `list[float]` | Edge sharpness | ❌ 🟢 |
-| `vertex_crease` | `list[float]` | Vertex sharpness | ❌ 🟢 |
+| `faces` | `list[tuple]` | Face data (index_begin, num_indices) | ✅ |
+| `face_material` | `ndarray \| None` | Face material indices | ✅ |
+| `skin_deformers` | `list[SkinDeformer]` | Skin deformers | ✅ |
+| `blend_deformers` | `list[BlendDeformer]` | Blend deformers | ✅ |
+| `edge_crease` | `ndarray \| None` | Edge sharpness | ✅ |
+| `vertex_crease` | `ndarray \| None` | Vertex sharpness | ✅ |
 
 > ⚠️ **Critical**: `vertex_tangent` and `vertex_bitangent` are required for normal mapping!
 

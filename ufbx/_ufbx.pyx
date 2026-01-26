@@ -423,6 +423,13 @@ cdef extern from "ufbx_wrapper.h":
     void ufbx_wrapper_node_get_node_to_parent(const ufbx_node *node, double *matrix16)
     void ufbx_wrapper_node_get_geometry_transform(const ufbx_node *node, double *translation3, double *rotation4, double *scale3)
 
+    # Node additional properties
+    int ufbx_wrapper_node_get_attrib_type(const ufbx_node *node)
+    int ufbx_wrapper_node_get_inherit_mode(const ufbx_node *node)
+    bint ufbx_wrapper_node_get_visible(const ufbx_node *node)
+    void ufbx_wrapper_node_get_euler_rotation(const ufbx_node *node, double *xyz)
+    int ufbx_wrapper_node_get_rotation_order(const ufbx_node *node)
+
     # Mesh access
     ufbx_mesh* ufbx_wrapper_scene_get_mesh(const ufbx_scene *scene, size_t index)
     const char* ufbx_wrapper_mesh_get_name(const ufbx_mesh *mesh)
@@ -439,6 +446,19 @@ cdef extern from "ufbx_wrapper.h":
     const float* ufbx_wrapper_mesh_get_vertex_bitangents(const ufbx_mesh *mesh, size_t *out_count)
     const float* ufbx_wrapper_mesh_get_vertex_colors(const ufbx_mesh *mesh, size_t *out_count)
     const uint32_t* ufbx_wrapper_mesh_get_indices(const ufbx_mesh *mesh, size_t *out_count)
+
+    # Mesh face data
+    size_t ufbx_wrapper_mesh_get_face_count(const ufbx_mesh *mesh)
+    void ufbx_wrapper_mesh_get_face(const ufbx_mesh *mesh, size_t index, uint32_t *index_begin, uint32_t *num_indices)
+    const uint32_t* ufbx_wrapper_mesh_get_face_material(const ufbx_mesh *mesh, size_t *out_count)
+    const double* ufbx_wrapper_mesh_get_edge_crease(const ufbx_mesh *mesh, size_t *out_count)
+    const float* ufbx_wrapper_mesh_get_vertex_crease(const ufbx_mesh *mesh, size_t *out_count)
+
+    # Mesh deformers
+    size_t ufbx_wrapper_mesh_get_num_skin_deformers(const ufbx_mesh *mesh)
+    ufbx_skin_deformer* ufbx_wrapper_mesh_get_skin_deformer(const ufbx_mesh *mesh, size_t index)
+    size_t ufbx_wrapper_mesh_get_num_blend_deformers(const ufbx_mesh *mesh)
+    ufbx_blend_deformer* ufbx_wrapper_mesh_get_blend_deformer(const ufbx_mesh *mesh, size_t index)
 
     # Material access
     ufbx_material* ufbx_wrapper_scene_get_material(const ufbx_scene *scene, size_t index)
@@ -2261,8 +2281,38 @@ cdef class Node(Element):
         transform.translation = Vec3(translation[0], translation[1], translation[2])
         transform.rotation = Quat(rotation[0], rotation[1], rotation[2], rotation[3])
         transform.scale = Vec3(scale[0], scale[1], scale[2])
-        
+
         return transform
+
+    @property
+    def attrib_type(self):
+        """Attribute type (ElementType enum)"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ElementType(ufbx_wrapper_node_get_attrib_type(self._node))
+
+    @property
+    def inherit_mode(self):
+        """Transform inherit mode (InheritMode enum)"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return InheritMode(ufbx_wrapper_node_get_inherit_mode(self._node))
+
+    @property
+    def visible(self):
+        """Visibility flag"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        return ufbx_wrapper_node_get_visible(self._node)
+
+    @property
+    def euler_rotation(self):
+        """Euler rotation angles in degrees (Vec3)"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        cdef double xyz[3]
+        ufbx_wrapper_node_get_euler_rotation(self._node, xyz)
+        return Vec3(xyz[0], xyz[1], xyz[2])
 
 
 cdef class Mesh(Element):
@@ -2445,6 +2495,86 @@ cdef class Mesh(Element):
             if material != NULL:
                 result.append(Material._create(self._scene, material))
         return result
+
+    @property
+    def faces(self):
+        """Face data as list of (index_begin, num_indices) tuples"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        cdef size_t count = ufbx_wrapper_mesh_get_face_count(self._mesh)
+        cdef list result = []
+        cdef uint32_t index_begin, num_indices
+        for i in range(count):
+            ufbx_wrapper_mesh_get_face(self._mesh, i, &index_begin, &num_indices)
+            result.append((index_begin, num_indices))
+        return result
+
+    @property
+    def face_material(self):
+        """Face material indices as numpy array"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        cdef size_t count = 0
+        cdef const uint32_t* data = ufbx_wrapper_mesh_get_face_material(self._mesh, &count)
+        if data == NULL or count == 0:
+            return None
+        cdef np.npy_intp shape[1]
+        shape[0] = <np.npy_intp>count
+        return np.PyArray_SimpleNewFromData(1, shape, np.NPY_UINT32, <void*>data)
+
+    @property
+    def skin_deformers(self):
+        """Skin deformers attached to this mesh"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        cdef size_t count = ufbx_wrapper_mesh_get_num_skin_deformers(self._mesh)
+        cdef list result = []
+        cdef ufbx_skin_deformer* deformer
+        for i in range(count):
+            deformer = ufbx_wrapper_mesh_get_skin_deformer(self._mesh, i)
+            if deformer != NULL:
+                result.append(SkinDeformer._create(self._scene, deformer))
+        return result
+
+    @property
+    def blend_deformers(self):
+        """Blend deformers attached to this mesh"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        cdef size_t count = ufbx_wrapper_mesh_get_num_blend_deformers(self._mesh)
+        cdef list result = []
+        cdef ufbx_blend_deformer* deformer
+        for i in range(count):
+            deformer = ufbx_wrapper_mesh_get_blend_deformer(self._mesh, i)
+            if deformer != NULL:
+                result.append(BlendDeformer._create(self._scene, deformer))
+        return result
+
+    @property
+    def edge_crease(self):
+        """Edge crease values as numpy array"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        cdef size_t count = 0
+        cdef const double* data = ufbx_wrapper_mesh_get_edge_crease(self._mesh, &count)
+        if data == NULL or count == 0:
+            return None
+        cdef np.npy_intp shape[1]
+        shape[0] = <np.npy_intp>count
+        return np.PyArray_SimpleNewFromData(1, shape, np.NPY_FLOAT64, <void*>data)
+
+    @property
+    def vertex_crease(self):
+        """Vertex crease values as numpy array"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+        cdef size_t count = 0
+        cdef const float* data = ufbx_wrapper_mesh_get_vertex_crease(self._mesh, &count)
+        if data == NULL or count == 0:
+            return None
+        cdef np.npy_intp shape[1]
+        shape[0] = <np.npy_intp>count
+        return np.PyArray_SimpleNewFromData(1, shape, np.NPY_FLOAT32, <void*>data)
 
 
 cdef class MaterialMap:

@@ -59,6 +59,13 @@ void ufbx_wrapper_node_get_node_to_world(const ufbx_node *node, double *matrix16
 void ufbx_wrapper_node_get_node_to_parent(const ufbx_node *node, double *matrix16);
 void ufbx_wrapper_node_get_geometry_transform(const ufbx_node *node, double *translation3, double *rotation4, double *scale3);
 
+// Node additional properties
+int ufbx_wrapper_node_get_attrib_type(const ufbx_node *node);
+int ufbx_wrapper_node_get_inherit_mode(const ufbx_node *node);
+bool ufbx_wrapper_node_get_visible(const ufbx_node *node);
+void ufbx_wrapper_node_get_euler_rotation(const ufbx_node *node, double *xyz);
+int ufbx_wrapper_node_get_rotation_order(const ufbx_node *node);
+
 // Mesh access
 ufbx_mesh* ufbx_wrapper_scene_get_mesh(const ufbx_scene *scene, size_t index);
 const char* ufbx_wrapper_mesh_get_name(const ufbx_mesh *mesh);
@@ -75,6 +82,19 @@ const float* ufbx_wrapper_mesh_get_vertex_tangents(const ufbx_mesh *mesh, size_t
 const float* ufbx_wrapper_mesh_get_vertex_bitangents(const ufbx_mesh *mesh, size_t *out_count);
 const float* ufbx_wrapper_mesh_get_vertex_colors(const ufbx_mesh *mesh, size_t *out_count);
 const uint32_t* ufbx_wrapper_mesh_get_indices(const ufbx_mesh *mesh, size_t *out_count);
+
+// Mesh face data
+size_t ufbx_wrapper_mesh_get_face_count(const ufbx_mesh *mesh);
+void ufbx_wrapper_mesh_get_face(const ufbx_mesh *mesh, size_t index, uint32_t *index_begin, uint32_t *num_indices);
+const uint32_t* ufbx_wrapper_mesh_get_face_material(const ufbx_mesh *mesh, size_t *out_count);
+const double* ufbx_wrapper_mesh_get_edge_crease(const ufbx_mesh *mesh, size_t *out_count);
+const float* ufbx_wrapper_mesh_get_vertex_crease(const ufbx_mesh *mesh, size_t *out_count);
+
+// Mesh deformers
+size_t ufbx_wrapper_mesh_get_num_skin_deformers(const ufbx_mesh *mesh);
+ufbx_skin_deformer* ufbx_wrapper_mesh_get_skin_deformer(const ufbx_mesh *mesh, size_t index);
+size_t ufbx_wrapper_mesh_get_num_blend_deformers(const ufbx_mesh *mesh);
+ufbx_blend_deformer* ufbx_wrapper_mesh_get_blend_deformer(const ufbx_mesh *mesh, size_t index);
 
 // Material access
 ufbx_material* ufbx_wrapper_scene_get_material(const ufbx_scene *scene, size_t index);
